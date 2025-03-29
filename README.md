@@ -28,7 +28,7 @@ url:
 ## 功能3：灯光控制卡（单卡）
 **引用示例**
 ~~~
-type: custom:xiaoshi-light-group-card
+type: custom:xiaoshi-light-card
 entity: light.light1   
 width: 87vw           # 卡片宽度
 height: 20vw          # 卡片高度
