@@ -1,6 +1,11 @@
-{
-  "hacs": "1.0.0",
-  "hide_default_branch": true,
-  "domain": "xiaoshi-card",
-  "documentation": "https://github.com/zhangqiang930/xiaoshi-card/dist"
-}
+[
+  {
+    "name": "xiaoshi-image-card",
+    "category": "plugin",
+    "filename": "plugins/xiaoshi-image-card/dist/xiaoshi-image-card.js",
+    "content_in_root": false,
+    "render_readme": true,
+    "homeassistant": "2024.1.0",
+    "hacs": "1.0.0"
+  },
+]
