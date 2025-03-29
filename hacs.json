@@ -2,6 +2,6 @@
   {
     "name": "xiaoshi-image-card",
     "render_readme": true,
-    "filename": "plugins/xiaoshi-image-card/dist/xiaoshi-image-card.js",
+    "content_in_root": true
   },
 ]
