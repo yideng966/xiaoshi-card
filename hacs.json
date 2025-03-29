@@ -1,20 +1,4 @@
-[
-  {
-    "name": "Xiaoshi Image Card",
-    "filename": "plugins/image-card/dist/xiaoshi-image-card.js",
-    "category": "plugin",
-    "content_in_root": false,
-    "render_readme": true,
-    "homeassistant": "2024.1.0",
-    "hacs": "1.0.0"
-  },
-  {
-    "name": "Xiaoshi Video Card",
-    "filename": "plugins/video-card/dist/xiaoshi-video-card.js",
-    "category": "plugin",
-    "content_in_root": false,
-    "render_readme": true,
-    "homeassistant": "2024.1.0",
-    "hacs": "1.0.0"
-  }
-]
+{
+  "name": "消逝集合卡",
+  "render_readme": true,
+}
