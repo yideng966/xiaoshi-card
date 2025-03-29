@@ -1,0 +1,6 @@
+{
+  "hacs": "1.0.0",
+  "hide_default_branch": true,
+  "domain": "xiaoshi-card",
+  "documentation": "https://github.com/zhangqiang930/xiaoshi-card/dist"
+}
