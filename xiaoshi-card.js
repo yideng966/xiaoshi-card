@@ -5,7 +5,8 @@ class VideoCard extends HTMLElement {
 
   connectedCallback() {
     this.attachShadow({ mode: 'open' });
-    this.currentVideo = 1; // 当前显示的视频标识
+    this.currentVideo = 1;
+    this.touchYStart = null;  // 新增触摸起始位置
     this.render();
   }
 
@@ -177,6 +178,37 @@ class VideoCard extends HTMLElement {
     this.initVideos();
     this.initControls();
   }
+  // 新增滑动处理逻辑
+  initSwipeControls() {
+    const SWIPE_THRESHOLD = 10; // 滑动触发阈值（像素）
+    const hostElement = this.shadowRoot.host;
+    // 触摸开始记录位置
+    const touchStart = (e) => {
+      this.touchYStart = e.touches[0].clientY;
+    };
+    // 触摸移动处理
+    const touchMove = (e) => {
+      if (!this.touchYStart) return;
+      const touchYEnd = e.touches[0].clientY;
+      const deltaY = this.touchYStart - touchYEnd; // 计算垂直滑动距离
+      // 当向上滑动超过阈值时触发刷新
+      if (deltaY > SWIPE_THRESHOLD) {
+        this.touchYStart = null; // 重置起始位置
+        this.shadowRoot.getElementById('refreshBtn').click(); // 触发刷新
+        e.preventDefault(); // 阻止默认滚动行为
+      }
+    };
+
+    // 触摸结束清理数据
+    const touchEnd = () => {
+      this.touchYStart = null;
+    };
+
+    // 添加事件监听
+    hostElement.addEventListener('touchstart', touchStart, { passive: false });
+    hostElement.addEventListener('touchmove', touchMove, { passive: false });
+    hostElement.addEventListener('touchend', touchEnd);
+  }
 
   getRandomUrl() {
     return this.config.url[Math.floor(Math.random() * this.config.url.length)];
@@ -200,6 +232,7 @@ class VideoCard extends HTMLElement {
       );
     });
 
+    this.initSwipeControls();
     // 刷新功能（改进版）
     const refreshBtn = this.shadowRoot.getElementById('refreshBtn');
     refreshBtn.addEventListener('click', async () => {
@@ -217,7 +250,7 @@ class VideoCard extends HTMLElement {
 				nextVideo.src = newSrc;
 				nextVideo.muted = currentVideo.muted;
 	
-				// 步骤2：等待新视频可播放 
+				// 步骤2：等待新视频可播放
 				await new Promise((resolve, reject) => {
 					nextVideo.addEventListener('loadeddata', resolve, { once: true });
 					nextVideo.addEventListener('error', reject, { once: true });
