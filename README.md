@@ -42,9 +42,9 @@ theme: on             # 选项on是白色，选项off是黑色，也可以引用
 ~~~
 type: custom:xiaoshi-light-group-card
 entities:             # 要想使用全关功能，灯光必须是light实体
-  - light.zhuwodeng
-  - light.taideng
-  - light.zhuwomentingdeng    
+  - light.light1
+  - light.light2
+  - light.light3    
 width: 87vw           # 卡片宽度
 height: 20vw          # 卡片高度
 rgb: true             # 是否显示亮度、色温控制
