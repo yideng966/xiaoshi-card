@@ -1446,7 +1446,7 @@ class XiaoshiTimeCard extends HTMLElement {
 			`,
       content: {
         type: 'custom:button-card',
-				template: 'lunar'
+				template: '万年历平板端'
       }
     });
   }
