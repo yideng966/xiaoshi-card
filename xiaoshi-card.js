@@ -1327,3 +1327,128 @@ class LightGroupCard extends HTMLElement {
 } 
 
 customElements.define('xiaoshi-light-group-card', LightGroupCard);
+
+class XiaoshiTimeCard extends HTMLElement {
+  set hass(hass) {
+    this._hass = hass;
+    this._updateContent();
+  }
+  setConfig(config) {
+    this.config = config;
+    this.attachShadow({ mode: 'open' });
+  }
+  connectedCallback() {
+    this._updateContent();
+    this._updateInterval = setInterval(() => this._updateContent(), 1000);
+  }
+  disconnectedCallback() {
+    clearInterval(this._updateInterval);
+  }
+  async _updateContent() {
+    const lunarEntity = this.config?.entity || 'sensor.lunar';
+    const lunarState = this._hass.states[lunarEntity];
+    const wasConnected = !!this.shadowRoot.getElementById('tap');
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          width: 240px;
+          height: 170px;
+          color: white !important;
+          --text-color: white;
+        }
+        ha-card {
+          background: transparent !important;
+          box-shadow: none !important;
+        }
+        .grid-container {
+          display: grid;
+          grid-template-areas: 
+						"tap     tap     tap     tap "
+            "time    time    time    time"
+            "date    week    jieqi   jieqi"
+            "year    mon     mon     day"
+            "line    line    line    line"
+            "shengri shengri shengri shengri"
+            "jieri   jieri   jieri   jieri";
+          grid-template-columns: 80px 58px 16px 72px;
+          grid-template-rows: 20px 45px 20px 20px 15px 20px 20px;
+          font-weight: bold;
+          font-size: 16px;
+        }
+        #tap {
+          grid-area: tap;
+          height: 170px;
+          margin-top: 0px;
+          z-index: 10;
+        }
+        #time {
+          grid-area: time;
+          font-size: 57px;
+          font-weight: 430;
+          text-align: center;
+          white-space: nowrap;
+          overflow: visible;
+          color: var(--text-color);
+        }
+        #date    { grid-area: date; color: var(--text-color) }
+        #week    { grid-area: week; color: var(--text-color) }
+        #jieqi   { grid-area: jieqi; text-align: right; color: var(--text-color) }
+        #year    { grid-area: year; color: var(--text-color) }
+        #mon     { grid-area: mon; color: var(--text-color) }
+        #day     { grid-area: day; text-align: right; color: var(--text-color) }
+        #line    { grid-area: line; color: var(--text-color) }
+        #shengri { grid-area: shengri; color: var(--text-color); font-size: 15px}
+        #jieri   { grid-area: jieri; color: var(--text-color); font-size: 15px }
+      </style>
+      <ha-card>
+        <div class="grid-container">
+          <div id="tap" @click=${this._showPopup}></div>
+          <div id="time">${this._getCurrentTime()}</div>
+          <div id="date">${this._getAttribute(lunarState, 'now_solar.日期A')}</div>
+          <div id="week">${this._getAttribute(lunarState, 'now_solar.星期A')}</div>
+          <div id="jieqi">${this._getAttribute(lunarState, 'jieqi.节气')}</div>
+          <div id="year">${this._getAttribute(lunarState, 'now_lunar.年')}</div>
+          <div id="mon">${this._getAttribute(lunarState, 'now_lunar.日期')}</div>
+          <div id="day">${this._getShichen()}</div>
+          <div id="line">------------------------------------</div>
+          <div id="shengri">${this._getAttribute(lunarState, 'shengriwarn.最近的生日.0')}</div>
+          <div id="jieri">${this._getAttribute(lunarState, 'shengriwarn.最近的节日.0')}</div>
+        </div>
+      </ha-card>
+    `;
+    const tapElement = this.shadowRoot.getElementById('tap');
+		tapElement.addEventListener('click', () => this._showPopup());
+  }
+  _getCurrentTime() {
+    const now = new Date();
+    return now.toLocaleTimeString('en-GB').replace(/:/g, ':');
+  }
+  _getShichen() {
+    const tzArr = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+    const skArr = ['一','二','三','四'];
+    const date = new Date();
+    const h = date.getHours();
+    const m = date.getMinutes();
+    const shichenIndex = Math.floor(h / 2);
+    const shikeIndex = Math.floor(m / 15);
+    return `${tzArr[shichenIndex]}时${skArr[shikeIndex]}刻`;
+  }
+  _getAttribute(state, path) {
+    return path.split('.').reduce((obj, key) => (obj || {})[key], state?.attributes || {}) || '';
+  }
+  _showPopup() {
+    window.browser_mod.service('popup', { 
+      style: `
+				--popup-min-width: 870px;
+				--mdc-theme-surface: rgb(0,0,0,0);
+				--dialog-backdrop-filter: blur(10px) brightness(1);
+			`,
+      content: {
+        type: 'custom:button-card',
+				template: 'lunar'
+      }
+    });
+  }
+}
+customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
