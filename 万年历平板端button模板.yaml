@@ -1759,7 +1759,8 @@ lunar_calendar:
         template: lunar_num
         variables:
           id: 42
-          lunar: '[[[return variables.lunar]]]'lunar_calendar:  
+          lunar: '[[[return variables.lunar]]]'
+lunar_calendar:  
   triggers_update:
     - '[[[ return variables.lunar ]]]'
   styles: 
