@@ -52,3 +52,11 @@ show: auto            # 当有这行调用时，仅当灯光时on时才会显示
 theme: on             # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
                       # 表头第一行有【总共开启xx盏灯】和全关按钮（没有灯光开启时，全关按钮隐藏）
 ~~~
+
+## 功能5：时间显示卡
+**引用示例**
+~~~
+type: custom:xiaoshi-time-card
+entity: sensor        #该实体需要配合NR使用
+                      #弹出菜单需要button_card模板配合
+~~~
