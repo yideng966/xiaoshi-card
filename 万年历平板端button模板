@@ -1,0 +1,2477 @@
+万年历平板端:    
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles:      
+    grid:                              
+      - grid-template-areas: |         
+          "left1 body1 right1"            
+          "left2 body2 right2"     
+          "left3 body3 right3"    
+          "left4 body4 right4"     
+          "left5 body5 right5" 
+          "left6 body6 right6"     
+      - grid-template-columns: 205px 455px 205px
+      - grid-template-rows: 0px 0px 0px 0px 0px 0px 0px 0px 0px 
+    card:      
+      - background: transparent     
+      - width: 860px            
+      - height: 660px    
+  custom_fields:
+    body1:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_header
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 80px
+    body2:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_calendar
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 540px
+    body3:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_body0
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 1000px
+    body4:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_body6
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 1170px
+    left1:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_left1
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 120px
+    right1:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_right1
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 120px
+    left2:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_left2
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 290px
+    right2:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_right2
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 290px
+    left3:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_left3
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 500px
+    right3:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_right3
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 500px
+    left4:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_left4
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 790px
+    right4:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_right4
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 790px
+    left5:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_left5
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 1000px
+    right5:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_right5
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 1000px
+    left6:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_left6
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 1170px
+    right6:
+      card:
+        type: custom:button-card #表体日历 
+        template: lunar_right6
+        variables:
+          lunar: sensor.lunar 
+        styles:
+          card:
+            - margin-top: 1170px
+lunar_left1:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1 a2 a3"
+          "b1 b2 b3"
+          "c1 c2 c3"
+      - grid-template-columns: 30% 20% 50% 
+      - grid-template-rows: 33% 33% 33%
+    card:
+      - width: 200px  
+      - height: 120px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0)
+    custom_fields:
+      a1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+      b1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+      c1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+  custom_fields: 
+    a1: '[[[ return states[variables.lunar].attributes.huangli.干支.年+"年" ]]]'
+    b1: '[[[ return states[variables.lunar].attributes.huangli.干支.月+"月" ]]]'
+    c1: '[[[ return states[variables.lunar].attributes.huangli.干支.日+"日" ]]]'
+    a2: '[[[ return states[variables.lunar].attributes.huangli.生肖.年 ]]]'
+    b2: '[[[ return states[variables.lunar].attributes.huangli.生肖.月 ]]]'
+    c2: '[[[ return states[variables.lunar].attributes.huangli.生肖.日 ]]]'
+    a3: '[[[ return states[variables.lunar].attributes.huangli.纳音.年 ]]]'
+    b3: '[[[ return states[variables.lunar].attributes.huangli.纳音.月 ]]]'
+    c3: '[[[ return states[variables.lunar].attributes.huangli.纳音.日 ]]]'
+lunar_left2:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1"
+      - grid-template-columns: 100% 
+      - grid-template-rows: 100%
+    card:
+      - width: 200px  
+      - height: 40px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0)
+  custom_fields: 
+    a1: '[[[ return states[variables.lunar].attributes.jieqi.上一节气 ]]]'
+lunar_left3:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1"
+          "b1"
+      - grid-template-columns: 100% 
+      - grid-template-rows: 10% 90%
+    card:
+      - width: 200px  
+      - height: 160px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0)
+  custom_fields: 
+    a1: 
+      card:
+        type: custom:button-card
+        label: 宜
+        show_label: true
+        styles:
+          label:
+            - font-size: 16px 
+            - color: White
+            - font-weight: bold
+          card:
+            - padding: 0
+            - border: 2px solid 
+            - margin-top: 30px
+            - margin-left: 87.5px
+            - border: 0px
+            - height: 25px
+            - width: 25px
+            - background: rgb(50,200,50)
+            - border-radius: 100%
+        tap_action:
+          action: none
+    b1: 
+      card:
+        type: custom:button-card
+        label: '[[[ return states[variables.lunar].attributes.huangli.宜 ]]]'
+        show_label: true
+        styles:
+          label:
+            - font-size:  |
+                [[[
+                    var label1 = states[variables.lunar].attributes.huangli.宜.length;
+                    var label2 = states[variables.lunar].attributes.huangli.忌.length;
+                    var label = Math.max(label1,label2);
+                    if (label >120) return '12px';
+                    if (label >80) return '13px';
+                    if (label >40) return '14px';
+                    if (label >0)  return '15px';
+                ]]]
+            - white-space: pre-line
+            - color: rgb(0,0,0)
+          card:
+            - width: 195px
+            - height: 135px
+            - border-width: 0
+            - border-radius: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+lunar_left4:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1"
+          "b1"
+      - grid-template-columns: 100% 
+      - grid-template-rows: 15% 85%
+    card:
+      - width: 200px  
+      - height: 120px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0) 
+    custom_fields:
+      a1:
+        - font-weight: bold
+        - color:  rgb(50,200,50)
+        - margin-top: 20px
+  custom_fields: 
+    a1: 吉神宜趋
+    b1: 
+      card:
+        type: custom:button-card
+        label: '[[[ return states[variables.lunar].attributes.huangli.吉神 ]]]'
+        show_label: true
+        styles:
+          label:
+            - font-size:  |
+                [[[
+                    var label1 = states[variables.lunar].attributes.huangli.吉神.length;
+                    var label2 = states[variables.lunar].attributes.huangli.凶煞.length;
+                    var label = Math.max(label1,label2);
+                    if (label >120) return '12px';
+                    if (label >80) return '13px';
+                    if (label >40) return '14px';
+                    if (label >0)  return '15px';
+                ]]]
+            - white-space: pre-line
+            - color: rgb(0,0,0)
+          card:
+            - width: 195px
+            - height: 135px
+            - border-width: 0
+            - border-radius: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+lunar_left5:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1 a2"
+          "b1 b2"
+      - grid-template-columns: 30% 70% 
+      - grid-template-rows: 50% 50% 
+    card:
+      - width: 200px  
+      - height: 80px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0)
+    custom_fields:
+      a1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+      b1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+  custom_fields: 
+    a1: 彭祖
+    b1: 百忌
+    a2: '[[[ return states[variables.lunar].attributes.huangli.彭祖干 ]]]'
+    b2: '[[[ return states[variables.lunar].attributes.huangli.彭祖支 ]]]'
+lunar_left6:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1 a2"
+          "b1 b2"
+      - grid-template-columns: 30% 70% 
+      - grid-template-rows: 50% 50% 
+    card:
+      - width: 200px  
+      - height: 80px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0)
+    custom_fields:
+      a1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+      b1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+      a2:
+        - font-size:  |
+            [[[
+                var num = states[variables.lunar].attributes.huangli.日禄.length;
+                if(num>8) return "14px"
+                else return "15px"
+            ]]]
+  custom_fields: 
+    a1: 日禄
+    b1: 物候
+    a2: '[[[ return states[variables.lunar].attributes.huangli.日禄 ]]]'
+    b2: '[[[ return states[variables.lunar].attributes.huangli.物候 ]]]'
+lunar_right1:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1 a2 "
+          "b1 b2 "
+          "c1 c2 "
+      - grid-template-columns: 30% 70% 
+      - grid-template-rows: 33% 33% 33%
+    card:
+      - width: 200px  
+      - height: 120px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0)
+    custom_fields:
+      a1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+      b1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+      c1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+  custom_fields: 
+    a1: 相冲
+    b1: 岁煞
+    c1: 天神
+    a2: '[[[ return states[variables.lunar].attributes.huangli.相冲 ]]]'
+    b2: '[[[ return states[variables.lunar].attributes.huangli.岁煞 ]]]'
+    c2: '[[[ return states[variables.lunar].attributes.huangli.天神 ]]]'
+lunar_right2:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1"
+      - grid-template-columns: 100% 
+      - grid-template-rows: 100%
+    card:
+      - width: 200px  
+      - height: 40px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0)
+  custom_fields: 
+    a1: '[[[ return states[variables.lunar].attributes.jieqi.下一节气 ]]]'
+lunar_right3:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1"
+          "b1"
+      - grid-template-columns: 100% 
+      - grid-template-rows: 10% 90%
+    card:
+      - width: 200px  
+      - height: 160px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0)
+  custom_fields: 
+    a1: 
+      card:
+        type: custom:button-card
+        label: 忌
+        show_label: true
+        styles:
+          label:
+            - font-size: 16px 
+            - color: White
+            - font-weight: bold
+          card:
+            - padding: 0
+            - border: 2px solid 
+            - margin-top: 30px
+            - margin-left: 87.5px
+            - border: 0px
+            - height: 25px
+            - width: 25px
+            - background: rgb(200,20,0)
+            - border-radius: 100%
+        tap_action:
+          action: none
+    b1: 
+      card:
+        type: custom:button-card
+        label: '[[[ return states[variables.lunar].attributes.huangli.忌 ]]]'
+        show_label: true
+        styles:
+          label:
+            - font-size:  |
+                [[[
+                    var label1 = states[variables.lunar].attributes.huangli.宜.length;
+                    var label2 = states[variables.lunar].attributes.huangli.忌.length;
+                    var label = Math.max(label1,label2);
+                    if (label >120) return '12px';
+                    if (label >80) return '13px';
+                    if (label >40) return '14px';
+                    if (label >0)  return '15px';
+                ]]]
+            - white-space: pre-line
+            - color: rgb(0,0,0)
+          card:
+            - width: 195px
+            - height: 135px
+            - border-width: 0
+            - border-radius: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+lunar_right4:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1"
+          "b1"
+      - grid-template-columns: 100% 
+      - grid-template-rows: 15% 85%
+    card:
+      - width: 200px  
+      - height: 120px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0) 
+    custom_fields:
+      a1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+        - margin-top: 20px
+  custom_fields: 
+    a1: 凶煞宜忌
+    b1: 
+      card:
+        type: custom:button-card
+        label: '[[[ return states[variables.lunar].attributes.huangli.凶煞 ]]]'
+        show_label: true
+        styles:
+          label:
+            - font-size:  |
+                [[[
+                    var label1 = states[variables.lunar].attributes.huangli.吉神.length;
+                    var label2 = states[variables.lunar].attributes.huangli.凶煞.length;
+                    var label = Math.max(label1,label2);
+                    if (label >120) return '12px';
+                    if (label >80) return '13px';
+                    if (label >40) return '14px';
+                    if (label >0)  return '15px';
+                ]]]
+            - white-space: pre-line
+            - color: rgb(0,0,0)
+          card:
+            - width: 195px
+            - height: 135px
+            - border-width: 0
+            - border-radius: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+lunar_right5:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1 a2"
+          "b1 b2"
+      - grid-template-columns: 35% 65% 
+      - grid-template-rows: 50% 50% 
+    card:
+      - width: 200px  
+      - height: 80px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0)
+    custom_fields:
+      a1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+        - margin-left: 10px
+      b1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+        - margin-left: 10px
+  custom_fields: 
+    a1: 本月胎神
+    b1: 今日胎神
+    a2: '[[[ return states[variables.lunar].attributes.huangli.本月胎神 ]]]'
+    b2: '[[[ return states[variables.lunar].attributes.huangli.今日胎神 ]]]'
+lunar_right6:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a1 a2"
+          "b1 b2"
+      - grid-template-columns: 30% 70% 
+      - grid-template-rows: 50% 50% 
+    card:
+      - width: 200px  
+      - height: 80px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(255,255,255)
+      - font-size: 15px
+      - color:  rgb(0,0,0)
+    custom_fields:
+      a1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+        - margin-left: 10px
+      b1:
+        - font-weight: bold
+        - color:  rgb(250,50,10)
+        - margin-left: 10px
+  custom_fields: 
+    a1: 九星
+    b1: 星宿
+    a2: '[[[ return states[variables.lunar].attributes.huangli.九星 ]]]'
+    b2: '[[[ return states[variables.lunar].attributes.huangli.星宿 ]]]'
+
+lunar_body0:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12"
+          "b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12" 
+      - grid-template-columns: 7.65% 7.65% 7.65% 7.65% 7.65% 7.65% 7.65% 7.65% 7.65% 7.65% 7.65% 7.65% 7.65%
+      - grid-template-rows: 65% 35%
+    card:
+      - width: 450px   
+      - height: 80px 
+      - --mdc-ripple-press-opacity: 0   
+      - padding: 1% 0 0 0 
+      - border-radius: 10px
+      - background: rgb(255,255,255)
+  custom_fields: 
+    a0: 
+      card:
+        type: custom:button-card       
+        template: lunar_shichen1           
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 0         
+    a1: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen1            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 1     
+    a2: 
+      card:
+        type: custom:button-card        
+        template: lunar_shichen1          
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 2         
+    a3: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen1            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 3    
+    a4: 
+      card:
+        type: custom:button-card       
+        template: lunar_shichen1           
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 4        
+    a5: 
+      card:
+        type: custom:button-card    
+        template: lunar_shichen1              
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 5    
+    a6: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen1            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 6         
+    a7: 
+      card:
+        type: custom:button-card    
+        template: lunar_shichen1              
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 7     
+    a8: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen1            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 8         
+    a9: 
+      card:
+        type: custom:button-card       
+        template: lunar_shichen1           
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 9    
+    a10: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen1            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 10         
+    a11: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen1            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 11     
+    a12: 
+      card:
+        type: custom:button-card     
+        template: lunar_shichen1
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'  
+          id: 12
+    b0: 
+      card:
+        type: custom:button-card       
+        template: lunar_shichen2           
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 0         
+    b1: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen2            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 1     
+    b2: 
+      card:
+        type: custom:button-card        
+        template: lunar_shichen2          
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 2         
+    b3: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen2            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 3    
+    b4: 
+      card:
+        type: custom:button-card       
+        template: lunar_shichen2           
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 4        
+    b5: 
+      card:
+        type: custom:button-card    
+        template: lunar_shichen2              
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 5    
+    b6: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen2            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 6         
+    b7: 
+      card:
+        type: custom:button-card    
+        template: lunar_shichen2              
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 7     
+    b8: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen2            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 8         
+    b9: 
+      card:
+        type: custom:button-card       
+        template: lunar_shichen2           
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 9    
+    b10: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen2            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 10         
+    b11: 
+      card:
+        type: custom:button-card      
+        template: lunar_shichen2            
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'                 
+          id: 11     
+    b12: 
+      card:
+        type: custom:button-card     
+        template: lunar_shichen2
+        variables:     
+          lunar: '[[[return variables.lunar ]]]'  
+          id: 12
+
+lunar_shichen1:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  show_label: true
+  label: |
+    [[[ 
+        var label1 =  states[variables.lunar].attributes.huangli.时辰干支[variables.id].slice(0,1);
+        var label2 =  states[variables.lunar].attributes.huangli.时辰干支[variables.id].slice(1,2);
+        return label1 + "<br>" + label2;
+    ]]]
+  styles:
+    card:
+      - padding: 0
+      - border-radius: 0
+      - border-width: 0
+      - height: 55px
+      - background: rgb(0,0,0,0)
+    label:             
+      - font-size: 15px
+      - color:  |
+          [[[
+            var now = states[variables.lunar].attributes.now_solar.日期B;
+            var tap = states[variables.lunar].attributes.tap_solar.日期B;
+            var tzArr = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+            var hour = new Date().getHours();
+            var shichennow = tzArr[ (parseInt((hour + 1) / 2)) % 12 ];
+            var shichen = states[variables.lunar].attributes.huangli.时辰干支[variables.id].slice(1,2);
+            if (now==tap && shichennow == shichen && hour <1 && variables.id =='0' ) return "rgb(0,191,255)";         
+            if (now==tap && shichennow == shichen && hour >0 && variables.id !='0' ) return "rgb(0,191,255)";         
+            else  return "rgb(0,0,0)";
+          ]]]
+lunar_shichen2:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  show_label: true
+  label: |
+    [[[ 
+        return states[variables.lunar].attributes.huangli.时辰吉凶[variables.id];
+    ]]]
+  styles:
+    card:
+      - padding: 0
+      - border-radius: 0
+      - border-width: 0
+      - height: 25px
+      - background: rgb(0,0,0,0)
+    label:             
+      - font-size: 15px
+      - color:  |
+          [[[
+              if(states[variables.lunar].attributes.huangli.时辰吉凶[variables.id]=="吉") return "rgb(50,250,50)";
+              if(states[variables.lunar].attributes.huangli.时辰吉凶[variables.id]=="凶") return "rgb(255,0,0)";
+          ]]]
+
+lunar_body6:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "a a a a a"
+          "xishen_label fushen_label caishen_label yanggui_label yingui_label"
+          "xishen fushen caishen yanggui yingui"
+      - grid-template-columns: 20% 20% 20% 20% 20% 
+      - grid-template-rows: 20% 20% 40%
+    card:
+      - width: 450px  
+      - height: 80px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 0 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background:  rgb(255,255,255)
+      - font-size: 15px
+      - font-weight: bold
+      - color: rgb(0,220,0)
+  custom_fields: 
+    xishen_label: 喜神
+    fushen_label: 福神
+    caishen_label: 财神
+    yanggui_label: 阳贵
+    yingui_label: 阴贵
+    xishen:
+      card:
+        type: custom:button-card
+        layout: icon_name
+        show_name: true
+        show_icon: true
+        icon: mdi:arrow-up-bold
+        name: '[[[ return states[variables.lunar].attributes.huangli.喜神 ]]]'
+        styles:
+          icon:
+            - width: 15px      
+            - transform: |
+                [[[ 
+                    var label =  states[variables.lunar].attributes.huangli.喜神 ;
+                    if(label=="正北") return "rotate(0deg)";
+                    if(label=="东北") return "rotate(45deg)";
+                    if(label=="正东") return "rotate(90deg)";
+                    if(label=="东南") return "rotate(135deg)";
+                    if(label=="正南") return "rotate(180deg)";
+                    if(label=="西南") return "rotate(225deg)";
+                    if(label=="正西") return "rotate(270deg)";
+                    if(label=="西北") return "rotate(315deg)";
+                ]]]
+            - color: rgb(0,0,0)
+          name:
+            - font-size: 15px
+            - margin-left: -6px
+            - justify-self: start
+            - color: rgb(0,0,0)
+          card:
+            - height: 30px
+            - border-width: 0
+            - border-radius: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+    fushen:
+      card:
+        type: custom:button-card
+        layout: icon_name
+        show_name: true
+        show_icon: true
+        icon: mdi:arrow-up-bold
+        name: '[[[ return states[variables.lunar].attributes.huangli.福神 ]]]'
+        styles:
+          icon:
+            - width: 15px      
+            - transform: |
+                [[[ 
+                    var label =  states[variables.lunar].attributes.huangli.福神 ;
+                    if(label=="正北") return "rotate(0deg)";
+                    if(label=="东北") return "rotate(45deg)";
+                    if(label=="正东") return "rotate(90deg)";
+                    if(label=="东南") return "rotate(135deg)";
+                    if(label=="正南") return "rotate(180deg)";
+                    if(label=="西南") return "rotate(225deg)";
+                    if(label=="正西") return "rotate(270deg)";
+                    if(label=="西北") return "rotate(315deg)";
+                ]]]
+            - color: rgb(0,0,0)
+          name:
+            - font-size: 15px
+            - margin-left: -6px
+            - justify-self: start
+            - color: rgb(0,0,0)
+          card:
+            - height: 30px
+            - border-width: 0
+            - border-radius: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+    caishen:
+      card:
+        type: custom:button-card
+        layout: icon_name
+        show_name: true
+        show_icon: true
+        icon: mdi:arrow-up-bold
+        name: '[[[ return states[variables.lunar].attributes.huangli.财神 ]]]'
+        styles:
+          icon:
+            - width: 15px      
+            - transform: |
+                [[[ 
+                    var label =  states[variables.lunar].attributes.huangli.财神 ;
+                    if(label=="正北") return "rotate(0deg)";
+                    if(label=="东北") return "rotate(45deg)";
+                    if(label=="正东") return "rotate(90deg)";
+                    if(label=="东南") return "rotate(135deg)";
+                    if(label=="正南") return "rotate(180deg)";
+                    if(label=="西南") return "rotate(225deg)";
+                    if(label=="正西") return "rotate(270deg)";
+                    if(label=="西北") return "rotate(315deg)";
+                ]]]
+            - color: rgb(0,0,0)
+          name:
+            - font-size: 15px
+            - margin-left: -6px
+            - justify-self: start
+            - color: rgb(0,0,0)
+          card:
+            - height: 30px
+            - border-width: 0
+            - border-radius: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+    yanggui:
+      card:
+        type: custom:button-card
+        layout: icon_name
+        show_name: true
+        show_icon: true
+        icon: mdi:arrow-up-bold
+        name: '[[[ return states[variables.lunar].attributes.huangli.阳贵 ]]]'
+        styles:
+          icon:
+            - width: 15px      
+            - transform: |
+                [[[ 
+                    var label =  states[variables.lunar].attributes.huangli.阳贵 ;
+                    if(label=="正北") return "rotate(0deg)";
+                    if(label=="东北") return "rotate(45deg)";
+                    if(label=="正东") return "rotate(90deg)";
+                    if(label=="东南") return "rotate(135deg)";
+                    if(label=="正南") return "rotate(180deg)";
+                    if(label=="西南") return "rotate(225deg)";
+                    if(label=="正西") return "rotate(270deg)";
+                    if(label=="西北") return "rotate(315deg)";
+                ]]]
+            - color: rgb(0,0,0)
+          name:
+            - font-size: 15px
+            - margin-left: -6px
+            - justify-self: start
+            - color: rgb(0,0,0)
+          card:
+            - height: 30px
+            - border-width: 0
+            - border-radius: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+    yingui:
+      card:
+        type: custom:button-card
+        layout: icon_name
+        show_name: true
+        show_icon: true
+        icon: mdi:arrow-up-bold
+        name: '[[[ return states[variables.lunar].attributes.huangli.阴贵 ]]]'
+        styles:
+          icon:
+            - width: 15px      
+            - transform: |
+                [[[ 
+                    var label =  states[variables.lunar].attributes.huangli.阴贵 ;
+                    if(label=="正北") return "rotate(0deg)";
+                    if(label=="东北") return "rotate(45deg)";
+                    if(label=="正东") return "rotate(90deg)";
+                    if(label=="东南") return "rotate(135deg)";
+                    if(label=="正南") return "rotate(180deg)";
+                    if(label=="西南") return "rotate(225deg)";
+                    if(label=="正西") return "rotate(270deg)";
+                    if(label=="西北") return "rotate(315deg)";
+                ]]]
+            - color: rgb(0,0,0)
+          name:
+            - font-size: 15px
+            - margin-left: -6px
+            - justify-self: start
+            - color: rgb(0,0,0)
+          card:
+            - height: 30px
+            - border-width: 0
+            - border-radius: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+lunar_header:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "gonglilabel gongli"
+          "nonglilabel nongli"
+      - grid-template-columns: 15% 85%
+      - grid-template-rows: 45% 55%
+    card:
+      - width: 450px  
+      - height: 80px
+      - --mdc-ripple-press-opacity: 0  
+      - padding: 10px 0 0 0 
+      - border-radius: 10px
+      - border-width: 0
+      - background: rgb(0,0,0,0)
+      - background: rgb(255,255,255)
+  custom_fields: 
+    gonglilabel:
+      card:
+        type: custom:button-card
+        label: 公历
+        show_label: true
+        styles:
+          label:
+            - font-size: 18px
+            - color: rgb(0,0,0)
+          card:
+            - height: 30px
+            - border-width: 0
+            - border-radius: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+    nonglilabel:
+      card:
+        type: custom:button-card
+        label: 农历
+        show_label: true
+        styles:
+          label:
+            - font-size: 18px
+            - color: rgb(0,0,0)
+          card:
+            - height: 40px
+            - border-width: 0
+            - border-radius: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+    gongli: 
+      card:
+        type: custom:button-card
+        label: |
+          [[[ 
+              var date= states[variables.lunar].attributes.tap_solar.日期B;
+              var now_date_time = states[variables.lunar].attributes.now_solar.日期B+"T00:00:00";
+              var tap_date_time = states[variables.lunar].attributes.tap_solar.日期B+"T00:00:00";
+              var now_date_time = states[variables.lunar].attributes.now_solar.日期B+"T00:00:00";
+
+              var tap_date = new Date(tap_date_time);
+              var now_date = new Date(now_date_time);
+              var num1 = (tap_date.getTime()-now_date.getTime())/(1000*3600*24);
+              var num2 = (now_date.getTime()-tap_date.getTime())/(1000*3600*24);
+              if(num1 ==0) num1="";
+              if(num1 >0) num1=" "+num1+"天后";
+              if(num1 <0) num1=" "+num2+"天前";
+
+              var tap_week = states[variables.lunar].attributes.tap_solar.星期A;
+              var xingzuo = states[variables.lunar].attributes.tap_solar.星座;
+              if(xingzuo=="白羊座") xingzuo = xingzuo+"♈";
+              if(xingzuo=="金牛座") xingzuo = xingzuo+"♉";
+              if(xingzuo=="双子座") xingzuo = xingzuo+"♊";
+              if(xingzuo=="巨蟹座") xingzuo = xingzuo+"♋";
+              if(xingzuo=="狮子座") xingzuo = xingzuo+"♌";
+              if(xingzuo=="处女座") xingzuo = xingzuo+"♍";
+              if(xingzuo=="天秤座") xingzuo = xingzuo+"♎";
+              if(xingzuo=="天蝎座") xingzuo = xingzuo+"♏";
+              if(xingzuo=="射手座") xingzuo = xingzuo+"♐";
+              if(xingzuo=="摩羯座") xingzuo = xingzuo+"♑";
+              if(xingzuo=="水瓶座") xingzuo = xingzuo+"♒";
+              if(xingzuo=="双鱼座") xingzuo = xingzuo+"♓";
+              return date+' '+'<font size="1.5vw" font color="#999999">'+num1+'</font>'+'&emsp;'+tap_week+'&emsp;'+xingzuo; 
+          ]]]
+        show_label: true
+        styles:
+          label:
+            - font-size: 18px
+            - color: rgb(0,0,0)
+          card:
+            - height: 40px
+            - border-width: 0 
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+    nongli:
+      card:
+        type: custom:button-card
+        label: |
+          [[[ 
+              var tap_year = states[variables.lunar].attributes.tap_lunar.年;
+              var tap_date = states[variables.lunar].attributes.tap_lunar.日期;
+              var jijie = states[variables.lunar].attributes.huangli.季节;
+              var yuexiang = states[variables.lunar].attributes.huangli.月相;
+              if(yuexiang=="朔月") yuexiang = yuexiang+"🌑";
+              if(yuexiang=="既朔月") yuexiang = yuexiang+"🌑";
+              if(yuexiang=="蛾眉新月") yuexiang = yuexiang+"🌒";
+              if(yuexiang=="蛾眉月") yuexiang = yuexiang+"🌒";
+              if(yuexiang=="夕月") yuexiang = yuexiang+"🌓";
+              if(yuexiang=="上弦月") yuexiang = yuexiang+"🌓"; 
+              if(yuexiang=="九夜月") yuexiang = yuexiang+"🌓";
+              if(yuexiang=="宵月") yuexiang = yuexiang+"🌔";
+              if(yuexiang=="渐盈凸月") yuexiang = yuexiang+"🌔";
+              if(yuexiang=="小望月") yuexiang = yuexiang+"🌕";
+              if(yuexiang=="望月") yuexiang = yuexiang+"🌕";
+              if(yuexiang=="既望月") yuexiang = yuexiang+"🌕"; 
+              if(yuexiang=="立待月") yuexiang = yuexiang+"🌖";
+              if(yuexiang=="居待月") yuexiang = yuexiang+"🌖";
+              if(yuexiang=="寝待月") yuexiang = yuexiang+"🌖";
+              if(yuexiang=="更待月") yuexiang = yuexiang+"🌖";
+              if(yuexiang=="渐亏凸月") yuexiang = yuexiang+"🌗";
+              if(yuexiang=="下弦月") yuexiang = yuexiang+"🌗"; 
+              if(yuexiang=="有明月") yuexiang = yuexiang+"🌗";
+              if(yuexiang=="蛾眉残月") yuexiang = yuexiang+"🌘";
+              if(yuexiang=="残月") yuexiang = yuexiang+"🌘";
+              if(yuexiang=="晓月") yuexiang = yuexiang+"🌑";
+              if(yuexiang=="晦月") yuexiang = yuexiang+"🌑";
+              return tap_year+"&emsp;"+tap_date+"&emsp;"+jijie+"&emsp;"+yuexiang;
+          ]]]
+        show_label: true
+        styles:
+          label:
+            - font-size: 17px
+            - color: rgb(0,0,0)
+          card:
+            - height: 40px
+            - border-width: 0
+            - background: rgb(0,0,0,0)
+        tap_action:
+          action: none
+
+lunar_calendar:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "yearlast year yearnext today monthlast month monthnext"
+          "week1 week2 week3 week4 week5 week6 week7" 
+          "id1 id2 id3 id4 id5 id6 id7" 
+          "id8 id9 id10 id11 id12 id13 id14" 
+          "id15 id16 id17 id18 id19 id20 id21" 
+          "id22 id23 id24 id25 id26 id27 id28" 
+          "id29 id30 id31 id32 id33 id34 id35" 
+          "id36 id37 id38 id39 id40 id41 id42"
+      - grid-template-columns: 14.2857% 14.2857% 14.2857% 14.2857% 14.2857% 14.2857% 14.2857%
+      - grid-template-rows: 12% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 
+    card:
+      - width: 450px  
+      - height: 370px
+      - --mdc-ripple-press-opacity: 0
+      - padding: 10px  0 0 0 
+      - border-radius: 10px
+      - background:  rgb(255,255,255)
+  custom_fields: 
+    yearlast:
+      card:
+        type: custom:button-card
+        icon: mdi:menu-left
+        styles:
+          icon:
+            - width: 100%
+            - color:  rgb(0,0,0)
+          card:
+            - width: 50px
+            - height: 40px
+            - margin-left: 24px
+            - border-radius: 10px
+            - border-width: 0
+            - background: rgb(0,0,0,0)
+            - --mdc-ripple-color: rgb(0,191,255)
+            - --mdc-ripple-press-opacity: 0.3
+        tap_action:
+          action: call-service
+          service: button.press
+          data: {}
+          target:
+            entity_id:  button.lunar_shang_nian
+    yearnext:
+      card:
+        type: custom:button-card
+        icon: mdi:menu-right
+        styles:
+          icon:
+            - width: 100%
+            - color:  rgb(0,0,0)
+          card:
+            - width: 50px
+            - height: 40px
+            - margin-left: -10px
+            - border-radius: 10px
+            - border-width: 0
+            - background: rgb(0,0,0,0)
+            - --mdc-ripple-color: rgb(0,191,255)
+            - --mdc-ripple-press-opacity: 0.3
+        tap_action:
+          action: call-service
+          service: button.press
+          data: {}
+          target:
+            entity_id:  button.lunar_xia_nian
+    monthlast:
+      card:
+        type: custom:button-card
+        icon: mdi:menu-left
+        styles:
+          icon:
+            - width: 100%
+            - color:  rgb(0,0,0)
+          card:
+            - width: 50px
+            - height: 40px
+            - margin-left: 30px
+            - border-radius: 10px
+            - border-width: 0
+            - background: rgb(0,0,0,0)
+            - --mdc-ripple-color: rgb(0,191,255)
+            - --mdc-ripple-press-opacity: 0.3
+        tap_action:
+          action: call-service
+          service: button.press
+          data: {}
+          target:
+            entity_id:  button.lunar_shang_yue
+    monthnext:
+      card:
+        type: custom:button-card
+        icon: mdi:menu-right
+        styles:
+          icon:
+            - width: 100%
+            - color: rgb(0,0,0)
+          card:
+            - width: 50px
+            - height: 40px
+            - margin-left: -18px
+            - border-radius: 10px
+            - border-width: 0
+            - background: rgb(0,0,0,0)
+            - --mdc-ripple-color: rgb(0,191,255)
+            - --mdc-ripple-press-opacity: 0.3
+        tap_action:
+          action: call-service
+          service: button.press
+          data: {}
+          target:
+            entity_id:  button.lunar_xia_yue
+    today: 
+      card:
+        type: custom:button-card 
+        template: lunar_label
+        label: 今天
+        styles:
+          card:
+            - width: 65px
+            - height: 40px
+            - border-radius: 10px
+            - --mdc-ripple-color: rgb(0,191,255)
+            - --mdc-ripple-press-opacity: 0.3
+        tap_action:
+          action: call-service
+          service: button.press
+          data: {}
+          target:
+            entity_id:  button.lunar_jin_tian
+    year:
+      card:
+        type: custom:button-card
+        label: '[[[return states[variables.lunar].attributes.tap_solar.年+"年" ]]]'
+        show_state: true
+        template: lunar_label
+        tap_action:
+          action: none
+    month:
+      card:
+        type: custom:button-card
+        label: |
+          [[[ 
+              var month = states[variables.lunar].attributes.tap_solar.月 ;
+              if(month<10) return month.slice(-1)+"月";
+              if(month>9 ) return month+"月";
+          ]]]
+        show_state: true
+        template: lunar_label
+        tap_action:
+          action: none
+    week1:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周一
+    week2:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周二
+    week3:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周三
+    week4:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周四
+    week5:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周五
+    week6:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周六
+    week7:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周日
+    id1:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 1
+          lunar: '[[[return variables.lunar]]]'
+    id2:
+      card: 
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 2
+          lunar: '[[[return variables.lunar]]]'
+    id3:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 3
+          lunar: '[[[return variables.lunar]]]'
+    id4:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 4
+          lunar: '[[[return variables.lunar]]]'
+    id5:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 5
+          lunar: '[[[return variables.lunar]]]'
+    id6:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 6
+          lunar: '[[[return variables.lunar]]]'
+    id7:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 7
+          lunar: '[[[return variables.lunar]]]'
+    id8:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 8
+          lunar: '[[[return variables.lunar]]]'
+    id9:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 9
+          lunar: '[[[return variables.lunar]]]'
+    id10:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 10
+          lunar: '[[[return variables.lunar]]]'
+    id11:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 11
+          lunar: '[[[return variables.lunar]]]'
+    id12:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 12
+          lunar: '[[[return variables.lunar]]]'
+    id13:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 13
+          lunar: '[[[return variables.lunar]]]'
+    id14:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 14
+          lunar: '[[[return variables.lunar]]]'
+    id15:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 15
+          lunar: '[[[return variables.lunar]]]'
+    id16:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 16
+          lunar: '[[[return variables.lunar]]]'
+    id17:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 17
+          lunar: '[[[return variables.lunar]]]'
+    id18:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 18
+          lunar: '[[[return variables.lunar]]]'
+    id19:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 19
+          lunar: '[[[return variables.lunar]]]'
+    id20:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 20
+          lunar: '[[[return variables.lunar]]]'
+    id21:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 21
+          lunar: '[[[return variables.lunar]]]'
+    id22:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 22
+          lunar: '[[[return variables.lunar]]]'
+    id23:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 23
+          lunar: '[[[return variables.lunar]]]'
+    id24:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 24
+          lunar: '[[[return variables.lunar]]]'
+    id25:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 25
+          lunar: '[[[return variables.lunar]]]'
+    id26:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 26
+          lunar: '[[[return variables.lunar]]]'
+    id27:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 27
+          lunar: '[[[return variables.lunar]]]'
+    id28:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 28
+          lunar: '[[[return variables.lunar]]]'
+    id29:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 29
+          lunar: '[[[return variables.lunar]]]'
+    id30:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 30
+          lunar: '[[[return variables.lunar]]]'
+    id31:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 31
+          lunar: '[[[return variables.lunar]]]'
+    id32:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 32
+          lunar: '[[[return variables.lunar]]]'
+    id33:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 33
+          lunar: '[[[return variables.lunar]]]'
+    id34:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 34
+          lunar: '[[[return variables.lunar]]]'
+    id35:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 35
+          lunar: '[[[return variables.lunar]]]'
+    id36:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 36
+          lunar: '[[[return variables.lunar]]]'
+    id37:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 37
+          lunar: '[[[return variables.lunar]]]'
+    id38:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 38
+          lunar: '[[[return variables.lunar]]]'
+    id39:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 39
+          lunar: '[[[return variables.lunar]]]'
+    id40:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 40
+          lunar: '[[[return variables.lunar]]]'
+    id41:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 41
+          lunar: '[[[return variables.lunar]]]'
+    id42:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 42
+          lunar: '[[[return variables.lunar]]]'lunar_calendar:  
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  styles: 
+    grid:
+      - grid-template-areas: >
+          "yearlast year yearnext today monthlast month monthnext"
+          "week1 week2 week3 week4 week5 week6 week7" 
+          "id1 id2 id3 id4 id5 id6 id7" 
+          "id8 id9 id10 id11 id12 id13 id14" 
+          "id15 id16 id17 id18 id19 id20 id21" 
+          "id22 id23 id24 id25 id26 id27 id28" 
+          "id29 id30 id31 id32 id33 id34 id35" 
+          "id36 id37 id38 id39 id40 id41 id42"
+      - grid-template-columns: 14.2857% 14.2857% 14.2857% 14.2857% 14.2857% 14.2857% 14.2857%
+      - grid-template-rows: 12% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 
+    card:
+      - width: 450px  
+      - height: 370px
+      - --mdc-ripple-press-opacity: 0
+      - padding: 10px  0 0 0 
+      - border-radius: 10px
+      - background:  rgb(255,255,255)
+  custom_fields: 
+    yearlast:
+      card:
+        type: custom:button-card
+        icon: mdi:menu-left
+        styles:
+          icon:
+            - width: 100%
+            - color:  rgb(0,0,0)
+          card:
+            - width: 50px
+            - height: 40px
+            - margin-left: 24px
+            - border-radius: 10px
+            - border-width: 0
+            - background: rgb(0,0,0,0)
+            - --mdc-ripple-color: rgb(0,191,255)
+            - --mdc-ripple-press-opacity: 0.3
+        tap_action:
+          action: call-service
+          service: button.press
+          data: {}
+          target:
+            entity_id:  button.lunar_shang_nian
+    yearnext:
+      card:
+        type: custom:button-card
+        icon: mdi:menu-right
+        styles:
+          icon:
+            - width: 100%
+            - color:  rgb(0,0,0)
+          card:
+            - width: 50px
+            - height: 40px
+            - margin-left: -10px
+            - border-radius: 10px
+            - border-width: 0
+            - background: rgb(0,0,0,0)
+            - --mdc-ripple-color: rgb(0,191,255)
+            - --mdc-ripple-press-opacity: 0.3
+        tap_action:
+          action: call-service
+          service: button.press
+          data: {}
+          target:
+            entity_id:  button.lunar_xia_nian
+    monthlast:
+      card:
+        type: custom:button-card
+        icon: mdi:menu-left
+        styles:
+          icon:
+            - width: 100%
+            - color:  rgb(0,0,0)
+          card:
+            - width: 50px
+            - height: 40px
+            - margin-left: 30px
+            - border-radius: 10px
+            - border-width: 0
+            - background: rgb(0,0,0,0)
+            - --mdc-ripple-color: rgb(0,191,255)
+            - --mdc-ripple-press-opacity: 0.3
+        tap_action:
+          action: call-service
+          service: button.press
+          data: {}
+          target:
+            entity_id:  button.lunar_shang_yue
+    monthnext:
+      card:
+        type: custom:button-card
+        icon: mdi:menu-right
+        styles:
+          icon:
+            - width: 100%
+            - color: rgb(0,0,0)
+          card:
+            - width: 50px
+            - height: 40px
+            - margin-left: -18px
+            - border-radius: 10px
+            - border-width: 0
+            - background: rgb(0,0,0,0)
+            - --mdc-ripple-color: rgb(0,191,255)
+            - --mdc-ripple-press-opacity: 0.3
+        tap_action:
+          action: call-service
+          service: button.press
+          data: {}
+          target:
+            entity_id:  button.lunar_xia_yue
+    today: 
+      card:
+        type: custom:button-card 
+        template: lunar_label
+        label: 今天
+        styles:
+          card:
+            - width: 65px
+            - height: 40px
+            - border-radius: 10px
+            - --mdc-ripple-color: rgb(0,191,255)
+            - --mdc-ripple-press-opacity: 0.3
+        tap_action:
+          action: call-service
+          service: button.press
+          data: {}
+          target:
+            entity_id:  button.lunar_jin_tian
+    year:
+      card:
+        type: custom:button-card
+        label: '[[[return states[variables.lunar].attributes.tap_solar.年+"年" ]]]'
+        show_state: true
+        template: lunar_label
+        tap_action:
+          action: none
+    month:
+      card:
+        type: custom:button-card
+        label: |
+          [[[ 
+              var month = states[variables.lunar].attributes.tap_solar.月 ;
+              if(month<10) return month.slice(-1)+"月";
+              if(month>9 ) return month+"月";
+          ]]]
+        show_state: true
+        template: lunar_label
+        tap_action:
+          action: none
+    week1:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周一
+    week2:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周二
+    week3:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周三
+    week4:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周四
+    week5:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周五
+    week6:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周六
+    week7:
+      card:
+        type: custom:button-card
+        template: lunar_label
+        label: 周日
+    id1:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 1
+          lunar: '[[[return variables.lunar]]]'
+    id2:
+      card: 
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 2
+          lunar: '[[[return variables.lunar]]]'
+    id3:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 3
+          lunar: '[[[return variables.lunar]]]'
+    id4:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 4
+          lunar: '[[[return variables.lunar]]]'
+    id5:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 5
+          lunar: '[[[return variables.lunar]]]'
+    id6:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 6
+          lunar: '[[[return variables.lunar]]]'
+    id7:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 7
+          lunar: '[[[return variables.lunar]]]'
+    id8:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 8
+          lunar: '[[[return variables.lunar]]]'
+    id9:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 9
+          lunar: '[[[return variables.lunar]]]'
+    id10:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 10
+          lunar: '[[[return variables.lunar]]]'
+    id11:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 11
+          lunar: '[[[return variables.lunar]]]'
+    id12:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 12
+          lunar: '[[[return variables.lunar]]]'
+    id13:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 13
+          lunar: '[[[return variables.lunar]]]'
+    id14:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 14
+          lunar: '[[[return variables.lunar]]]'
+    id15:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 15
+          lunar: '[[[return variables.lunar]]]'
+    id16:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 16
+          lunar: '[[[return variables.lunar]]]'
+    id17:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 17
+          lunar: '[[[return variables.lunar]]]'
+    id18:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 18
+          lunar: '[[[return variables.lunar]]]'
+    id19:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 19
+          lunar: '[[[return variables.lunar]]]'
+    id20:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 20
+          lunar: '[[[return variables.lunar]]]'
+    id21:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 21
+          lunar: '[[[return variables.lunar]]]'
+    id22:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 22
+          lunar: '[[[return variables.lunar]]]'
+    id23:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 23
+          lunar: '[[[return variables.lunar]]]'
+    id24:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 24
+          lunar: '[[[return variables.lunar]]]'
+    id25:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 25
+          lunar: '[[[return variables.lunar]]]'
+    id26:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 26
+          lunar: '[[[return variables.lunar]]]'
+    id27:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 27
+          lunar: '[[[return variables.lunar]]]'
+    id28:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 28
+          lunar: '[[[return variables.lunar]]]'
+    id29:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 29
+          lunar: '[[[return variables.lunar]]]'
+    id30:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 30
+          lunar: '[[[return variables.lunar]]]'
+    id31:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 31
+          lunar: '[[[return variables.lunar]]]'
+    id32:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 32
+          lunar: '[[[return variables.lunar]]]'
+    id33:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 33
+          lunar: '[[[return variables.lunar]]]'
+    id34:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 34
+          lunar: '[[[return variables.lunar]]]'
+    id35:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 35
+          lunar: '[[[return variables.lunar]]]'
+    id36:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 36
+          lunar: '[[[return variables.lunar]]]'
+    id37:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 37
+          lunar: '[[[return variables.lunar]]]'
+    id38:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 38
+          lunar: '[[[return variables.lunar]]]'
+    id39:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 39
+          lunar: '[[[return variables.lunar]]]'
+    id40:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 40
+          lunar: '[[[return variables.lunar]]]'
+    id41:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 41
+          lunar: '[[[return variables.lunar]]]'
+    id42:
+      card:
+        type: custom:button-card
+        template: lunar_num
+        variables:
+          id: 42
+          lunar: '[[[return variables.lunar]]]'
+
+lunar_label:
+  show_label: true
+  styles:
+    label:
+      - font-size: 15px
+      - color: rgb(0,0,0)
+    card: 
+      - height: 40px
+      - border-width: 0
+      - background: rgb(0,0,0,0)
+lunar_num:
+  triggers_update:
+    - '[[[ return variables.lunar ]]]'
+  show_icon: false
+  show_label: true
+  show_state: true
+  tap_action:
+    action: call-service
+    service: text.set_value
+    target:
+      entity_id: text.lunar_ri_qi
+    data:
+      value: | 
+        [[[;
+            var date = states[variables.lunar].attributes.solarday_num[variables.id].slice(0,10);
+            return date; 
+        ]]]
+  state_display: |
+    [[[
+        var date = states[variables.lunar].attributes.solarday_num[variables.id];
+        if(date.slice(8,10)<10) return date.slice(9,10);  
+        if(date.slice(8,10)> 9) return date.slice(8,10);  
+    ]]]
+  label: |
+    [[[
+        var lunar= states[variables.lunar].attributes.lunar_label[variables.id];
+        var jieqi = states[variables.lunar].attributes.jieqi_label[variables.id];
+        var jieri1 = states[variables.lunar].attributes.jieri_label_lunar[variables.id];
+        var jieri2 = states[variables.lunar].attributes.jieri_label_solar[variables.id];
+        if (jieri2 =="全国中小学生安全教育日") jieri2="安全教育日";
+        if (jieri2 =="全民国防教育日") jieri2="国防教育日";
+
+        var idyear = states[variables.lunar].attributes.solarday_num[variables.id].slice(0,4);
+        var idmonth = states[variables.lunar].attributes.solarday_num[variables.id].slice(5,7);
+        var idday   = states[variables.lunar].attributes.solarday_num[variables.id].slice(8,10);
+        var id_solar_m_d   = idmonth+idday;
+        var id_lunar_m_d   =  states[variables.lunar].attributes.lunarday_num[variables.id];
+
+        var len =states[variables.lunar].attributes.shengri.length;
+        for (var a=0;a<len;a++){
+            var shengri_solar = states[variables.lunar].attributes.shengri[a].阳历;
+            var shengri_lunar = states[variables.lunar].attributes.shengri[a].农历;
+            var shengri_name = states[variables.lunar].attributes.shengri[a].名称;
+            if(shengri_lunar.slice(-2)=="30" && shengri_lunar.slice(0, 2) == id_lunar_m_d.slice(0, 2) && id_lunar_m_d.slice(-4)=="2929" ){
+              return  shengri_name;
+            }
+            if (id_solar_m_d == shengri_solar)  {return  shengri_name;}
+            if (id_lunar_m_d.slice(0,4) == shengri_lunar)  {return  shengri_name;}
+        }
+        for (var a=0;a<len;a++){
+          if (idyear % 4 != 0 || ( idyear % 100 == 0) && idyear % 400 != 0) {
+            var shengri_solar = states[variables.lunar].attributes.shengri[a].阳历;
+            var shengri_name = states[variables.lunar].attributes.shengri[a].名称;
+            if(shengri_solar =="0229" && id_solar_m_d=="0228") {return  shengri_name;}
+          } 
+        }
+        if (jieri1 != null)  {return jieri1;}
+        else if (jieri2 != null)  {return jieri2;}
+        else if (jieqi != "") {return jieqi;}
+        else if (lunar.slice(-2) =='初一' && lunar.slice(0,1) =='闰' ) { return lunar.slice(0,3);}
+        else if (lunar.slice(-2) =='初一' && lunar.slice(0,1) !='闰' ) { return lunar.slice(0,2);}
+        else if (lunar.slice(-2) !='初一') {return lunar.slice(-2);}
+    ]]] 
+  custom_fields:
+    num: |
+      [[[
+          var jiaqi = states[variables.lunar].attributes.jiaqi_label[variables.id];
+          if (jiaqi == null)  return "";
+          if (jiaqi == false) return "休";
+          if (jiaqi == true)  return "班";
+      ]]] 
+  styles:
+    custom_fields:
+      num:
+        - color: |
+            [[[
+                var jiaqi = states[variables.lunar].attributes.jiaqi_label[variables.id];
+                if (jiaqi == null)  return "rgb(0,0,0,0)";
+                if (jiaqi == true) return "rgb(10,200,20)";
+                if (jiaqi == false)  return "rgb(255,0,0)";
+            ]]]
+        - padding: 0 
+        - font-size: 10px
+        - width: 20px
+        - height: 20px
+        - position: absolute 
+        - margin-left: 0vw
+        - margin-top: -3px
+        - align-self: start
+    state: 
+      - font-size: 15px
+      - font-weight: |
+          [[[
+              var idyear  = states[variables.lunar].attributes.solarday_num[variables.id].slice(0,4);
+              var idmonth = states[variables.lunar].attributes.solarday_num[variables.id].slice(5,7);
+              var idday   = states[variables.lunar].attributes.solarday_num[variables.id].slice(8,10);
+              var nowyear  = states[variables.lunar].attributes.now_solar.年;
+              var nowmonth = states[variables.lunar].attributes.now_solar.月;
+              var nowday   = states[variables.lunar].attributes.now_solar.日;
+              if ( nowyear==idyear  && nowmonth==idmonth && nowday==idday) return "800";
+              else return "400";
+          ]]]
+      - color: |
+          [[[
+              var color = states[variables.lunar].attributes.solarday_num[variables.id].slice(-1);
+              var idyear  = states[variables.lunar].attributes.solarday_num[variables.id].slice(0,4);
+              var idmonth = states[variables.lunar].attributes.solarday_num[variables.id].slice(5,7);
+              var idday   = states[variables.lunar].attributes.solarday_num[variables.id].slice(8,10);
+              var tapyear = states[variables.lunar].attributes.tap_solar.年;
+              var tapmonth= states[variables.lunar].attributes.tap_solar.月;
+              var tapday  = states[variables.lunar].attributes.tap_solar.日;
+              var nowyear  = states[variables.lunar].attributes.now_solar.年;
+              var nowmonth = states[variables.lunar].attributes.now_solar.月;
+              var nowday   = states[variables.lunar].attributes.now_solar.日;
+              if ( tapyear==nowyear  && tapmonth==nowmonth && tapday==nowday &&  nowyear==idyear  && nowmonth==idmonth && nowday==idday) return "rgb(255,255,255)";
+              if ( color == 2 && tapyear==idyear  && tapmonth==idmonth && tapday==idday) return "rgb(0,0,0)";
+              if ( nowyear==idyear  && nowmonth==idmonth && nowday==idday) return "rgb(0,191,255)";
+              if (  color != 2 )  return "rgb(160,160,160,0.7)";
+              if (  color == 2 )  return "rgb(0,0,0)";
+          ]]]  
+    label: 
+      - font-size: 10px
+      - font-weight: |
+          [[[
+              var idyear  = states[variables.lunar].attributes.solarday_num[variables.id].slice(0,4);
+              var idmonth = states[variables.lunar].attributes.solarday_num[variables.id].slice(5,7);
+              var idday   = states[variables.lunar].attributes.solarday_num[variables.id].slice(8,10);
+              var nowyear  = states[variables.lunar].attributes.now_solar.年;
+              var nowmonth = states[variables.lunar].attributes.now_solar.月;
+              var nowday   = states[variables.lunar].attributes.now_solar.日;
+              if ( nowyear==idyear  && nowmonth==idmonth && nowday==idday) return "800";
+              else return "400";
+          ]]]
+      - color: |
+          [[[
+              var color = states[variables.lunar].attributes.solarday_num[variables.id].slice(-1);
+              var idyear  = states[variables.lunar].attributes.solarday_num[variables.id].slice(0,4);
+              var idmonth = states[variables.lunar].attributes.solarday_num[variables.id].slice(5,7);
+              var idday   = states[variables.lunar].attributes.solarday_num[variables.id].slice(8,10);
+              var tapyear = states[variables.lunar].attributes.tap_solar.年;
+              var tapmonth= states[variables.lunar].attributes.tap_solar.月;
+              var tapday  = states[variables.lunar].attributes.tap_solar.日;
+              var nowyear  = states[variables.lunar].attributes.now_solar.年;
+              var nowmonth = states[variables.lunar].attributes.now_solar.月;
+              var nowday   = states[variables.lunar].attributes.now_solar.日;
+              var lunar= states[variables.lunar].attributes.lunar_label[variables.id];
+              var jieqi = states[variables.lunar].attributes.jieqi_label[variables.id];
+              var jieri1 = states[variables.lunar].attributes.jieri_label_lunar[variables.id];
+              var jieri2 = states[variables.lunar].attributes.jieri_label_solar[variables.id];
+
+              var id_solar_m_d   = idmonth+idday;
+              var id_lunar_m_d   =  states[variables.lunar].attributes.lunarday_num[variables.id];
+              var len =states[variables.lunar].attributes.shengri.length;
+              for (var a=0;a<len;a++){
+                  var shengri_solar = states[variables.lunar].attributes.shengri[a].阳历;
+                  var shengri_lunar = states[variables.lunar].attributes.shengri[a].农历;
+                  var shengri_name = states[variables.lunar].attributes.shengri[a].名称;
+                  if(shengri_lunar.slice(-2)=="30" && shengri_lunar.slice(0, 2) == id_lunar_m_d.slice(0, 2) && id_lunar_m_d.slice(-4)=="2929" ){
+                    return  "rgb(255,70,00)";
+                  }
+                  if (id_solar_m_d == shengri_solar)  {return  "rgb(255,70,00)";}
+                  if (id_lunar_m_d.slice(0,4) == shengri_lunar)  {return  "rgb(255,70,00)";}
+              }
+              for (var a=0;a<len;a++){
+                if (idyear % 4 != 0 || ( idyear % 100 == 0) && idyear % 400 != 0) {
+                  var shengri_solar = states[variables.lunar].attributes.shengri[a].阳历;
+                  var shengri_name = states[variables.lunar].attributes.shengri[a].名称;
+                  if(shengri_solar =="0229" && id_solar_m_d=="0228") {return  "rgb(255,70,00)";}
+                } 
+              }
+              if ( tapyear==nowyear  && tapmonth==nowmonth && tapday==nowday &&  nowyear==idyear  && nowmonth==idmonth && nowday==idday) return "rgb(255,255,255)";
+              if ( nowyear==idyear  && nowmonth==idmonth && nowday==idday) return "rgb(0,191,255)";
+              if ( color == 2 && (jieri1 != null || jieri2 != null))  return "rgb(0,180,220)";
+              if ( color == 2 && jieqi != "")  return "rgb(50,220,80)";
+              if ( color != 2 && (jieri1 != null || jieri2 != null))  return "rgb(135,160,163)";
+              if ( color != 2 && jieqi != "")  return "rgb(134,162,134)";
+              if ( color == 2 && tapyear==idyear  && tapmonth==idmonth && tapday==idday) return "rgb(0,0,0)";
+              if ( color != 2 )  return "rgb(160,160,160,0.7)";
+              if ( color == 2 )  return "rgb(0,0,0)";
+          ]]]  
+    card: 
+      - --mdc-ripple-color: rgb(0,191,255)
+      - --mdc-ripple-press-opacity: 0.3
+      - height: 40px 
+      - border-radius: 10px
+      - border: |
+          [[[
+              var color = states[variables.lunar].attributes.solarday_num[variables.id].slice(-1);
+              var idyear  = states[variables.lunar].attributes.solarday_num[variables.id].slice(0,4);
+              var idmonth = states[variables.lunar].attributes.solarday_num[variables.id].slice(5,7);
+              var idday   = states[variables.lunar].attributes.solarday_num[variables.id].slice(8,10);
+              var tapyear = states[variables.lunar].attributes.tap_solar.年;
+              var tapmonth= states[variables.lunar].attributes.tap_solar.月;
+              var tapday  = states[variables.lunar].attributes.tap_solar.日;
+              var nowyear  = states[variables.lunar].attributes.calendar_now_year;
+              var nowmonth = states[variables.lunar].attributes.calendar_now_month;
+              var nowday   = states[variables.lunar].attributes.calendar_now_day;
+              if ( tapday == idday && tapmonth == idmonth)  {return "2px solid rgb(0,191,255)";}
+              else  {return "2px solid rgb(255,255,255)"; }
+          ]]] 
+      - background: | 
+          [[[
+              var color = states[variables.lunar].attributes.solarday_num[variables.id].slice(-1);
+              var idyear  = states[variables.lunar].attributes.solarday_num[variables.id].slice(0,4);
+              var idmonth = states[variables.lunar].attributes.solarday_num[variables.id].slice(5,7);
+              var idday   = states[variables.lunar].attributes.solarday_num[variables.id].slice(8,10);
+              var tapyear = states[variables.lunar].attributes.tap_solar.年;
+              var tapmonth= states[variables.lunar].attributes.tap_solar.月;
+              var tapday  = states[variables.lunar].attributes.tap_solar.日;
+              var nowyear  = states[variables.lunar].attributes.now_solar.年;
+              var nowmonth = states[variables.lunar].attributes.now_solar.月;
+              var nowday   = states[variables.lunar].attributes.now_solar.日;
+              if ( nowyear==idyear  && nowmonth==idmonth && nowday==idday && nowyear==tapyear  && nowmonth==tapmonth && nowday==tapday) return "rgb(0,191,255)";
+              var jiaqi = states[variables.lunar].attributes.jiaqi_label[variables.id];
+              if (jiaqi == null) return "rgb(0,0,0,0)";
+              if (color =="2" && jiaqi == true) return "rgb(0,220,0,0.1)";
+              if (color =="2" && jiaqi == false)  return "rgb(220,0,0,0.1)";
+              if (color !="2" && jiaqi == true) return "rgb(0,200,0,0.05)";
+              if (color !="2" && jiaqi == false)  return "rgb(200,0,0,0.05)";
+             //else  return "transparent";
+          ]]]  
