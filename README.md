@@ -53,7 +53,34 @@ theme: on             # 选项on是白色，选项off是黑色，也可以引用
                       # 表头第一行有【总共开启xx盏灯】和全关按钮（没有灯光开启时，全关按钮隐藏）
 ~~~
 
-## 功能5：时间显示卡(平板端)
+## 功能5：插座控制卡（单插座）
+**引用示例**
+~~~
+type: custom:xiaoshi-switch-card    【三击解锁】
+entity: switch.switch1   # 插座实体
+power: sensor.power1     # 插座对应功率实体
+height: 85vw             # 卡片宽度
+width: 20vw              # 卡片高度
+theme: "on"              # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'      
+~~~
+
+## 功能6：插座控制卡（插座组）
+**引用示例**
+~~~
+type: custom:xiaoshi-switch-group-card  【三击解锁】
+entities:
+  - entity: switch.switch1   # 插座1实体 
+    power: sensor.power1     # 插座1对应功率实体
+  - entity: switch.switch2   # 插座2实体
+    power: sensor.power2     # 插座2对应功率实体
+height: 85vw                 # 卡片宽度
+width: 20vw                  # 卡片高度
+theme: "on"                  # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+                             # 表头第一行有【插座开启xx个  关闭xx个  总功率xxW】 
+~~~
+
+
+## 功能7：时间显示卡(平板端)
 **引用示例**
 ~~~
 type: custom:xiaoshi-time-card
