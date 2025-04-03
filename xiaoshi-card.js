@@ -815,6 +815,7 @@ class LightGroupCard extends HTMLElement {
 				flex-direction: column;
 				gap: 8px;
 				width: 100%;
+    				padding: 0;
 			}
 
       /* 新增头部样式 */
