@@ -2045,7 +2045,7 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
 			stats.className = 'stats-container';
 			stats.style.cssText = `
 				display: flex;
-				justify-content: space-between;
+				justify-content: center; 
         padding: 2vw 0 1vw 0;
 				background: rgba(0, 0, 0, 0);
 				border-radius: 0;
