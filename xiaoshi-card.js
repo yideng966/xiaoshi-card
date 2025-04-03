@@ -284,7 +284,6 @@ class VideoCard extends HTMLElement {
     });
   }
 }
-
 customElements.define('xiaoshi-video-card', VideoCard);
 
 class ImageCard extends HTMLElement {
@@ -409,7 +408,6 @@ class ImageCard extends HTMLElement {
 
   }
 }
-
 customElements.define('xiaoshi-image-card', ImageCard);
 
 class LightCard extends HTMLElement {
@@ -425,25 +423,29 @@ class LightCard extends HTMLElement {
     style.textContent = `
       /* 基础容器样式 */
       .xiaoshi-container {
-        min-height: 80px; /* 默认高度 */
+        min-height: 80px;
         border-radius: 12px;
-        padding: 0 16px 0 8px;
+        padding: 0 16px;
         display: flex;
         align-items: center;
-        transition: all 0.3s ease;
         gap: 16px;
         position: relative;
         overflow: hidden;
+        transition: all 0.3s ease;
+        justify-content: space-between; /* 两端对齐 */
+				margin-bottom: 8px; /* 新增下边距 */
       }
 
       /* 名称样式 */
       .device-name {
-        min-width: 100px;
-        flex: 1;
+        flex: 0 1 auto; /* 禁止扩展 */
         font-size: 1.2rem;
         font-weight: 600;
         white-space: nowrap;
+        overflow: hidden;
         z-index: 1;
+        text-overflow: ellipsis;
+				text-align: left; /* 新增左对齐属性 */
       }
 
       /* 控制区域 */
@@ -793,7 +795,6 @@ class LightCard extends HTMLElement {
     });
   }
 }
-
 customElements.define('xiaoshi-light-card', LightCard);
 
 class LightGroupCard extends HTMLElement {
@@ -1216,7 +1217,6 @@ class LightGroupCard extends HTMLElement {
     setTimeout(() => button.style.transform = 'scale(1)', 200);
   }
 
-
   _createPowerButton(entity, state) {
     const powerButton = document.createElement('div');
 		powerButton.className = `power-button ${state === 'on' ? 'active' : ''}`;
@@ -1226,8 +1226,6 @@ class LightGroupCard extends HTMLElement {
     powerButton.addEventListener('click', () => this._togglePower(entity));
     return powerButton;
   }
-
-	
 
   _createSliderGroup(entity, label, type, color, value, min, max, percent, isActive) {
     const group = document.createElement('div');
@@ -1325,7 +1323,6 @@ class LightGroupCard extends HTMLElement {
     });
   }
 } 
-
 customElements.define('xiaoshi-light-group-card', LightGroupCard);
 
 class XiaoshiTimeCard extends HTMLElement {
@@ -1452,3 +1449,808 @@ class XiaoshiTimeCard extends HTMLElement {
   }
 }
 customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
+
+class XiaoshiSwitchCard extends HTMLElement {
+  // 时间常量配置
+  static get TIMING() {
+    return {
+      TRIPLE_CLICK: 600,   // 三击间隔时间（毫秒）
+      UNLOCK: 8000,        // 解锁持续时间（毫秒）
+      FEEDBACK: 500        // 动画持续时间（毫秒）
+    };
+  }
+
+  constructor() {
+    super();
+    const shadow = this.attachShadow({ mode: 'open' });
+    
+    // 创建主容器
+    this.container = document.createElement('div');
+    this.container.className = 'xiaoshi-container';
+    
+    // 样式表（关键修改点1：调整布局顺序）
+    const style = document.createElement('style');
+    style.textContent = `
+		/* 主容器 */
+      .xiaoshi-container {
+        min-height: 80px;
+        border-radius: 12px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        justify-content: space-between; /* 两端对齐 */
+				margin-bottom: 8px; /* 新增下边距 */
+      }
+
+      /* 设备名称样式 */
+      .device-name {
+        flex: 0 1 auto; /* 禁止扩展 */
+        font-size: 1.2rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 50%; /* 限制最大宽度 */
+        z-index: 1;
+      }
+      .name-container {
+        flex: 1;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        min-width: 0;
+      }
+      .power-value {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        white-space: nowrap;
+      }
+
+      /* 按钮容器（关键修改点2：调整flex方向） */
+      .button-container {
+        flex: 0 0 auto; /* 禁止收缩 */
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+      }
+
+      /* 电源按钮样式 */
+      .power-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .power-button.active {
+        background: #c8191d;
+      }
+
+      /* 锁按钮样式（关键修改点3：调整顺序） */
+      .lock-button {
+        cursor: pointer;
+        margin-right: 8px; /* 增加与电源按钮的间距 */
+      }
+
+      /* 图标通用样式 */
+      ha-icon {
+        --mdc-icon-size: 24px;
+        color: var(--icon-color, #c8191d);
+      }
+      .power-button.active ha-icon {
+        color: white;
+      }
+      /* 锁图标状态颜色 */
+      .lock-button ha-icon {
+        --mdc-icon-size: 20px;
+        transition: all 0.3s ease;
+        color: #c8191d;
+      }
+
+      .lock-button.unlocked ha-icon {
+        color: #4CAF50 !important;
+      }
+
+      /* 解锁进度条动画 */
+      @keyframes unlock-progress {
+        from { width: 100% }
+        to { width: 0 }
+      }
+
+      .unlock-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: #4CAF50;
+        animation: unlock-progress ${this.constructor.TIMING.UNLOCK}ms linear;
+      }
+    `;
+
+    shadow.appendChild(style);
+    shadow.appendChild(this.container);
+    
+    // 状态管理变量
+    this._unlockTimer = null;  // 解锁定时器
+    this._config = null;       // 配置信息
+    this._hass = null;         // Home Assistant 实例
+  }
+
+  // 配置设置方法
+  setConfig(config) {
+    this._config = config;
+    this._render();
+  }
+
+  // 更新Home Assistant实例
+  set hass(hass) {
+    this._hass = hass;
+    this._render();
+  }
+
+  // 主题评估方法
+  _evaluateTheme() {
+    try {
+      if (typeof this._config.theme === 'function') return this._config.theme();
+      if (typeof this._config.theme === 'string' && this._config.theme.includes('theme()')) {
+        return (new Function('return theme()'))();
+      }
+      return this._config.theme || 'off';
+    } catch(e) {
+      return 'off';
+    }
+  }
+
+  // 背景颜色计算
+  _getBackground(state) {
+    const theme = this._evaluateTheme();
+    return state === 'on' 
+      ? (theme === 'off' 
+          ? 'linear-gradient(90deg, #c8191d -20%, #323232 70%)' 
+          : 'linear-gradient(90deg, #c8191d -20%, #FFF 70%)')
+      : (theme === 'off' ? '#323232' : '#FFF');
+  }
+
+  // 主渲染方法
+  _render() {
+    if (!this._config || !this._hass) return;
+
+    // 清空容器
+    this.container.innerHTML = '';
+
+    // 获取设备状态
+    const entity = this._config.entity;
+    const stateObj = this._hass.states[entity] || {};
+    const state = stateObj.state || 'off';
+    const attributes = stateObj.attributes || {};
+
+		// 获取功率数值
+    let powerElement = '';
+    if (this._config.power) {
+      const powerState = this._hass.states[this._config.power];
+      
+      if (powerState && !isNaN(powerState.state)) {
+        const powerValue = parseFloat(powerState.state);
+        const powerUnit = powerState.attributes?.unit_of_measurement || 'W';
+        
+        powerElement = document.createElement('div');
+        powerElement.className = 'power-value';
+        powerElement.textContent = `${powerValue.toFixed(1)}${powerUnit}`;
+				powerElement.style.color = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
+      }
+    }
+
+    const nameContainer = document.createElement('div');
+    nameContainer.className = 'name-container';
+
+    // 创建设备名称元素
+    const nameElement = document.createElement('div');
+    nameElement.className = 'device-name';
+    nameElement.textContent = attributes.friendly_name || entity;
+    nameElement.style.color = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
+
+    // 创建电源按钮（关键修改点4：调整到右侧）
+    const powerButton = document.createElement('div');
+    powerButton.className = `power-button ${state === 'on' ? 'active' : ''}`;
+    powerButton.innerHTML = '<ha-icon icon="mdi:power-socket-uk"></ha-icon>';
+    powerButton.onclick = () => this._togglePower();
+
+    // 创建锁按钮（关键修改点5：保持在左侧）
+    const lockButton = document.createElement('div');
+    lockButton.className = 'lock-button';
+    lockButton.innerHTML = '<ha-icon icon="mdi:lock"></ha-icon>';
+
+    // 创建按钮容器
+    const btnContainer = document.createElement('div');
+    btnContainer.className = 'button-container';
+    btnContainer.append(lockButton, powerButton); // 锁按钮在前，电源按钮在后
+
+    // 三击事件处理
+    let lastClickTime = 0;
+    let clickCount = 0;
+    const handleTripleClick = (e) => {
+      e.preventDefault();
+      const now = Date.now();
+      
+      // 计算时间间隔
+      if (now - lastClickTime < this.constructor.TIMING.TRIPLE_CLICK) {
+        clickCount++;
+      } else {
+        clickCount = 1;
+      }
+
+      // 三击触发解锁
+      if (clickCount === 3) {
+        this._unlockControls(lockButton, powerButton);
+        clickCount = 0;
+      }
+
+      lastClickTime = now;
+    };
+
+    // 事件监听
+    lockButton.addEventListener('click', handleTripleClick);
+    lockButton.addEventListener('touchend', handleTripleClick);
+
+    // 容器样式设置
+    this.container.style.cssText = `
+      width: ${this._config.width || '100vw'};
+      height: ${this._config.height || '20vw'};
+      background: ${this._getBackground(state)};
+      box-shadow: ${this._evaluateTheme() === 'off' 
+        ? '0 2px 4px rgba(0,0,0,0.1)' 
+        : 'none'};
+      display: ${this._config.show === 'auto' && state !== 'on' ? 'none' : 'flex'};
+    `;
+
+    // 组装元素
+    this.container.append(nameElement, powerElement, btnContainer);
+  }
+
+  // 解锁控制方法
+  _unlockControls(lockButton, powerButton) {
+    const { UNLOCK, FEEDBACK } = this.constructor.TIMING;
+
+    // 清除现有状态
+    this._resetLockState();
+
+    // 更新锁图标
+    const lockIcon = lockButton.querySelector('ha-icon');
+    lockIcon.setAttribute('icon', 'mdi:lock-open');
+    lockIcon.style.color = '#4CAF50';
+    lockIcon.animate([
+      { transform: 'scale(1)', color: '#c8191d' },
+      { transform: 'scale(1.2)', color: '#4CAF50' },
+      { transform: 'scale(1)', color: '#4CAF50' }
+    ], { duration: FEEDBACK });
+
+    // 激活电源按钮
+    powerButton.style.opacity = '1';
+    powerButton.style.pointerEvents = 'auto';
+
+    // 创建进度条
+    const progress = document.createElement('div');
+    progress.className = 'unlock-progress';
+    this.container.appendChild(progress);
+
+    // 设置自动锁定定时器
+    this._unlockTimer = setTimeout(() => {
+      this._resetLockState();
+      progress.remove();
+    }, UNLOCK);
+  }
+
+  // 重置锁定状态
+  _resetLockState() {
+    if (this._unlockTimer) {
+      clearTimeout(this._unlockTimer);
+      this._unlockTimer = null;
+    }
+
+    // 重置电源按钮
+    const powerButton = this.container.querySelector('.power-button');
+    if (powerButton) {
+      powerButton.style.opacity = '0.5';
+      powerButton.style.pointerEvents = 'none';
+    }
+
+    // 重置锁图标
+    const lockIcon = this.container.querySelector('.lock-button ha-icon');
+    if (lockIcon) {
+      lockIcon.setAttribute('icon', 'mdi:lock');
+      lockIcon.style.color = '#c8191d';
+    }
+
+    // 移除进度条
+    const progress = this.container.querySelector('.unlock-progress');
+    if (progress) progress.remove();
+  }
+
+  // 切换电源状态
+  _togglePower() {
+    const { FEEDBACK } = this.constructor.TIMING;
+    const entity = this._config.entity;
+    
+    // 调用Home Assistant服务
+    this._hass.callService('switch', 'toggle', { entity_id: entity });
+    
+    // 触觉反馈
+    try { navigator.vibrate(50); } catch(e) {}
+    
+    // 按钮动画
+    const button = this.container.querySelector('.power-button');
+    button.animate([
+      { transform: 'scale(1)' },
+      { transform: 'scale(0.8)' },
+      { transform: 'scale(1)' }
+    ], { duration: FEEDBACK });
+  }
+
+  // 组件卸载时清理
+  disconnectedCallback() {
+    this._resetLockState();
+  }
+}
+customElements.define('xiaoshi-switch-card', XiaoshiSwitchCard);
+
+class XiaoshiSwitchGroupCard  extends HTMLElement {
+  // 时间常量配置
+  static get TIMING() {
+    return {
+      TRIPLE_CLICK: 600,   // 三击间隔时间（毫秒）
+      UNLOCK: 8000,        // 解锁持续时间（毫秒）
+      FEEDBACK: 500        // 动画持续时间（毫秒）
+    };
+  }
+
+  constructor() {
+    super();
+    const shadow = this.attachShadow({ mode: 'open' });
+    this.container = document.createElement('div');
+    this.container.style.display = 'flex';
+    this.container.style.flexDirection = 'column';
+    shadow.appendChild(this.container);
+    
+    // 创建主容器
+    this.container = document.createElement('div');
+    this.container.className = 'xiaoshi-container';
+    
+    // 样式表（关键修改点1：调整布局顺序）
+    const style = document.createElement('style');
+    style.textContent = `
+
+		/* 主容器 */
+      .xiaoshi-container {
+				flex-direction: column;
+				align-items: stretch;
+        min-height: 80px;
+        border-radius: 12px;
+        padding: 0 0;
+        display: flex;
+        gap: 16px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        justify-content: space-between; /* 两端对齐 */
+      }
+
+      /* 设备名称样式 */
+      .device-name {
+        flex: 0 1 auto; /* 禁止扩展 */
+        font-size: 1.2rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 50%; /* 限制最大宽度 */
+        z-index: 1;
+      }
+			.stats-container {
+				color: var(--primary-text-color);
+				font-weight: 700;
+        font-size: 0.8rem;
+			}
+			.stats-container span {
+				margin: 0 8px;
+			}
+
+      .name-container {
+        flex: 1;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        min-width: 0;
+      }
+      .power-value {
+        font-size: 0.8rem;
+        opacity: 1;
+        white-space: nowrap;
+      }
+
+      /* 按钮容器（关键修改点2：调整flex方向） */
+      .button-container {
+        flex: 0 0 auto; /* 禁止收缩 */
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+      }
+
+      /* 电源按钮样式 */
+      .power-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .power-button.active {
+        background: #c8191d;
+      }
+
+      /* 锁按钮样式（关键修改点3：调整顺序） */
+      .lock-button {
+        cursor: pointer;
+        margin-right: 8px; /* 增加与电源按钮的间距 */
+      }
+
+      /* 图标通用样式 */
+      ha-icon {
+        --mdc-icon-size: 24px;
+        color: var(--icon-color, #c8191d);
+      }
+      .power-button.active ha-icon {
+        color: white;
+      }
+      /* 锁图标状态颜色 */
+      .lock-button ha-icon {
+        --mdc-icon-size: 20px;
+        transition: all 0.3s ease;
+        color: #c8191d;
+      }
+
+      .lock-button.unlocked ha-icon {
+        color: #4CAF50 !important;
+      }
+
+      /* 解锁进度条动画 */
+      @keyframes unlock-progress {
+        from { width: 100% }
+        to { width: 0 }
+      }
+
+      .unlock-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: #4CAF50;
+        animation: unlock-progress ${this.constructor.TIMING.UNLOCK}ms linear;
+      }
+    `;
+
+    shadow.appendChild(style);
+    shadow.appendChild(this.container);
+    
+    // 状态管理变量
+    this._unlockTimer = null;  // 解锁定时器
+    this._config = null;       // 配置信息
+    this._hass = null;         // Home Assistant 实例
+  }
+
+  // 配置设置方法
+  setConfig(config) {
+    this._config = {
+      gap: config.gap || '0',
+      width: config.width || '400px',
+      height: config.height || '80px',
+      entities: config.entities || [],
+			theme: config.theme || null, // 允许用户强制指定主题
+    };
+    this._render();
+		this.container.style.gap = this._config.gap;
+  }
+
+  // 更新Home Assistant实例
+  set hass(hass) {
+    this._hass = hass;
+    this._renderCards();
+  }
+
+  // 主题评估方法
+  _evaluateTheme() {
+    try {
+      if (typeof this._config.theme === 'function') return this._config.theme();
+      if (typeof this._config.theme === 'string' && this._config.theme.includes('theme()')) {
+        return (new Function('return theme()'))();
+      }
+      return this._config.theme || 'off';
+    } catch(e) {
+      return 'off';
+    }
+  }
+
+  // 背景颜色计算
+  _getBackground(state) {
+    const theme = this._evaluateTheme();
+    return state === 'on' 
+      ? (theme === 'off' 
+          ? 'linear-gradient(90deg, #c8191d -20%, #323232 70%)' 
+          : 'linear-gradient(90deg, #c8191d -20%, #FFF 70%)')
+      : (theme === 'off' ? '#323232' : '#FFF');
+  }
+  _renderCards() {
+    this.container.innerHTML = '';
+
+    // 新增：创建统计容器
+    const statsContainer = this._createStatsRow();
+    this.container.appendChild(statsContainer);
+
+    this._config.entities.forEach(entityPair => {
+      const [switchEntity, sensorEntity] = this._parseEntityConfig(entityPair);
+      const card = document.createElement('xiaoshi-switch-card');
+      card.setConfig({
+        entity: switchEntity,
+        power: sensorEntity,
+        width: this._config.width,
+        height: this._config.height,
+				theme: this._config.theme // 继承父级主题配置
+      });
+      card.hass = this._hass;
+      this.container.appendChild(card);
+    });
+  }
+			// 新增：创建统计行方法
+			_createStatsRow() {
+				let onCount = 0;
+				let totalPower = 0;
+
+				// 遍历所有实体计算统计值
+				this._config.entities.forEach(entityPair => {
+					const [switchEntity, sensorEntity] = this._parseEntityConfig(entityPair);
+					const switchState = this._hass.states[switchEntity]?.state;
+					const powerValue = parseFloat(this._hass.states[sensorEntity]?.state);
+
+					if (switchState === 'on') {
+						onCount++;
+						if (!isNaN(powerValue)) totalPower += powerValue;
+					}
+				})
+			// 在创建统计容器部分进行如下修改
+			const themeMode = this._evaluateTheme(); // 获取当前主题模式
+			const isLightTheme = themeMode === 'on'; // 假设评估方法返回'light'或'dark'
+			const textColor = isLightTheme ? '#333' : '#FFF';
+
+			const stats = document.createElement('div');
+			stats.className = 'stats-container';
+			stats.style.cssText = `
+				display: flex;
+				justify-content: space-between;
+        padding: 2vw 10vw 1vw 10vw;
+				background: rgba(0, 0, 0, 0);
+				border-radius: 0;
+				margin-bottom: 6px;
+				font-size: 1em;
+				font-weight: 700;
+				color: ${textColor};
+				text-shadow: ${isLightTheme ?
+					'0.05em 0 #fff, -0.05em 0 #fff, 0 0.05em #fff, 0 -0.05em #fff, 0.05em 0.05em #fff, -0.05em -0.05em #fff, 0.05em -0.05em #fff, -0.05em 0.05em #fff' 
+    			: 'none'};
+			`;
+			// 创建统计内容
+			stats.innerHTML = `
+				<span>开启 ${onCount} 个</span>
+				<span>关闭 ${this._config.entities.length - onCount} 个</span>
+				<span>总功率：${totalPower.toFixed(1)}W</span>
+			`;
+			return stats;
+		}
+
+  // 主渲染方法
+  _render() {
+    if (!this._config || !this._hass) return;
+
+    // 清空容器
+    this.container.innerHTML = '';
+
+    // 获取设备状态
+    const entity = this._config.entity;
+    const stateObj = this._hass.states[entity] || {};
+    const state = stateObj.state || 'off';
+    const attributes = stateObj.attributes || {};
+
+		// 获取功率数值
+    let powerElement = '';
+    if (this._config.power) {
+      const powerState = this._hass.states[this._config.power];
+      
+      if (powerState && !isNaN(powerState.state)) {
+        const powerValue = parseFloat(powerState.state);
+        const powerUnit = powerState.attributes?.unit_of_measurement || 'W';
+        
+        powerElement = document.createElement('div');
+        powerElement.className = 'power-value';
+        powerElement.textContent = `${powerValue.toFixed(1)}${powerUnit}`;
+				powerElement.style.color = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
+      }
+    }
+
+    const nameContainer = document.createElement('div');
+    nameContainer.className = 'name-container';
+
+    // 创建设备名称元素
+    const nameElement = document.createElement('div');
+    nameElement.className = 'device-name';
+    nameElement.textContent = attributes.friendly_name || entity;
+    nameElement.style.color = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
+
+    // 创建电源按钮（关键修改点4：调整到右侧）
+    const powerButton = document.createElement('div');
+    powerButton.className = `power-button ${state === 'on' ? 'active' : ''}`;
+    powerButton.innerHTML = '<ha-icon icon="mdi:power-socket-uk"></ha-icon>';
+    powerButton.onclick = () => this._togglePower();
+
+    // 创建锁按钮（关键修改点5：保持在左侧）
+    const lockButton = document.createElement('div');
+    lockButton.className = 'lock-button';
+    lockButton.innerHTML = '<ha-icon icon="mdi:lock"></ha-icon>';
+
+    // 创建按钮容器
+    const btnContainer = document.createElement('div');
+    btnContainer.className = 'button-container';
+    btnContainer.append(lockButton, powerButton); // 锁按钮在前，电源按钮在后
+
+    // 三击事件处理
+    let lastClickTime = 0;
+    let clickCount = 0;
+    const handleTripleClick = (e) => {
+      e.preventDefault();
+      const now = Date.now();
+      
+      // 计算时间间隔
+      if (now - lastClickTime < this.constructor.TIMING.TRIPLE_CLICK) {
+        clickCount++;
+      } else {
+        clickCount = 1;
+      }
+
+      // 三击触发解锁
+      if (clickCount === 3) {
+        this._unlockControls(lockButton, powerButton);
+        clickCount = 0;
+      }
+
+      lastClickTime = now;
+    };
+
+    // 事件监听
+    lockButton.addEventListener('click', handleTripleClick);
+    lockButton.addEventListener('touchend', handleTripleClick);
+
+    // 容器样式设置
+    this.container.style.cssText = `
+      width: ${this._config.width || '100vw'};
+      height: ${this._config.height || '20vw'};
+      background: ${this._getBackground(state)};
+      box-shadow: ${this._evaluateTheme() === 'off' 
+        ? '0 2px 4px rgba(0,0,0,0.1)' 
+        : 'none'};
+      display: ${this._config.show === 'auto' && state !== 'on' ? 'none' : 'flex'};
+    `;
+
+    // 组装元素
+    this.container.append(nameElement, powerElement, btnContainer);
+  }
+
+  // 解锁控制方法
+  _unlockControls(lockButton, powerButton) {
+    const { UNLOCK, FEEDBACK } = this.constructor.TIMING;
+
+    // 清除现有状态
+    this._resetLockState();
+
+    // 更新锁图标
+    const lockIcon = lockButton.querySelector('ha-icon');
+    lockIcon.setAttribute('icon', 'mdi:lock-open');
+    lockIcon.style.color = '#4CAF50';
+    lockIcon.animate([
+      { transform: 'scale(1)', color: '#c8191d' },
+      { transform: 'scale(1.2)', color: '#4CAF50' },
+      { transform: 'scale(1)', color: '#4CAF50' }
+    ], { duration: FEEDBACK });
+
+    // 激活电源按钮
+    powerButton.style.opacity = '1';
+    powerButton.style.pointerEvents = 'auto';
+
+    // 创建进度条
+    const progress = document.createElement('div');
+    progress.className = 'unlock-progress';
+    this.container.appendChild(progress);
+
+    // 设置自动锁定定时器
+    this._unlockTimer = setTimeout(() => {
+      this._resetLockState();
+      progress.remove();
+    }, UNLOCK);
+  }
+
+  // 重置锁定状态
+  _resetLockState() {
+    if (this._unlockTimer) {
+      clearTimeout(this._unlockTimer);
+      this._unlockTimer = null;
+    }
+
+    // 重置电源按钮
+    const powerButton = this.container.querySelector('.power-button');
+    if (powerButton) {
+      powerButton.style.opacity = '0.5';
+      powerButton.style.pointerEvents = 'none';
+    }
+
+    // 重置锁图标
+    const lockIcon = this.container.querySelector('.lock-button ha-icon');
+    if (lockIcon) {
+      lockIcon.setAttribute('icon', 'mdi:lock');
+      lockIcon.style.color = '#c8191d';
+    }
+
+    // 移除进度条
+    const progress = this.container.querySelector('.unlock-progress');
+    if (progress) progress.remove();
+  }
+
+  // 切换电源状态
+  _togglePower() {
+    const { FEEDBACK } = this.constructor.TIMING;
+    const entity = this._config.entity;
+    
+    // 调用Home Assistant服务
+    this._hass.callService('switch', 'toggle', { entity_id: entity });
+    
+    // 触觉反馈
+    try { navigator.vibrate(50); } catch(e) {}
+    
+    // 按钮动画
+    const button = this.container.querySelector('.power-button');
+    button.animate([
+      { transform: 'scale(1)' },
+      { transform: 'scale(0.8)' },
+      { transform: 'scale(1)' }
+    ], { duration: FEEDBACK });
+  }
+  _parseEntityConfig(config) {
+    if (Array.isArray(config)) {
+      return [config[0], config[1]];
+    }
+    if (typeof config === 'string') {
+      return config.split(',').map(e => e.trim());
+    }
+    return [config.entity, config.power];
+  }
+  // 组件卸载时清理
+  disconnectedCallback() {
+    this._resetLockState();
+  }
+}
+customElements.define('xiaoshi-switch-group-card', XiaoshiSwitchGroupCard); 
