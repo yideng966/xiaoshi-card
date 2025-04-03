@@ -2059,7 +2059,7 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
 			`;
 			// 创建统计内容
 			stats.innerHTML = `
-				开启 ${onCount} 个&emsp;&emsp;关闭 ${this._config.entities.length - onCount} 个&emsp;&emsp;总功率：${totalPower.toFixed(1)}W
+				开启 ${onCount} 个&emsp;关闭 ${this._config.entities.length - onCount} 个&emsp;总功率：${totalPower.toFixed(1)}W
 			`;
 			return stats;
 		}
