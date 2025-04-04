@@ -1455,7 +1455,6 @@ class XiaoshiSwitchCard extends HTMLElement {
   // 时间常量配置
   static get TIMING() {
     return {
-      TRIPLE_CLICK: 600,   // 三击间隔时间（毫秒）
       UNLOCK: 8000,        // 解锁持续时间（毫秒）
       FEEDBACK: 500        // 动画持续时间（毫秒）
     };
@@ -1679,31 +1678,14 @@ class XiaoshiSwitchCard extends HTMLElement {
     btnContainer.append(lockButton, powerButton); // 锁按钮在前，电源按钮在后
 
     // 三击事件处理
-    let lastClickTime = 0;
-    let clickCount = 0;
-    const handleTripleClick = (e) => {
-      e.preventDefault();
-      const now = Date.now();
-      
-      // 计算时间间隔
-      if (now - lastClickTime < this.constructor.TIMING.TRIPLE_CLICK) {
-        clickCount++;
-      } else {
-        clickCount = 1;
-      }
-
-      // 三击触发解锁
-      if (clickCount === 3) {
+    const handleSingleClick = (e) => {
+        e.preventDefault();
         this._unlockControls(lockButton, powerButton);
-        clickCount = 0;
-      }
-
-      lastClickTime = now;
     };
 
     // 事件监听
-    lockButton.addEventListener('click', handleTripleClick);
-    lockButton.addEventListener('touchend', handleTripleClick);
+    lockButton.addEventListener('click', handleSingleClick);
+    lockButton.addEventListener('touchend', handleSingleClick);
 
     // 容器样式设置
     this.container.style.cssText = `
@@ -1810,7 +1792,6 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
   // 时间常量配置
   static get TIMING() {
     return {
-      TRIPLE_CLICK: 600,   // 三击间隔时间（毫秒）
       UNLOCK: 8000,        // 解锁持续时间（毫秒）
       FEEDBACK: 500        // 动画持续时间（毫秒）
     };
@@ -2119,31 +2100,14 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
     btnContainer.append(lockButton, powerButton); // 锁按钮在前，电源按钮在后
 
     // 三击事件处理
-    let lastClickTime = 0;
-    let clickCount = 0;
-    const handleTripleClick = (e) => {
-      e.preventDefault();
-      const now = Date.now();
-      
-      // 计算时间间隔
-      if (now - lastClickTime < this.constructor.TIMING.TRIPLE_CLICK) {
-        clickCount++;
-      } else {
-        clickCount = 1;
-      }
-
-      // 三击触发解锁
-      if (clickCount === 3) {
+    const handleSingleClick = (e) => {
+        e.preventDefault();
         this._unlockControls(lockButton, powerButton);
-        clickCount = 0;
-      }
-
-      lastClickTime = now;
     };
 
     // 事件监听
-    lockButton.addEventListener('click', handleTripleClick);
-    lockButton.addEventListener('touchend', handleTripleClick);
+    lockButton.addEventListener('click', handleSingleClick);
+    lockButton.addEventListener('touchend', handleSingleClick);
 
     // 容器样式设置
     this.container.style.cssText = `
