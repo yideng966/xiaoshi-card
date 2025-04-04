@@ -56,7 +56,7 @@ theme: on             # 选项on是白色，选项off是黑色，也可以引用
 ## 功能5：插座控制卡（单插座）
 **引用示例**
 ~~~
-type: custom:xiaoshi-switch-card    【三击解锁】
+type: custom:xiaoshi-switch-card
 entity: switch.switch1   # 插座实体
 power: sensor.power1     # 插座对应功率实体
 height: 85vw             # 卡片宽度
@@ -67,7 +67,7 @@ theme: "on"              # 选项on是白色，选项off是黑色，也可以引
 ## 功能6：插座控制卡（插座组）
 **引用示例**
 ~~~
-type: custom:xiaoshi-switch-group-card  【三击解锁】
+type: custom:xiaoshi-switch-group-card
 entities:
   - entity: switch.switch1   # 插座1实体 
     power: sensor.power1     # 插座1对应功率实体
