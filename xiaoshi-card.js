@@ -284,6 +284,7 @@ class VideoCard extends HTMLElement {
     });
   }
 }
+console.info("%c 消逝集合卡. 视频卡 \n%c   Version 0.0.1    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-video-card', VideoCard);
 
 class ImageCard extends HTMLElement {
@@ -408,6 +409,7 @@ class ImageCard extends HTMLElement {
 
   }
 }
+console.info("%c 消逝集合卡. 图片卡 \n%c   Version 0.0.1    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-image-card', ImageCard);
 
 class LightCard extends HTMLElement {
@@ -795,6 +797,7 @@ class LightCard extends HTMLElement {
     });
   }
 }
+console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 0.0.1    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-card', LightCard);
 
 class LightGroupCard extends HTMLElement {
@@ -1324,6 +1327,7 @@ class LightGroupCard extends HTMLElement {
     });
   }
 } 
+console.info("%c 消逝集合卡. 灯组卡 \n%c   Version 0.0.1    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-group-card', LightGroupCard);
 
 class XiaoshiTimeCard extends HTMLElement {
@@ -1449,6 +1453,7 @@ class XiaoshiTimeCard extends HTMLElement {
     });
   }
 }
+console.info("%c 消逝集合卡. 时间卡 \n%c   Version 0.0.1    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
 
 class XiaoshiSwitchCard extends HTMLElement {
@@ -1786,6 +1791,7 @@ class XiaoshiSwitchCard extends HTMLElement {
     this._resetLockState();
   }
 }
+console.info("%c 消逝集合卡. 插座卡 \n%c   Version 0.0.1    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-switch-card', XiaoshiSwitchCard);
 
 class XiaoshiSwitchGroupCard  extends HTMLElement {
@@ -2216,4 +2222,51 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
     this._resetLockState();
   }
 }
+console.info("%c 消逝集合卡. 插座组 \n%c   Version 0.0.1    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-switch-group-card', XiaoshiSwitchGroupCard); 
+
+window.customCards = window.customCards || [];
+window.customCards.push(
+  {
+    type: 'xiaoshi-video-card',
+    name: '消逝卡片组 视频卡',
+    preview: true,
+    description: '加载api视频背景'
+  },
+  {
+    type: 'xiaoshi-image-card',
+    name: '消逝卡片组 图片卡',
+    preview: true,
+    description: '加载api图片背景'
+  },
+  {
+    type: 'xiaoshi-light-card',
+    name: '消逝卡片组 灯光卡',
+    preview: true,
+    description: '加载灯光'
+  },
+  {
+    type: 'xiaoshi-light-group-card',
+    name: '消逝卡片组 灯组卡',
+    preview: true,
+    description: '加载灯光组'
+  },
+  {
+    type: 'xiaoshi-switch-card',
+    name: '消逝卡片组 插座卡',
+    preview: true,
+    description: '加载插座'
+  },
+  {
+    type: 'xiaoshi-switch-group-card',
+    name: '消逝卡片组 插座组',
+    preview: true,
+    description: '加载插座组'
+  },
+  {
+    type: 'xiaoshi-time-card',
+    name: '消逝卡片组 时间卡',
+    preview: true,
+    description: '显示时间（需要配合万年历NR和button模板）'
+  }
+);
