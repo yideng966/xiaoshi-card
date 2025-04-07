@@ -833,15 +833,6 @@ class LightGroupCard extends HTMLElement {
       }
 
 			.stats-text {
-				text-shadow: 
-					0.05em 0 0 #fff,
-					-0.05em 0 0 #fff,
-					0 0.05em 0 #fff,
-					0 -0.05em 0 #fff,
-					0.05em 0.05em 0 #fff,
-					-0.05em -0.05em 0 #fff,
-					0.05em -0.05em 0 #fff,
-					-0.05em 0.05em 0 #fff;
 				font-size: 1.2rem;
 				font-weight: 700;
 				transition: color 0.3s;
