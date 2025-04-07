@@ -284,7 +284,7 @@ class VideoCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 视频卡 \n%c   Version 04.07    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 视频卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-video-card', VideoCard);
 
 class ImageCard extends HTMLElement {
@@ -409,7 +409,7 @@ class ImageCard extends HTMLElement {
 
   }
 }
-console.info("%c 消逝集合卡. 图片卡 \n%c   Version 04.07    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 图片卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-image-card', ImageCard);
 
 class LightCard extends HTMLElement {
@@ -797,7 +797,7 @@ class LightCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 04.07    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-card', LightCard);
 
 class LightGroupCard extends HTMLElement {
@@ -1327,7 +1327,7 @@ class LightGroupCard extends HTMLElement {
     });
   }
 } 
-console.info("%c 消逝集合卡. 灯组卡 \n%c   Version 04.07    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 灯组卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-group-card', LightGroupCard);
 
 class XiaoshiTimeCard extends HTMLElement {
@@ -1453,20 +1453,18 @@ class XiaoshiTimeCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 时间卡 \n%c   Version 04.07    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 时间卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
 
 class XiaoshiSwitchCard extends HTMLElement {
   constructor() {
     super();
-		this._isUnlocked = false;
-
     const shadow = this.attachShadow({ mode: 'open' });
     // 创建主容器
     this.container = document.createElement('div');
     this.container.className = 'xiaoshi-container';
 
-    // 样式表（关键修改点1：调整布局顺序）
+    // 样式表
     const style = document.createElement('style');
     style.textContent = `
 		/* 主容器 */
@@ -1484,37 +1482,26 @@ class XiaoshiSwitchCard extends HTMLElement {
 				margin-bottom: 8px;
       }
 
-      /* 设备名称样式 */
       .device-name {
-        flex: 0 1 auto;
         font-size: 1.2rem;
         font-weight: 600;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 50%;
         z-index: 1;
       }
-      .name-container {
-        flex: 1;
+      .name-power-container {
         display: flex;
         align-items: baseline;
         gap: 8px;
         min-width: 0;
+        flex: 1;
       }
+
       .power-value {
         font-size: 0.9rem;
         opacity: 0.8;
         white-space: nowrap;
-      }
-
-      /* 按钮容器 */
-      .button-container {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-left: auto;
       }
 
       /* 电源按钮样式 */
@@ -1528,14 +1515,11 @@ class XiaoshiSwitchCard extends HTMLElement {
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        opacity: 0.5;
-        pointer-events: none;
       }
 
       .power-button.active {
         background: #c8191d;
       }
-
 
       /* 图标通用样式 */
       ha-icon {
@@ -1545,52 +1529,23 @@ class XiaoshiSwitchCard extends HTMLElement {
       .power-button.active ha-icon {
         color: white;
       }
-
-      /* 锁按钮样式*/
-      .lock-button {
-        cursor: pointer;
-        margin-right: 8px; 
-      }
-
-      /* 锁图标状态颜色 */
-      .lock-button ha-icon {
-        --mdc-icon-size: 20px;
-        transition: all 0.3s ease;
-        color: #c8191d;
-      }
-
-      /* 解锁进度条动画 */
-      @keyframes unlock-progress {
-        from { width: 100% }
-        to { width: 0 }
-      }
-
-      .unlock-progress {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 3px;
-        background: #00aaaa;
-        animation: unlock-progress 4s linear;
-      }
     `;
 
     shadow.appendChild(style);
     shadow.appendChild(this.container);
     
     // 状态管理变量
-    this._unlockTimer = null;  // 解锁定时器
+    this._clickCount = 0;
+    this._clickTimer = null;
     this._config = null;       // 配置信息
     this._hass = null;         // Home Assistant 实例
   }
 
-  // 配置设置方法
   setConfig(config) {
     this._config = config;		
-		//this._render();
+		this._render();
   }
 
-  // 更新Home Assistant实例
   set hass(hass) {
     this._hass = hass;
 		this._render();
@@ -1621,18 +1576,14 @@ class XiaoshiSwitchCard extends HTMLElement {
 
   // 主渲染方法
   _render() {
-			if (this._isUnlocked) return; // 如果已经解锁，直接返回
-			this._isUnlocked = true; 
     	if (!this._config || !this._hass) return;
 			// 清空容器
 			this.container.innerHTML = '';
-
 			// 获取设备状态
 			const entity = this._config.entity;
 			const stateObj = this._hass.states[entity] || {};
 			const state = stateObj.state || 'off';
 			const attributes = stateObj.attributes || {};
-
 			// 获取功率数值
 			let powerElement = '';
 			if (this._config.power) {
@@ -1648,38 +1599,20 @@ class XiaoshiSwitchCard extends HTMLElement {
 					powerElement.style.color = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
 				}
 			}
-
 			// 创建设备名称元素
 			const nameElement = document.createElement('div');
 			nameElement.className = 'device-name';
 			nameElement.textContent = attributes.friendly_name || entity;
 			nameElement.style.color = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
-
-			// 创建电源按钮（关键修改点4：调整到右侧）
+			// 创建名称和功率容器
+			const namePowerContainer = document.createElement('div');
+			namePowerContainer.className = 'name-power-container';
+			namePowerContainer.append(nameElement, powerElement); 
+			// 创建电源按钮
 			const powerButton = document.createElement('div');
 			powerButton.className = `power-button ${state === 'on' ? 'active' : ''}`;
 			powerButton.innerHTML = '<ha-icon icon="mdi:power-socket-uk"></ha-icon>';
-			powerButton.onclick = () => this._togglePower();
-
-			// 创建锁按钮（关键修改点5：保持在左侧）
-			const lockButton = document.createElement('div');
-			lockButton.className = 'lock-button';
-			lockButton.innerHTML = '<ha-icon icon="mdi:lock"></ha-icon>';
-
-			// 创建按钮容器
-			const btnContainer = document.createElement('div');
-			btnContainer.className = 'button-container';
-			btnContainer.append(lockButton, powerButton); // 锁按钮在前，电源按钮在后
-
-			// 单击事件处理
-			const handleSingleClick = (e) => {
-					e.preventDefault();
-					this._unlockControls(lockButton, powerButton);
-			};
-
-			// 事件监听
-			lockButton.addEventListener('click', handleSingleClick);
-			lockButton.addEventListener('touchend', handleSingleClick);
+			powerButton.onclick = () => this._handlePowerButtonClick();
 
 			// 容器样式设置
 			this.container.style.cssText = `
@@ -1689,75 +1622,38 @@ class XiaoshiSwitchCard extends HTMLElement {
 				box-shadow: ${this._evaluateTheme() === 'off' 
 					? '0 2px 4px rgba(0,0,0,0.1)' 
 					: 'none'};
-				display: ${this._config.show === 'auto' && state !== 'on' ? 'none' : 'flex'};
 			`;
 
-			// 组装元素
-			this.container.append(nameElement, powerElement, btnContainer);
+			this.container.append(namePowerContainer, powerButton);
   }
 
-  // 解锁控制方法
-  _unlockControls(lockButton, powerButton) {
-    this._resetLockState();
-    const lockIcon = lockButton.querySelector('ha-icon');
-    lockIcon.setAttribute('icon', 'mdi:lock-open');
-    lockIcon.style.color = '#00dddd';
-    // 激活电源按钮
-    powerButton.style.opacity = '1';
-    powerButton.style.pointerEvents = 'auto';
-    // 创建进度条
-    const progress = document.createElement('div');
-    progress.className = 'unlock-progress';
-    this.container.appendChild(progress);
-    // 设置自动锁定定时器
-    this._unlockTimer = setTimeout(() => {
-      this._resetLockState();
-      progress.remove();
-    }, 4000);
-  }
-
-  // 重置锁定状态
-  _resetLockState() {
-    if (this._unlockTimer) {
-      clearTimeout(this._unlockTimer);
-      this._unlockTimer = null;
-    }
-    // 重置电源按钮 
-    const powerButton = this.container.querySelector('.power-button');
-    if (powerButton) {
-      powerButton.style.opacity = '0.5';
-      powerButton.style.pointerEvents = 'none';
-    }
-    // 重置锁图标
-    const lockIcon = this.container.querySelector('.lock-button ha-icon');
-    if (lockIcon) {
-      lockIcon.setAttribute('icon', 'mdi:lock');
-      lockIcon.style.color = '#c8191d';
-    }
-    // 移除进度条
-    const progress = this.container.querySelector('.unlock-progress');
-    if (progress) {
-			progress.remove();
+	_handlePowerButtonClick(e) {
+		this._clickCount++;
+		if (this._clickTimer) {
+			clearTimeout(this._clickTimer);
 		}
-		this._isUnlocked = false;
-  }
+		this._clickTimer = setTimeout(() => {
+			if (this._clickCount >= 2) {
+				this._togglePower();
+			}
+			this._clickCount = 0;
+		}, 1000);
+		try { navigator.vibrate(50); } catch(e) {}
+	}
 
-  // 切换电源状态
   _togglePower() {
     const entity = this._config.entity;
-    // 调用Home Assistant服务
     this._hass.callService('switch', 'toggle', { entity_id: entity });
-    // 触觉反馈
-    try { navigator.vibrate(50); } catch(e) {}
-		this._isUnlocked = false;
+    this._clickCount = 0;
   }
 
-  // 组件卸载时清理
   disconnectedCallback() {
-    this._resetLockState();
+    if (this._clickTimer) {
+      clearTimeout(this._clickTimer);
+    }
   }
 }
-console.info("%c 消逝集合卡. 插座卡 \n%c   Version 04.07    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 插座卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-switch-card', XiaoshiSwitchCard);
 
 class XiaoshiSwitchGroupCard  extends HTMLElement {
@@ -1790,49 +1686,30 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
         position: relative;
         overflow: hidden;
         transition: all 0.3s ease;
-        justify-content: space-between; /* 两端对齐 */
+        justify-content: space-between;
       }
 
       /* 设备名称样式 */
       .device-name {
-        flex: 0 1 auto; /* 禁止扩展 */
         font-size: 1.2rem;
         font-weight: 600;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 50%; /* 限制最大宽度 */
         z-index: 1;
       }
-			.stats-container {
-				color: var(--primary-text-color);
-				font-weight: 700;
-        font-size: 0.8rem;
-			}
-			.stats-container span {
-				margin: 0 8px;
-			}
-
-      .name-container {
-        flex: 1;
+      .name-power-container {
         display: flex;
         align-items: baseline;
         gap: 8px;
         min-width: 0;
-      }
-      .power-value {
-        font-size: 0.8rem;
-        opacity: 1;
-        white-space: nowrap;
+        flex: 1;
       }
 
-      /* 按钮容器（关键修改点2：调整flex方向） */
-      .button-container {
-        flex: 0 0 auto; /* 禁止收缩 */
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-left: auto;
+      .power-value {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        white-space: nowrap;
       }
 
       /* 电源按钮样式 */
@@ -1846,18 +1723,10 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        opacity: 0.5;
-        pointer-events: none;
       }
 
       .power-button.active {
         background: #c8191d;
-      }
-
-      /* 锁按钮样式（关键修改点3：调整顺序） */
-      .lock-button {
-        cursor: pointer;
-        margin-right: 8px; /* 增加与电源按钮的间距 */
       }
 
       /* 图标通用样式 */
@@ -1868,33 +1737,13 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
       .power-button.active ha-icon {
         color: white;
       }
-      /* 锁图标状态颜色 */
-      .lock-button ha-icon {
-        --mdc-icon-size: 20px;
-        transition: all 0.3s ease;
-        color: #c8191d;
-      }
-
-      /* 解锁进度条动画 */
-      @keyframes unlock-progress {
-        from { width: 100% }
-        to { width: 0 }
-      }
-
-      .unlock-progress {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 3px;
-        background: #00dddd;
-        animation: unlock-progress 4s linear;
-      }
     `;
 
     shadow.appendChild(style);
     shadow.appendChild(this.container);
     
     // 状态管理变量
+    this._clickCount = 0;
     this._unlockTimer = null;  // 解锁定时器
     this._config = null;       // 配置信息
     this._hass = null;         // Home Assistant 实例
@@ -2009,8 +1858,6 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
 
   // 主渲染方法
   _render() {
-			if (this._isUnlocked) return; // 如果已经解锁，直接返回
-			this._isUnlocked = true; 
     	if (!this._config || !this._hass) return;
 			// 清空容器
 			this.container.innerHTML = '';
@@ -2042,32 +1889,16 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
 			nameElement.className = 'device-name';
 			nameElement.textContent = attributes.friendly_name || entity;
 			nameElement.style.color = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
+			// 创建名称和功率容器
+			const namePowerContainer = document.createElement('div');
+			namePowerContainer.className = 'name-power-container';
+			namePowerContainer.append(nameElement, powerElement); 
 
-			// 创建电源按钮（关键修改点4：调整到右侧）
+			// 创建电源按钮
 			const powerButton = document.createElement('div');
 			powerButton.className = `power-button ${state === 'on' ? 'active' : ''}`;
 			powerButton.innerHTML = '<ha-icon icon="mdi:power-socket-uk"></ha-icon>';
-			powerButton.onclick = () => this._togglePower();
-
-			// 创建锁按钮（关键修改点5：保持在左侧）
-			const lockButton = document.createElement('div');
-			lockButton.className = 'lock-button';
-			lockButton.innerHTML = '<ha-icon icon="mdi:lock"></ha-icon>';
-
-			// 创建按钮容器
-			const btnContainer = document.createElement('div');
-			btnContainer.className = 'button-container';
-			btnContainer.append(lockButton, powerButton); // 锁按钮在前，电源按钮在后
-
-			// 单击事件处理
-			const handleSingleClick = (e) => {
-					e.preventDefault();
-					this._unlockControls(lockButton, powerButton);
-			};
- 
-			// 事件监听
-			lockButton.addEventListener('click', handleSingleClick);
-			lockButton.addEventListener('touchend', handleSingleClick);
+			powerButton.onclick = () => this._handlePowerButtonClick();
 
 			// 容器样式设置
 			this.container.style.cssText = `
@@ -2081,64 +1912,29 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
 			`;
 
 			// 组装元素
-			this.container.append(nameElement, powerElement, btnContainer);
-		
+			this.container.append(namePowerContainer, powerButton);
   }
 
-  // 解锁控制方法
-  _unlockControls(lockButton, powerButton) {
-    // 清除现有状态
-    this._resetLockState();
-    // 更新锁图标
-    const lockIcon = lockButton.querySelector('ha-icon');
-    lockIcon.setAttribute('icon', 'mdi:lock-open');
-    lockIcon.style.color = '#00dddd';
-    // 激活电源按钮
-    powerButton.style.opacity = '1';
-    powerButton.style.pointerEvents = 'auto';
-    // 创建进度条
-    const progress = document.createElement('div');
-    progress.className = 'unlock-progress';
-    this.container.appendChild(progress);
-    // 设置自动锁定定时器
-    this._unlockTimer = setTimeout(() => {
-      this._resetLockState();
-      progress.remove();
-    }, 4000);
-  }
+	_handlePowerButtonClick(e) {
+		this._clickCount++;
+		if (this._clickTimer) {
+			clearTimeout(this._clickTimer);
+		}
+		this._clickTimer = setTimeout(() => {
+			if (this._clickCount >= 2) {
+				this._togglePower();
+			}
+			this._clickCount = 0;
+		}, 1000);
+		try { navigator.vibrate(50); } catch(e) {}
+	}
 
-  // 重置锁定状态
-  _resetLockState() {
-    if (this._unlockTimer) {
-      clearTimeout(this._unlockTimer);
-      this._unlockTimer = null;
-    }
-    // 重置电源按钮
-    const powerButton = this.container.querySelector('.power-button');
-    if (powerButton) {
-      powerButton.style.opacity = '0.5';
-      powerButton.style.pointerEvents = 'none';
-    }
-    // 重置锁图标
-    const lockIcon = this.container.querySelector('.lock-button ha-icon');
-    if (lockIcon) {
-      lockIcon.setAttribute('icon', 'mdi:lock');
-      lockIcon.style.color = '#c8191d';
-    }
-    // 移除进度条
-    const progress = this.container.querySelector('.unlock-progress');
-    if (progress) {progress.remove();}
-		this._isUnlocked = false;
-  }
-  // 切换电源状态
   _togglePower() {
     const entity = this._config.entity;
-    // 调用Home Assistant服务
     this._hass.callService('switch', 'toggle', { entity_id: entity });
-    // 触觉反馈
-    try { navigator.vibrate(50); } catch(e) {}
-		this._isUnlocked = false;
+    this._clickCount = 0;
   }
+
   _parseEntityConfig(config) {
     if (Array.isArray(config)) { 
       return [config[0], config[1]];
@@ -2148,12 +1944,14 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
     }
     return [config.entity, config.power];
   }
-  // 组件卸载时清理
+
   disconnectedCallback() {
-    this._resetLockState();
+    if (this._clickTimer) {
+      clearTimeout(this._clickTimer);
+    }
   }
 }
-console.info("%c 消逝集合卡. 插座组 \n%c   Version 04.07    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 插座组 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-switch-group-card', XiaoshiSwitchGroupCard); 
 
 window.customCards = window.customCards || [];
