@@ -284,7 +284,7 @@ class VideoCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 视频卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 视频卡 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-video-card', VideoCard);
 
 class ImageCard extends HTMLElement {
@@ -409,7 +409,7 @@ class ImageCard extends HTMLElement {
 
   }
 }
-console.info("%c 消逝集合卡. 图片卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 图片卡 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-image-card', ImageCard);
 
 class LightCard extends HTMLElement {
@@ -797,7 +797,7 @@ class LightCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-card', LightCard);
 
 class LightGroupCard extends HTMLElement {
@@ -1180,6 +1180,7 @@ class LightGroupCard extends HTMLElement {
     statsText.className = 'stats-text';
     statsText.textContent = `总共开启 ${onCount} 盏灯`;
     statsText.style.color = themeColor;
+
     // 全关按钮
     const offButton = document.createElement('div');
     offButton.className = 'all-off-button';
@@ -1187,7 +1188,6 @@ class LightGroupCard extends HTMLElement {
     offButton.addEventListener('click', () => this._turnOffAll());
 		offButton.style.color = '#fff'; // 白色文字
 		offButton.style.backgroundColor = '#FE6F21'; // 橙色背景
-		offButton.style.border  = '1px solid #fff';
     
 		// 当开启数量为0时隐藏
 		offButton.style.opacity = onCount > 0 ? 1 : 0;
@@ -1315,7 +1315,7 @@ class LightGroupCard extends HTMLElement {
     });
   }
 } 
-console.info("%c 消逝集合卡. 灯组卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 灯组卡 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-group-card', LightGroupCard);
 
 class XiaoshiTimeCard extends HTMLElement {
@@ -1441,7 +1441,7 @@ class XiaoshiTimeCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 时间卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 时间卡 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
 
 class XiaoshiSwitchCard extends HTMLElement {
@@ -1641,7 +1641,7 @@ class XiaoshiSwitchCard extends HTMLElement {
     }
   }
 }
-console.info("%c 消逝集合卡. 插座卡 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 插座卡 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-switch-card', XiaoshiSwitchCard);
 
 class XiaoshiSwitchGroupCard  extends HTMLElement {
@@ -1939,7 +1939,7 @@ class XiaoshiSwitchGroupCard  extends HTMLElement {
     }
   }
 }
-console.info("%c 消逝集合卡. 插座组 \n%c   Version 1.1.2    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 插座组 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-switch-group-card', XiaoshiSwitchGroupCard); 
 
 window.customCards = window.customCards || [];
