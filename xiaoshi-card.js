@@ -1180,16 +1180,13 @@ class LightGroupCard extends HTMLElement {
     statsText.className = 'stats-text';
     statsText.textContent = `总共开启 ${onCount} 盏灯`;
     statsText.style.color = themeColor;
-		statsText.style.textShadow = themeColor === '#333' 
-    ? '0.05em 0 #fff, -0.05em 0 #fff, 0 0.05em #fff, 0 -0.05em #fff, 0.05em 0.05em #fff, -0.05em -0.05em #fff, 0.05em -0.05em #fff, -0.05em 0.05em #fff' 
-    : 'none'; // 深色主题时显示轮廓
     // 全关按钮
     const offButton = document.createElement('div');
     offButton.className = 'all-off-button';
 		offButton.textContent = '全关'; // 改为文字内容
     offButton.addEventListener('click', () => this._turnOffAll());
 		offButton.style.color = '#fff'; // 白色文字
-		offButton.style.backgroundColor = '#777'; // 橙色背景
+		offButton.style.backgroundColor = '#FE6F21'; // 橙色背景
 		offButton.style.border  = '1px solid #fff';
     
 		// 当开启数量为0时隐藏
