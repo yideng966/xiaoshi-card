@@ -94,7 +94,7 @@ class XiaoshiSwitchGroupCard extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
+        cursor: none;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         opacity: 0.5;
         pointer-events: none;
@@ -111,7 +111,7 @@ class XiaoshiSwitchGroupCard extends LitElement {
 
       /* 锁按钮样式 */
       .lock-button {
-        cursor: pointer;
+        cursor: none;
         margin-right: 8px;
       }
 
