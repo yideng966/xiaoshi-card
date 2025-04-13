@@ -4,40 +4,7 @@
 - url: /hacsfiles/xiaoshi-card/xiaoshi-card.js
   type: module
 ~~~
-
-## 功能1：加载随机图片网址API
-**引用示例**
-~~~
-type: custom:xiaoshi-image-card
-top: 0vh  # 上下偏移的距离
-url:
-  - https://api.suyanw.cn/api/sjmv.php  # 引用图片api网址的数组
-  - https://api.suyanw.cn/api/meinv.php # 引用图片api网址的数组
-~~~
-
-## 功能2：加载随机视频网址API
-**引用示例**
-~~~
-type: custom:xiaoshi-video-card 
-top: 0vh  # 上下偏移的距离
-url:
-  - https://videos.xxapi.cn/0db2ccb392531052.mp4 # 引用视频api网址的数组
-  - https://videos.xxapi.cn/228f4dd7318750dd.mp4 # 引用视频api网址的数组
-~~~
-
-## （待删除，将合并到下方）功能3：灯光控制卡（）
-**引用示例**
-~~~
-type: custom:xiaoshi-light-card
-entity: light.light1   
-width: 87vw           # 卡片宽度
-height: 20vw          # 卡片高度
-rgb: true             # 是否显示亮度、色温控制
-show: auto            # 当有这行调用时，仅当灯光时on时才会显示，当灯光时off时卡片整体隐藏
-theme: on             # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'  
-~~~
-
-## 功能4：灯光控制卡（灯组）
+## 功能1：灯光控制卡1.0（待修复）
 **引用示例**
 ~~~
 type: custom:xiaoshi-light-group-card
@@ -53,18 +20,7 @@ theme: on             # 选项on是白色，选项off是黑色，也可以引用
                       # 表头第一行有【总共开启xx盏灯】和全关按钮（没有灯光开启时，全关按钮隐藏）
 ~~~
 
-## （待删除，将合并到下方）功能5：插座控制卡（单插座）
-**引用示例**
-~~~
-type: custom:xiaoshi-switch-card
-entity: switch.switch1   # 插座实体
-power: sensor.power1     # 插座对应功率实体
-height: 85vw             # 卡片宽度
-width: 20vw              # 卡片高度
-theme: "on"              # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'      
-~~~
-
-## 功能6：插座控制卡（插座组）
+## 功能2：插座控制卡2.0
 **引用示例**
 ~~~
 type: custom:xiaoshi-switch-group-card
@@ -76,11 +32,41 @@ entities:
 height: 85vw                 # 卡片宽度
 width: 20vw                  # 卡片高度
 theme: "on"                  # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
-                             # 表头第一行有【插座开启xx个  关闭xx个  总功率xxW】 
+total: "on"                  # 选项on显示表头统计行，选项off不显示统计行，默认参数为on
 ~~~
 
+## 功能3：text输入框卡2.0
+**引用示例**
+~~~
+type: custom:xiaoshi-text-card
+entity: text.text1           # text实体
+height: 56px                 # 卡片高度
+width: 65vw                  # 卡片宽度
+border-radius: 10px          # 圆角大小,默认值是10px
+theme: "on"                  # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+~~~
 
-## 功能7：时间显示卡(平板端)
+## 功能4：加载随机图片网址API
+**引用示例**
+~~~
+type: custom:xiaoshi-image-card
+top: 0vh  # 上下偏移的距离
+url:
+  - https://api.suyanw.cn/api/sjmv.php  # 引用图片api网址的数组
+  - https://api.suyanw.cn/api/meinv.php # 引用图片api网址的数组
+~~~
+
+## 功能5：加载随机视频网址API
+**引用示例**
+~~~
+type: custom:xiaoshi-video-card 
+top: 0vh  # 上下偏移的距离
+url:
+  - https://videos.xxapi.cn/0db2ccb392531052.mp4 # 引用视频api网址的数组
+  - https://videos.xxapi.cn/228f4dd7318750dd.mp4 # 引用视频api网址的数组
+~~~
+
+## 功能6：时间显示卡(平板端)
 **引用示例**
 ~~~
 type: custom:xiaoshi-time-card
@@ -88,13 +74,14 @@ entity: sensor.lunar  #该实体需要配合NR使用
                       #弹出菜单需要button_card模板配合
 ~~~
 
-## 功能8：text输入框卡
+## 功能7：灯光控制卡（待删除）
 **引用示例**
 ~~~
-type: custom:xiaoshi-text-card
-entity: text.weather_sou_suo
-height: 56px
-width: 65vw
-border-radius: 10px
-theme: "on"                  # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+type: custom:xiaoshi-light-card
+entity: light.light1   
+width: 87vw           # 卡片宽度
+height: 20vw          # 卡片高度
+rgb: true             # 是否显示亮度、色温控制
+show: auto            # 当有这行调用时，仅当灯光时on时才会显示，当灯光时off时卡片整体隐藏
+theme: on             # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'  
 ~~~
