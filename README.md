@@ -25,7 +25,7 @@ url:
   - https://videos.xxapi.cn/228f4dd7318750dd.mp4 # 引用视频api网址的数组
 ~~~
 
-## 功能3：灯光控制卡（单卡）
+## （待删除，将合并到下方）功能3：灯光控制卡（）
 **引用示例**
 ~~~
 type: custom:xiaoshi-light-card
@@ -53,7 +53,7 @@ theme: on             # 选项on是白色，选项off是黑色，也可以引用
                       # 表头第一行有【总共开启xx盏灯】和全关按钮（没有灯光开启时，全关按钮隐藏）
 ~~~
 
-## 功能5：插座控制卡（单插座）
+## （待删除，将合并到下方）功能5：插座控制卡（单插座）
 **引用示例**
 ~~~
 type: custom:xiaoshi-switch-card
@@ -86,4 +86,15 @@ theme: "on"                  # 选项on是白色，选项off是黑色，也可�
 type: custom:xiaoshi-time-card
 entity: sensor.lunar  #该实体需要配合NR使用
                       #弹出菜单需要button_card模板配合
+~~~
+
+## 功能8：text输入框卡
+**引用示例**
+~~~
+type: custom:xiaoshi-text-card
+entity: text.weather_sou_suo
+height: 56px
+width: 65vw
+border-radius: 10px
+theme: "on"                  # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 ~~~
