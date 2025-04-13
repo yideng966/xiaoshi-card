@@ -1,5 +1,516 @@
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
+class XiaoshiSwitchGroupCard extends LitElement {
+  static get TIMING() {
+    return {
+      UNLOCK: 5000,        // 解锁持续时间（毫秒）
+      FEEDBACK: 500       // 动画持续时间（毫秒）
+    };
+  }
+
+  static get properties() {
+    return {
+      hass: { type: Object },
+      _config: { type: Object },
+      _unlockedCards: { type: Object }
+    };
+  }
+
+  constructor() {
+    super();
+    this._config = null;
+    this._unlockedCards = {};
+  }
+
+  static get styles() {
+    return css`
+      /* 主容器 */
+      .xiaoshi-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        min-height: 60px;
+        border-radius: 12px;
+        padding: 0 16px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        background: var(--card-background-color, #f0f0f0);
+      }
+
+      /* 设备名称样式 */
+      .device-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .stats-container {
+        color: var(--primary-text-color);
+        font-weight: 700;
+        font-size: 1rem;
+        text-align: center;
+        padding: 12px 0;
+      }
+
+      .name-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .power-value {
+        font-size: 0.8rem;
+        opacity: 1;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        margin-left: 8px;
+      }
+
+      /* 按钮容器 */
+      .button-container {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      /* 电源按钮样式 */
+      .power-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .power-button.active {
+        background: #c8191d;
+      }
+
+      .power-button.unlocked {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /* 锁按钮样式 */
+      .lock-button {
+        cursor: pointer;
+        margin-right: 8px;
+      }
+
+      /* 图标通用样式 */
+      ha-icon {
+        --mdc-icon-size: 24px;
+        color: var(--icon-color, #c8191d);
+      }
+      .power-button.active ha-icon {
+        color: white;
+      }
+      /* 锁图标状态颜色 */
+      .lock-button ha-icon {
+        --mdc-icon-size: 20px;
+        transition: all 0.3s ease;
+        color: #c8191d;
+      }
+
+      .lock-button.unlocked ha-icon {
+        color: #4CAF50 !important;
+      }
+
+      /* 解锁进度条动画 */
+      @keyframes unlock-progress {
+        from { width: 100% }
+        to { width: 0 }
+      }
+
+      .unlock-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: #4CAF50;
+        animation: unlock-progress ${this.TIMING.UNLOCK}ms linear;
+      }
+    `;
+  }
+
+  setConfig(config) {
+    this._config = {
+      width: config.width || '100%',
+      height: config.height || '60px',
+      entities: config.entities || [],
+      theme: config.theme || null,
+      total: config.total !== undefined ? config.total : 'on' // 默认值为'on'
+    };
+    this.requestUpdate();
+  }
+
+  // 主题评估方法
+  _evaluateTheme() {
+    try {
+      if (typeof this._config.theme === 'function') return this._config.theme();
+      if (typeof this._config.theme === 'string' && this._config.theme.includes('theme()')) {
+        return (new Function('return theme()'))();
+      }
+      return this._config.theme || 'off';
+    } catch(e) {
+      return 'off';
+    }
+  }
+
+  // 背景颜色计算
+  _getBackground(state) {
+    const theme = this._evaluateTheme();
+    if (state === 'on') {
+      return theme === 'off' 
+        ? 'linear-gradient(90deg, #c8191d 0%, #323232 100%)' 
+        : 'linear-gradient(90deg, #c8191d 0%, #FFFFFF 100%)';
+    }
+    return theme === 'off' ? '#323232' : '#FFFFFF';
+  }
+
+  // 解析实体配置
+  _parseEntityConfig(config) {
+    if (Array.isArray(config)) {
+      return [config[0], config[1]];
+    }
+    if (typeof config === 'string') {
+      return config.split(',').map(e => e.trim());
+    }
+    return [config.entity, config.power];
+  }
+
+  // 创建统计行
+  _createStatsRow() {
+    if (this._config.total === 'off') return null;
+
+    let onCount = 0;
+    let totalPower = 0;
+
+    this._config.entities.forEach(entityPair => {
+      const [switchEntity, sensorEntity] = this._parseEntityConfig(entityPair);
+      const switchState = this.hass.states[switchEntity]?.state;
+      const powerValue = parseFloat(this.hass.states[sensorEntity]?.state);
+
+      if (switchState === 'on') {
+        onCount++;
+        if (!isNaN(powerValue)) totalPower += powerValue;
+      }
+    });
+
+    const themeMode = this._evaluateTheme();
+    const textColor = themeMode === 'on' ? '#333' : '#FFF';
+
+    return html`
+      <div class="stats-container" style="color: ${textColor}">
+        开启 ${onCount} 个&emsp;关闭 ${this._config.entities.length - onCount} 个&emsp;总功率：${totalPower.toFixed(1)}W
+      </div>
+    `;
+  }
+
+  // 解锁控制方法
+  _unlockControls(cardId) {
+    const { UNLOCK } = this.constructor.TIMING;
+
+    // 设置当前解锁的卡片
+    this._unlockedCards[cardId] = true;
+    this.requestUpdate();
+
+    // 设置自动锁定定时器
+    setTimeout(() => {
+      delete this._unlockedCards[cardId];
+      this.requestUpdate();
+    }, UNLOCK);
+  }
+
+  // 切换电源状态
+  async _togglePower(entity, cardId) {
+    const { FEEDBACK } = this.constructor.TIMING;
+    
+    // 调用Home Assistant服务
+    await this.hass.callService('switch', 'toggle', { entity_id: entity });
+    
+    // 触觉反馈
+    try { navigator.vibrate(50); } catch(e) {}
+    
+    // 按钮动画
+    const button = this.shadowRoot.querySelector(`#${cardId} .power-button`);
+    if (button) {
+      button.animate([
+        { transform: 'scale(1)' },
+        { transform: 'scale(0.8)' },
+        { transform: 'scale(1)' }
+      ], { duration: FEEDBACK });
+    }
+  }
+
+  render() {
+    if (!this._config || !this.hass) return html``;
+
+    return html`
+      ${this._createStatsRow()}
+      ${this._config.entities.map((entityPair, index) => {
+        const [switchEntity, sensorEntity] = this._parseEntityConfig(entityPair);
+        const stateObj = this.hass.states[switchEntity] || {};
+        const state = stateObj.state || 'off';
+        const attributes = stateObj.attributes || {};
+        const cardId = `card-${index}`;
+        const isUnlocked = !!this._unlockedCards[cardId];
+
+        // 获取功率数值
+        let powerValue = '';
+        if (sensorEntity) {
+          const powerState = this.hass.states[sensorEntity];
+          if (powerState && !isNaN(powerState.state)) {
+            const powerUnit = powerState.attributes?.unit_of_measurement || 'W';
+            powerValue = `${parseFloat(powerState.state).toFixed(1)}${powerUnit}`;
+          }
+        }
+
+        const themeMode = this._evaluateTheme();
+        const textColor = themeMode === 'on' ? '#333' : '#FFF';
+        const bgColor = state === 'on' 
+          ? (themeMode === 'off' ? '#323232' : '#FFFFFF')
+          : (themeMode === 'off' ? '#323232' : '#FFFFFF');
+        const bgImage = state === 'on'
+          ? (themeMode === 'off'
+              ? 'linear-gradient(90deg, #c8191d 0%, #323232 100%)'
+              : 'linear-gradient(90deg, #c8191d 0%, #FFFFFF 100%)')
+          : 'none';
+
+        return html`
+          <div id="${cardId}" class="xiaoshi-container" 
+            style="
+              width: ${this._config.width};
+              height: ${this._config.height};
+              background-color: ${bgColor};
+              background-image: ${bgImage};
+              color: ${textColor};
+            ">
+            <div class="name-container">
+              <span class="device-name">${attributes.friendly_name || switchEntity}</span>
+              ${powerValue ? html`<span class="power-value">${powerValue}</span>` : ''}
+            </div>
+
+            <div class="button-container">
+              <div class="lock-button ${isUnlocked ? 'unlocked' : ''}" 
+                   @click=${() => this._unlockControls(cardId)}
+                   @touchend=${() => this._unlockControls(cardId)}>
+                <ha-icon icon=${isUnlocked ? 'mdi:lock-open' : 'mdi:lock'}></ha-icon>
+              </div>
+
+              <div class="power-button ${state === 'on' ? 'active' : ''} ${isUnlocked ? 'unlocked' : ''}"
+                   @click=${() => this._togglePower(switchEntity, cardId)}>
+                <ha-icon icon="mdi:power-socket-uk"></ha-icon>
+              </div>
+            </div>
+
+            ${isUnlocked ? html`
+              <div class="unlock-progress"></div>
+            ` : ''}
+          </div>
+        `;
+      })}
+    `;
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this._unlockedCards = {};
+  }
+}
+console.info("%c 消逝集合卡. 插座卡 \n%c   Version 2.0.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+customElements.define('xiaoshi-switch-card', XiaoshiSwitchGroupCard); 
+
+class XiaoshiTextCard extends LitElement {
+  static get properties() {
+    return {
+      hass: Object,
+      config: Object,
+      _value: String,
+      _isEditing: Boolean
+    }; 
+  }
+
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+      }
+      
+      .input-container {
+        display: flex;
+        align-items: center;
+        padding: 0;
+				height: 100%;
+        transition: all 0.3s ease;
+      }
+      
+      .input-container.on {
+        background-color: rgb(255,255,255);
+        color: black;
+      }
+      
+      .input-container.off {
+        background-color: rgb(50,50,50);
+        color: white;
+      }
+      
+      .icon {
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+				margin-left: 0.5rem;
+      }
+      
+      .input-wrapper {
+        flex-grow: 1;
+        position: relative;
+      }
+      
+      input {
+        width: 100%;
+        border: none;
+        background: transparent;
+        color: inherit;
+        font-size: 1rem;
+        padding: 0.5rem 0;
+        outline: none;
+      }
+      
+      .placeholder {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        color: gray;
+        pointer-events: none;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+        opacity: 1;
+      }
+      
+      input:focus + .placeholder,
+      input:not(:placeholder-shown) + .placeholder,
+      .placeholder.hidden {
+        top: 0;
+        transform: translateY(0);
+        font-size: 0.7rem;
+        opacity: 0;
+      }
+    `;
+  }
+
+  constructor() {
+    super();
+    this._value = '';
+    this._isEditing = false;
+  }
+
+  _getTheme() {
+    try {
+      if (typeof this.config.theme === 'function') return this.config.theme();
+      if (typeof this.config.theme === 'string' && this.config.theme.includes('theme(')) {
+        return (new Function('return theme()'))();
+      }
+      return this.config.theme || 'on';
+    } catch(e) {
+      console.error('Error evaluating theme:', e);
+      return 'on';
+    }
+  }
+
+  render() {
+    if (!this.config || !this.hass) return html``;
+
+    const entity = this.config.entity;
+    const entityState = entity ? this.hass.states[entity] : null;
+    const friendlyName = entityState ? entityState.attributes.friendly_name : '';
+    const currentValue = entityState ? entityState.state : '';
+    
+    if (!this._isEditing && this._value !== currentValue) {
+      this._value = currentValue;
+    }
+    
+    const themeResult = this._getTheme();
+    const themeClass = themeResult === 'off' ? 'off' : 'on';
+
+    const showPlaceholder = !this._value && !this._isEditing;
+    const borderRadius = this.config.border_radius || '10px';
+
+    return html`
+      <div class="input-container ${themeClass}" 
+           style="width: ${this.config.width || '60vw'}; 
+                  height: ${this.config.height || '8vw'};
+                  border-radius: ${borderRadius};">
+        <div class="icon">
+          <ha-icon icon="mdi:magnify"></ha-icon>
+        </div>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            .value=${this._value}
+            @input=${this._handleInput}
+            @keydown=${this._handleKeyDown}
+            @focus=${() => this._isEditing = true}
+            @blur=${() => this._isEditing = false}
+            placeholder=" "
+          />
+          <div class="placeholder ${!showPlaceholder ? 'hidden' : ''}">${friendlyName}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  _handleInput(e) {
+    this._value = e.target.value;
+    this._isEditing = true;
+  }
+
+  _handleKeyDown(e) {
+    if (e.key === 'Enter' && this.config.entity) {
+      this._setEntityValue();
+      this._isEditing = false;
+      e.target.blur();
+    }
+  }
+
+  _setEntityValue() {
+    if (!this.config.entity) return;
+    
+    this.hass.callService('text', 'set_value', {
+      entity_id: this.config.entity,
+      value: this._value,
+    });
+  }
+
+  setConfig(config) {
+    this.config = config;
+  }
+
+  getCardSize() {
+    return 1;
+  }
+}
+console.info("%c 消逝集合卡. 输入卡 \n%c   Version 2.0.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+customElements.define('xiaoshi-text-card', XiaoshiTextCard);
+
 class VideoCard extends HTMLElement {
   setConfig(config) {
     this.config = config;
@@ -413,6 +924,132 @@ class ImageCard extends HTMLElement {
 }
 console.info("%c 消逝集合卡. 图片卡 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-image-card', ImageCard);
+
+class XiaoshiTimeCard extends HTMLElement {
+  set hass(hass) {
+    this._hass = hass;
+    this._updateContent();
+  }
+  setConfig(config) {
+    this.config = config;
+    this.attachShadow({ mode: 'open' });
+  }
+  connectedCallback() {
+    this._updateContent();
+    this._updateInterval = setInterval(() => this._updateContent(), 1000);
+  }
+  disconnectedCallback() {
+    clearInterval(this._updateInterval);
+  }
+  async _updateContent() {
+    const lunarEntity = this.config?.entity || 'sensor.lunar';
+    const lunarState = this._hass.states[lunarEntity];
+    const wasConnected = !!this.shadowRoot.getElementById('tap');
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          width: 240px;
+          height: 170px;
+          color: white !important;
+          --text-color: white;
+        }
+        ha-card {
+          background: transparent !important;
+          box-shadow: none !important;
+        }
+        .grid-container {
+          display: grid;
+          grid-template-areas: 
+						"tap     tap     tap     tap "
+            "time    time    time    time"
+            "date    week    jieqi   jieqi"
+            "year    mon     mon     day"
+            "line    line    line    line"
+            "shengri shengri shengri shengri"
+            "jieri   jieri   jieri   jieri";
+          grid-template-columns: 80px 58px 16px 72px;
+          grid-template-rows: 20px 45px 20px 20px 15px 20px 20px;
+          font-weight: bold;
+          font-size: 16px;
+        }
+        #tap {
+          grid-area: tap;
+          height: 170px;
+          margin-top: 0px;
+          z-index: 10;
+        }
+        #time {
+          grid-area: time;
+          font-size: 57px;
+          font-weight: 430;
+          text-align: center;
+          white-space: nowrap;
+          overflow: visible;
+          color: var(--text-color);
+        }
+        #date    { grid-area: date; color: var(--text-color) }
+        #week    { grid-area: week; color: var(--text-color) }
+        #jieqi   { grid-area: jieqi; text-align: right; color: var(--text-color) }
+        #year    { grid-area: year; color: var(--text-color) }
+        #mon     { grid-area: mon; color: var(--text-color) }
+        #day     { grid-area: day; text-align: right; color: var(--text-color) }
+        #line    { grid-area: line; color: var(--text-color) }
+        #shengri { grid-area: shengri; color: var(--text-color); font-size: 15px}
+        #jieri   { grid-area: jieri; color: var(--text-color); font-size: 15px }
+      </style>
+      <ha-card>
+        <div class="grid-container">
+          <div id="tap" @click=${this._showPopup}></div>
+          <div id="time">${this._getCurrentTime()}</div>
+          <div id="date">${this._getAttribute(lunarState, 'now_solar.日期A')}</div>
+          <div id="week">${this._getAttribute(lunarState, 'now_solar.星期A')}</div>
+          <div id="jieqi">${this._getAttribute(lunarState, 'jieqi.节气')}</div>
+          <div id="year">${this._getAttribute(lunarState, 'now_lunar.年')}</div>
+          <div id="mon">${this._getAttribute(lunarState, 'now_lunar.日期')}</div>
+          <div id="day">${this._getShichen()}</div>
+          <div id="line">------------------------------------</div>
+          <div id="shengri">${this._getAttribute(lunarState, 'shengriwarn.最近的生日.0')}</div>
+          <div id="jieri">${this._getAttribute(lunarState, 'shengriwarn.最近的节日.0')}</div>
+        </div>
+      </ha-card>
+    `;
+    const tapElement = this.shadowRoot.getElementById('tap');
+		tapElement.addEventListener('click', () => this._showPopup());
+  }
+  _getCurrentTime() {
+    const now = new Date();
+    return now.toLocaleTimeString('en-GB').replace(/:/g, ':');
+  }
+  _getShichen() {
+    const tzArr = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+    const skArr = ['一','二','三','四'];
+    const date = new Date();
+    const h = date.getHours();
+    const m = date.getMinutes();
+    const shichenIndex = Math.floor(h / 2);
+    const shikeIndex = Math.floor(m / 15);
+    return `${tzArr[shichenIndex]}时${skArr[shikeIndex]}刻`;
+  }
+  _getAttribute(state, path) {
+    return path.split('.').reduce((obj, key) => (obj || {})[key], state?.attributes || {}) || '';
+  }
+  _showPopup() {
+    window.browser_mod.service('popup', { 
+      style: `
+				--popup-min-width: 870px;
+				--mdc-theme-surface: rgb(0,0,0,0);
+				--dialog-backdrop-filter: blur(10px) brightness(1);
+			`,
+      content: {
+        type: 'custom:button-card',
+				template: '万年历平板端'
+      }
+    });
+  }
+}
+console.info("%c 消逝集合卡. 时间卡 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
 
 class LightCard extends HTMLElement {
   constructor() {
@@ -1320,805 +1957,18 @@ class LightGroupCard extends HTMLElement {
 console.info("%c 消逝集合卡. 灯组卡 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-group-card', LightGroupCard);
 
-class XiaoshiTimeCard extends HTMLElement {
-  set hass(hass) {
-    this._hass = hass;
-    this._updateContent();
-  }
-  setConfig(config) {
-    this.config = config;
-    this.attachShadow({ mode: 'open' });
-  }
-  connectedCallback() {
-    this._updateContent();
-    this._updateInterval = setInterval(() => this._updateContent(), 1000);
-  }
-  disconnectedCallback() {
-    clearInterval(this._updateInterval);
-  }
-  async _updateContent() {
-    const lunarEntity = this.config?.entity || 'sensor.lunar';
-    const lunarState = this._hass.states[lunarEntity];
-    const wasConnected = !!this.shadowRoot.getElementById('tap');
-    this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          display: block;
-          width: 240px;
-          height: 170px;
-          color: white !important;
-          --text-color: white;
-        }
-        ha-card {
-          background: transparent !important;
-          box-shadow: none !important;
-        }
-        .grid-container {
-          display: grid;
-          grid-template-areas: 
-						"tap     tap     tap     tap "
-            "time    time    time    time"
-            "date    week    jieqi   jieqi"
-            "year    mon     mon     day"
-            "line    line    line    line"
-            "shengri shengri shengri shengri"
-            "jieri   jieri   jieri   jieri";
-          grid-template-columns: 80px 58px 16px 72px;
-          grid-template-rows: 20px 45px 20px 20px 15px 20px 20px;
-          font-weight: bold;
-          font-size: 16px;
-        }
-        #tap {
-          grid-area: tap;
-          height: 170px;
-          margin-top: 0px;
-          z-index: 10;
-        }
-        #time {
-          grid-area: time;
-          font-size: 57px;
-          font-weight: 430;
-          text-align: center;
-          white-space: nowrap;
-          overflow: visible;
-          color: var(--text-color);
-        }
-        #date    { grid-area: date; color: var(--text-color) }
-        #week    { grid-area: week; color: var(--text-color) }
-        #jieqi   { grid-area: jieqi; text-align: right; color: var(--text-color) }
-        #year    { grid-area: year; color: var(--text-color) }
-        #mon     { grid-area: mon; color: var(--text-color) }
-        #day     { grid-area: day; text-align: right; color: var(--text-color) }
-        #line    { grid-area: line; color: var(--text-color) }
-        #shengri { grid-area: shengri; color: var(--text-color); font-size: 15px}
-        #jieri   { grid-area: jieri; color: var(--text-color); font-size: 15px }
-      </style>
-      <ha-card>
-        <div class="grid-container">
-          <div id="tap" @click=${this._showPopup}></div>
-          <div id="time">${this._getCurrentTime()}</div>
-          <div id="date">${this._getAttribute(lunarState, 'now_solar.日期A')}</div>
-          <div id="week">${this._getAttribute(lunarState, 'now_solar.星期A')}</div>
-          <div id="jieqi">${this._getAttribute(lunarState, 'jieqi.节气')}</div>
-          <div id="year">${this._getAttribute(lunarState, 'now_lunar.年')}</div>
-          <div id="mon">${this._getAttribute(lunarState, 'now_lunar.日期')}</div>
-          <div id="day">${this._getShichen()}</div>
-          <div id="line">------------------------------------</div>
-          <div id="shengri">${this._getAttribute(lunarState, 'shengriwarn.最近的生日.0')}</div>
-          <div id="jieri">${this._getAttribute(lunarState, 'shengriwarn.最近的节日.0')}</div>
-        </div>
-      </ha-card>
-    `;
-    const tapElement = this.shadowRoot.getElementById('tap');
-		tapElement.addEventListener('click', () => this._showPopup());
-  }
-  _getCurrentTime() {
-    const now = new Date();
-    return now.toLocaleTimeString('en-GB').replace(/:/g, ':');
-  }
-  _getShichen() {
-    const tzArr = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-    const skArr = ['一','二','三','四'];
-    const date = new Date();
-    const h = date.getHours();
-    const m = date.getMinutes();
-    const shichenIndex = Math.floor(h / 2);
-    const shikeIndex = Math.floor(m / 15);
-    return `${tzArr[shichenIndex]}时${skArr[shikeIndex]}刻`;
-  }
-  _getAttribute(state, path) {
-    return path.split('.').reduce((obj, key) => (obj || {})[key], state?.attributes || {}) || '';
-  }
-  _showPopup() {
-    window.browser_mod.service('popup', { 
-      style: `
-				--popup-min-width: 870px;
-				--mdc-theme-surface: rgb(0,0,0,0);
-				--dialog-backdrop-filter: blur(10px) brightness(1);
-			`,
-      content: {
-        type: 'custom:button-card',
-				template: '万年历平板端'
-      }
-    });
-  }
-}
-console.info("%c 消逝集合卡. 时间卡 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
-customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
-
-class XiaoshiSwitchCard extends HTMLElement {
-  constructor() {
-    super();
-    const shadow = this.attachShadow({ mode: 'open' });
-    // 创建主容器
-    this.container = document.createElement('div');
-    this.container.className = 'xiaoshi-container';
-
-    // 样式表
-    const style = document.createElement('style');
-    style.textContent = `
-		/* 主容器 */
-      .xiaoshi-container {
-        min-height: 80px;
-        border-radius: 12px;
-        padding: 0 16px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        justify-content: space-between; 
-				margin-bottom: 8px;
-      }
-
-      .device-name {
-        font-size: 1.2rem;
-        font-weight: 600;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        z-index: 1;
-      }
-      .name-power-container {
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-        min-width: 0;
-        flex: 1;
-      }
-
-      .power-value {
-        font-size: 0.9rem;
-        opacity: 0.8;
-        white-space: nowrap;
-      }
-
-      /* 电源按钮样式 */
-      .power-button {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background: #999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .power-button.active {
-        background: #c8191d;
-      }
-
-      /* 图标通用样式 */
-      ha-icon {
-        --mdc-icon-size: 24px;
-        color: var(--icon-color, #c8191d);
-      }
-      .power-button.active ha-icon {
-        color: white;
-      }
-    `;
-
-    shadow.appendChild(style);
-    shadow.appendChild(this.container);
-    
-    // 状态管理变量
-    this._clickCount = 0;
-    this._clickTimer = null;
-    this._config = null;       // 配置信息
-    this._hass = null;         // Home Assistant 实例
-  }
-
-  setConfig(config) {
-    this._config = config;		
-		this._render();
-  }
-
-  set hass(hass) {
-    this._hass = hass;
-		this._render();
-  }
-
-  // 主题评估方法
-  _evaluateTheme() {
-    try {
-      if (typeof this._config.theme === 'function') return this._config.theme();
-      if (typeof this._config.theme === 'string' && this._config.theme.includes('theme()')) {
-        return (new Function('return theme()'))();
-      }
-      return this._config.theme || 'off';
-    } catch(e) {
-      return 'off';
-    }
-  }
-
-  // 背景颜色计算
-  _getBackground(state) {
-    const theme = this._evaluateTheme();
-    return state === 'on' 
-      ? (theme === 'off' 
-          ? 'linear-gradient(90deg, #c8191d -20%, #323232 70%)' 
-          : 'linear-gradient(90deg, #c8191d -20%, #FFF 70%)')
-      : (theme === 'off' ? '#323232' : '#FFF');
-  }
-
-  // 主渲染方法
-  _render() {
-    	if (!this._config || !this._hass) return;
-			// 清空容器
-			this.container.innerHTML = '';
-			// 获取设备状态
-			const entity = this._config.entity;
-			const stateObj = this._hass.states[entity] || {};
-			const state = stateObj.state || 'off';
-			const attributes = stateObj.attributes || {};
-			// 获取功率数值
-			let powerElement = '';
-			if (this._config.power) {
-				const powerState = this._hass.states[this._config.power];
-				
-				if (powerState && !isNaN(powerState.state)) {
-					const powerValue = parseFloat(powerState.state);
-					const powerUnit = powerState.attributes?.unit_of_measurement || 'W';
-					
-					powerElement = document.createElement('div');
-					powerElement.className = 'power-value';
-					powerElement.textContent = `${powerValue.toFixed(1)}${powerUnit}`;
-					powerElement.style.color = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
-				}
-			}
-			// 创建设备名称元素
-			const nameElement = document.createElement('div');
-			nameElement.className = 'device-name';
-			nameElement.textContent = attributes.friendly_name || entity;
-			nameElement.style.color = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
-			// 创建名称和功率容器
-			const namePowerContainer = document.createElement('div');
-			namePowerContainer.className = 'name-power-container';
-			namePowerContainer.append(nameElement, powerElement); 
-			// 创建电源按钮
-			const powerButton = document.createElement('div');
-			powerButton.className = `power-button ${state === 'on' ? 'active' : ''}`;
-			powerButton.innerHTML = '<ha-icon icon="mdi:power-socket-uk"></ha-icon>';
-			powerButton.onclick = () => this._handlePowerButtonClick();
-
-			// 容器样式设置
-			this.container.style.cssText = `
-				width: ${this._config.width || '100vw'};
-				height: ${this._config.height || '20vw'};
-				background: ${this._getBackground(state)};
-				box-shadow: ${this._evaluateTheme() === 'off' 
-					? '0 2px 4px rgba(0,0,0,0.1)' 
-					: 'none'};
-			`;
-
-			this.container.append(namePowerContainer, powerButton);
-  }
-
-	_handlePowerButtonClick(e) {
-		this._clickCount++;
-		if (this._clickTimer) {
-			clearTimeout(this._clickTimer);
-		}
-		this._clickTimer = setTimeout(() => {
-			if (this._clickCount >= 2) {
-				this._togglePower();
-			}
-			this._clickCount = 0;
-		}, 1000);
-		try { navigator.vibrate(50); } catch(e) {}
-	}
-
-  _togglePower() {
-    const entity = this._config.entity;
-    this._hass.callService('switch', 'toggle', { entity_id: entity });
-    this._clickCount = 0;
-  }
-
-  disconnectedCallback() {
-    if (this._clickTimer) {
-      clearTimeout(this._clickTimer);
-    }
-  }
-}
-console.info("%c 消逝集合卡. 插座卡 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
-customElements.define('xiaoshi-switch-card', XiaoshiSwitchCard);
-
-class XiaoshiSwitchGroupCard  extends HTMLElement {
-  constructor() {
-    super();
-		this._isUnlocked = false;
-    const shadow = this.attachShadow({ mode: 'open' });
-    this.container = document.createElement('div');
-    this.container.style.display = 'flex';
-    this.container.style.flexDirection = 'column';
-    shadow.appendChild(this.container);
-    
-    // 创建主容器
-    this.container = document.createElement('div');
-    this.container.className = 'xiaoshi-container';
-    
-    // 样式表（关键修改点1：调整布局顺序）
-    const style = document.createElement('style');
-    style.textContent = `
-
-		/* 主容器 */
-      .xiaoshi-container {
-				flex-direction: column;
-				align-items: stretch;
-        min-height: 80px;
-        border-radius: 12px;
-        padding: 0 0;
-        display: flex;
-        gap: 16px;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        justify-content: space-between;
-      }
-
-      /* 设备名称样式 */
-      .device-name {
-        font-size: 1.2rem;
-        font-weight: 600;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        z-index: 1;
-      }
-      .name-power-container {
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-        min-width: 0;
-        flex: 1;
-      }
-
-      .power-value {
-        font-size: 0.9rem;
-        opacity: 0.8;
-        white-space: nowrap;
-      }
-
-      /* 电源按钮样式 */
-      .power-button {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background: #999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .power-button.active {
-        background: #c8191d;
-      }
-
-      /* 图标通用样式 */
-      ha-icon {
-        --mdc-icon-size: 24px;
-        color: var(--icon-color, #c8191d);
-      }
-      .power-button.active ha-icon {
-        color: white;
-      }
-    `;
-
-    shadow.appendChild(style);
-    shadow.appendChild(this.container);
-    
-    // 状态管理变量
-    this._clickCount = 0;
-    this._unlockTimer = null;  // 解锁定时器
-    this._config = null;       // 配置信息
-    this._hass = null;         // Home Assistant 实例
-  }
-
-  // 配置设置方法
-  setConfig(config) {
-    this._config = {
-      gap: config.gap || '0',
-      width: config.width || '400px',
-      height: config.height || '80px',
-      entities: config.entities || [],
-			theme: config.theme || null, // 允许用户强制指定主题
-    };
-    this._render();
-		this.container.style.gap = this._config.gap;
-  }
-
-  // 更新Home Assistant实例
-  set hass(hass) {
-    this._hass = hass;
-    this._renderCards();
-  }
-
-  // 主题评估方法
-  _evaluateTheme() {
-    try {
-      if (typeof this._config.theme === 'function') return this._config.theme();
-      if (typeof this._config.theme === 'string' && this._config.theme.includes('theme()')) {
-        return (new Function('return theme()'))();
-      }
-      return this._config.theme || 'off';
-    } catch(e) {
-      return 'off';
-    }
-  }
-
-  // 背景颜色计算
-  _getBackground(state) {
-    const theme = this._evaluateTheme();
-    return state === 'on' 
-      ? (theme === 'off' 
-          ? 'linear-gradient(90deg, #c8191d -20%, #323232 70%)' 
-          : 'linear-gradient(90deg, #c8191d -20%, #FFF 70%)')
-      : (theme === 'off' ? '#323232' : '#FFF');
-  }
-
-  _renderCards() {
-
-    this.container.innerHTML = '';
-    // 新增：创建统计容器
-    const statsContainer = this._createStatsRow();
-    this.container.appendChild(statsContainer);
-
-    this._config.entities.forEach(entityPair => {
-      const [switchEntity, sensorEntity] = this._parseEntityConfig(entityPair);
-      const card = document.createElement('xiaoshi-switch-card');
-      card.setConfig({
-        entity: switchEntity,
-        power: sensorEntity,
-        width: this._config.width,
-        height: this._config.height,
-				theme: this._config.theme // 继承父级主题配置
-      });
-      card.hass = this._hass;
-      this.container.appendChild(card);
-    });
-  }
-	// 新增：创建统计行方法
-	_createStatsRow() {
-		let onCount = 0;
-		let totalPower = 0;
-
-		// 遍历所有实体计算统计值
-		this._config.entities.forEach(entityPair => {
-			const [switchEntity, sensorEntity] = this._parseEntityConfig(entityPair);
-			const switchState = this._hass.states[switchEntity]?.state;
-			const powerValue = parseFloat(this._hass.states[sensorEntity]?.state);
-
-			if (switchState === 'on') {
-				onCount++;
-				if (!isNaN(powerValue)) totalPower += powerValue;
-			}
-		})
-		// 在创建统计容器部分进行如下修改
-		const themeMode = this._evaluateTheme(); // 获取当前主题模式
-		const isLightTheme = themeMode === 'on'; // 假设评估方法返回'light'或'dark'
-		const textColor = isLightTheme ? '#333' : '#FFF';
-
-		const stats = document.createElement('div');
-		stats.className = 'stats-container';
-		stats.style.cssText = `
-			display: flex;
-			justify-content: center; 
-			padding: 2vw 0 1vw 0;
-			background: rgba(0, 0, 0, 0);
-			border-radius: 0;
-			margin-bottom: 6px;
-			font-size: 1em;
-			font-weight: 700;
-			color: ${textColor};
-			text-shadow: ${isLightTheme ?
-				'0.05em 0 #fff, -0.05em 0 #fff, 0 0.05em #fff, 0 -0.05em #fff, 0.05em 0.05em #fff, -0.05em -0.05em #fff, 0.05em -0.05em #fff, -0.05em 0.05em #fff' 
-				: 'none'};
-		`;
-		// 创建统计内容
-		stats.innerHTML = `
-			开启 ${onCount} 个&emsp;关闭 ${this._config.entities.length - onCount} 个&emsp;总功率：${totalPower.toFixed(1)}W
-		`;
-		return stats;
-	}
-
-  // 主渲染方法
-  _render() {
-    	if (!this._config || !this._hass) return;
-			// 清空容器
-			this.container.innerHTML = '';
-
-			// 获取设备状态
-			const entity = this._config.entity;
-			const stateObj = this._hass.states[entity] || {};
-			const state = stateObj.state || 'off';
-			const attributes = stateObj.attributes || {};
-
-			// 获取功率数值
-			let powerElement = '';
-			if (this._config.power) {
-				const powerState = this._hass.states[this._config.power];
-				
-				if (powerState && !isNaN(powerState.state)) {
-					const powerValue = parseFloat(powerState.state);
-					const powerUnit = powerState.attributes?.unit_of_measurement || 'W';
-					
-					powerElement = document.createElement('div');
-					powerElement.className = 'power-value';
-					powerElement.textContent = `${powerValue.toFixed(1)}${powerUnit}`;
-					powerElement.style.color = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
-				}
-			}
-
-			// 创建设备名称元素
-			const nameElement = document.createElement('div');
-			nameElement.className = 'device-name';
-			nameElement.textContent = attributes.friendly_name || entity;
-			nameElement.style.color = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
-			// 创建名称和功率容器
-			const namePowerContainer = document.createElement('div');
-			namePowerContainer.className = 'name-power-container';
-			namePowerContainer.append(nameElement, powerElement); 
-
-			// 创建电源按钮
-			const powerButton = document.createElement('div');
-			powerButton.className = `power-button ${state === 'on' ? 'active' : ''}`;
-			powerButton.innerHTML = '<ha-icon icon="mdi:power-socket-uk"></ha-icon>';
-			powerButton.onclick = () => this._handlePowerButtonClick();
-
-			// 容器样式设置
-			this.container.style.cssText = `
-				width: ${this._config.width || '100vw'};
-				height: ${this._config.height || '20vw'};
-				background: ${this._getBackground(state)};
-				box-shadow: ${this._evaluateTheme() === 'off' 
-					? '0 2px 4px rgba(0,0,0,0.1)' 
-					: 'none'};
-				display: ${this._config.show === 'auto' && state !== 'on' ? 'none' : 'flex'};
-			`;
-
-			// 组装元素
-			this.container.append(namePowerContainer, powerButton);
-  }
-
-	_handlePowerButtonClick(e) {
-		this._clickCount++;
-		if (this._clickTimer) {
-			clearTimeout(this._clickTimer);
-		}
-		this._clickTimer = setTimeout(() => {
-			if (this._clickCount >= 2) {
-				this._togglePower();
-			}
-			this._clickCount = 0;
-		}, 1000);
-		try { navigator.vibrate(50); } catch(e) {}
-	}
-
-  _togglePower() {
-    const entity = this._config.entity;
-    this._hass.callService('switch', 'toggle', { entity_id: entity });
-    this._clickCount = 0;
-  }
-
-  _parseEntityConfig(config) {
-    if (Array.isArray(config)) { 
-      return [config[0], config[1]];
-    }
-    if (typeof config === 'string') {
-      return config.split(',').map(e => e.trim());
-    }
-    return [config.entity, config.power];
-  }
-
-  disconnectedCallback() {
-    if (this._clickTimer) {
-      clearTimeout(this._clickTimer);
-    }
-  }
-}
-console.info("%c 消逝集合卡. 插座组 \n%c   Version 1.1.3    ", "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
-customElements.define('xiaoshi-switch-group-card', XiaoshiSwitchGroupCard); 
-
-class XiaoshiTextCard extends LitElement {
-  static get properties() {
-    return {
-      hass: Object,
-      config: Object,
-      _value: String,
-      _isEditing: Boolean
-    }; 
-  }
-
-  static get styles() {
-    return css`
-      :host {
-        display: block;
-      }
-      
-      .input-container {
-        display: flex;
-        align-items: center;
-        padding: 0;
-				height: 100%;
-        transition: all 0.3s ease;
-      }
-      
-      .input-container.on {
-        background-color: rgb(255,255,255);
-        color: black;
-      }
-      
-      .input-container.off {
-        background-color: rgb(50,50,50);
-        color: white;
-      }
-      
-      .icon {
-        margin-right: 0.5rem;
-        font-size: 1.2rem;
-				margin-left: 0.5rem;
-      }
-      
-      .input-wrapper {
-        flex-grow: 1;
-        position: relative;
-      }
-      
-      input {
-        width: 100%;
-        border: none;
-        background: transparent;
-        color: inherit;
-        font-size: 1rem;
-        padding: 0.5rem 0;
-        outline: none;
-      }
-      
-      .placeholder {
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        color: gray;
-        pointer-events: none;
-        transition: all 0.2s ease;
-        font-size: 0.9rem;
-        opacity: 1;
-      }
-      
-      input:focus + .placeholder,
-      input:not(:placeholder-shown) + .placeholder,
-      .placeholder.hidden {
-        top: 0;
-        transform: translateY(0);
-        font-size: 0.7rem;
-        opacity: 0;
-      }
-    `;
-  }
-
-  constructor() {
-    super();
-    this._value = '';
-    this._isEditing = false;
-  }
-
-  _getTheme() {
-    try {
-      if (typeof this.config.theme === 'function') return this.config.theme();
-      if (typeof this.config.theme === 'string' && this.config.theme.includes('theme(')) {
-        return (new Function('return theme()'))();
-      }
-      return this.config.theme || 'on';
-    } catch(e) {
-      console.error('Error evaluating theme:', e);
-      return 'on';
-    }
-  }
-
-  render() {
-    if (!this.config || !this.hass) return html``;
-
-    const entity = this.config.entity;
-    const entityState = entity ? this.hass.states[entity] : null;
-    const friendlyName = entityState ? entityState.attributes.friendly_name : '';
-    const currentValue = entityState ? entityState.state : '';
-    
-    if (!this._isEditing && this._value !== currentValue) {
-      this._value = currentValue;
-    }
-    
-    const themeResult = this._getTheme();
-    const themeClass = themeResult === 'off' ? 'off' : 'on';
-
-    const showPlaceholder = !this._value && !this._isEditing;
-    const borderRadius = this.config.border_radius || '10px';
-
-    return html`
-      <div class="input-container ${themeClass}" 
-           style="width: ${this.config.width || '60vw'}; 
-                  height: ${this.config.height || '8vw'};
-                  border-radius: ${borderRadius};">
-        <div class="icon">
-          <ha-icon icon="mdi:magnify"></ha-icon>
-        </div>
-        <div class="input-wrapper">
-          <input
-            type="text"
-            .value=${this._value}
-            @input=${this._handleInput}
-            @keydown=${this._handleKeyDown}
-            @focus=${() => this._isEditing = true}
-            @blur=${() => this._isEditing = false}
-            placeholder=" "
-          />
-          <div class="placeholder ${!showPlaceholder ? 'hidden' : ''}">${friendlyName}</div>
-        </div>
-      </div>
-    `;
-  }
-
-  _handleInput(e) {
-    this._value = e.target.value;
-    this._isEditing = true;
-  }
-
-  _handleKeyDown(e) {
-    if (e.key === 'Enter' && this.config.entity) {
-      this._setEntityValue();
-      this._isEditing = false;
-      // 取消焦点
-      e.target.blur();
-    }
-  }
-
-  _setEntityValue() {
-    if (!this.config.entity) return;
-    
-    this.hass.callService('text', 'set_value', {
-      entity_id: this.config.entity,
-      value: this._value,
-    });
-  }
-
-  setConfig(config) {
-    this.config = config;
-  }
-
-  getCardSize() {
-    return 1;
-  }
-}
-console.info("%c 消逝集合卡 输入卡 \n%c   Version 2.0.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
-customElements.define('xiaoshi-text-card', XiaoshiTextCard);
-
 window.customCards = window.customCards || [];
 window.customCards.push(
+  {
+    type: 'xiaoshi-switch-card',
+    name: '消逝卡片组 插座卡',
+    description: '加载插座'
+  },
+  {
+    type: 'xiaoshi-text-card',
+    name: '消逝卡片组 输入卡',
+    description: 'text.实体输入框'
+  },
   {
     type: 'xiaoshi-video-card',
     name: '消逝卡片组 视频卡',
@@ -2130,6 +1980,11 @@ window.customCards.push(
     description: '加载api图片背景'
   },
   {
+    type: 'xiaoshi-time-card',
+    name: '消逝卡片组 时间卡',
+    description: '显示时间（需要配合万年历NR和button模板）'
+  },
+  {
     type: 'xiaoshi-light-card',
     name: '消逝卡片组 灯光卡',
     description: '加载灯光'
@@ -2138,25 +1993,5 @@ window.customCards.push(
     type: 'xiaoshi-light-group-card',
     name: '消逝卡片组 灯组卡',
     description: '加载灯光组'
-  },
-  {
-    type: 'xiaoshi-switch-card',
-    name: '消逝卡片组 插座卡',
-    description: '加载插座'
-  },
-  {
-    type: 'xiaoshi-switch-group-card',
-    name: '消逝卡片组 插座组',
-    description: '加载插座组'
-  },
-  {
-    type: 'xiaoshi-time-card',
-    name: '消逝卡片组 时间卡',
-    description: '显示时间（需要配合万年历NR和button模板）'
-  },
-  {
-    type: 'xiaoshi-text-card',
-    name: '消逝卡片组 输入卡',
-    description: 'text.实体输入框'
   }
 );
