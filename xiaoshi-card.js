@@ -459,7 +459,7 @@ class XiaoshiLightCard extends LitElement {
 			} else if (type === 'color_temp') {
 				this._adjustColorTemp(entity, value);
 			}
-		}, 300);
+		}, 10);
 	}
 
   _togglePower(entity) {
