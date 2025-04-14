@@ -4,7 +4,7 @@
 - url: /hacsfiles/xiaoshi-card/xiaoshi-card.js
   type: module
 ~~~
-## 功能1：灯光控制卡1.0（待修复）
+## 功能1：灯光控制卡2.0
 **引用示例**
 ~~~
 type: custom:xiaoshi-light-group-card
@@ -16,8 +16,8 @@ width: 87vw           # 卡片宽度
 height: 20vw          # 卡片高度
 rgb: true             # 是否显示亮度、色温控制
 show: auto            # 当有这行调用时，仅当灯光时on时才会显示，当灯光时off时卡片整体隐藏
-theme: on             # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
-                      # 表头第一行有【总共开启xx盏灯】和全关按钮（没有灯光开启时，全关按钮隐藏）
+theme: "on"           # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+total: "on"           # 选项on显示表头统计行，选项off不显示统计行，默认参数为on
 ~~~
 
 ## 功能2：插座控制卡2.0
@@ -72,16 +72,4 @@ url:
 type: custom:xiaoshi-time-card
 entity: sensor.lunar  #该实体需要配合NR使用
                       #弹出菜单需要button_card模板配合
-~~~
-
-## 功能7：灯光控制卡（待删除）
-**引用示例**
-~~~
-type: custom:xiaoshi-light-card
-entity: light.light1   
-width: 87vw           # 卡片宽度
-height: 20vw          # 卡片高度
-rgb: true             # 是否显示亮度、色温控制
-show: auto            # 当有这行调用时，仅当灯光时on时才会显示，当灯光时off时卡片整体隐藏
-theme: on             # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'  
 ~~~
