@@ -7,7 +7,7 @@
 ## 功能1：灯光控制卡2.0
 **引用示例**
 ~~~
-type: custom:xiaoshi-light-group-card
+type: custom:xiaoshi-light-card
 entities:             # 要想使用全关功能，灯光必须是light实体
   - light.light1
   - light.light2
@@ -23,7 +23,7 @@ total: "on"           # 选项on显示表头统计行，选项off不显示统计
 ## 功能2：插座控制卡2.0
 **引用示例**
 ~~~
-type: custom:xiaoshi-switch-group-card
+type: custom:xiaoshi-switch-card
 entities:
   - entity: switch.switch1   # 插座1实体 
     power: sensor.power1     # 插座1对应功率实体
