@@ -459,7 +459,7 @@ class XiaoshiLightCard extends LitElement {
 			} else if (type === 'color_temp') {
 				this._adjustColorTemp(entity, value);
 			}
-		}, 300);
+		}, 10);
 	}
 
   _togglePower(entity) {
@@ -573,7 +573,7 @@ class XiaoshiLightCard extends LitElement {
   }
 
 } 
-console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 2.0.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 2.0.2    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-card', XiaoshiLightCard);
 
 class XiaoshiSwitchCard extends LitElement {
@@ -912,7 +912,7 @@ class XiaoshiSwitchCard extends LitElement {
     this._unlockedCards = {};
   }
 }
-console.info("%c 消逝集合卡. 插座卡 \n%c   Version 2.0.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 插座卡 \n%c   Version 2.0.2    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-switch-card', XiaoshiSwitchCard); 
 
 class XiaoshiTextCard extends LitElement {
@@ -1084,7 +1084,7 @@ class XiaoshiTextCard extends LitElement {
     return 1;
   }
 }
-console.info("%c 消逝集合卡. 输入卡 \n%c   Version 2.0.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 输入卡 \n%c   Version 2.0.2    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-text-card', XiaoshiTextCard);
 
 class VideoCard extends HTMLElement {
@@ -1373,7 +1373,7 @@ class VideoCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 视频卡 \n%c   Version 2.0.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 视频卡 \n%c   Version 2.0.2    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-video-card', VideoCard);
 
 class ImageCard extends HTMLElement {
@@ -1498,7 +1498,7 @@ class ImageCard extends HTMLElement {
 
   }
 }
-console.info("%c 消逝集合卡. 图片卡 \n%c   Version 2.0.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 图片卡 \n%c   Version 2.0.2    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-image-card', ImageCard);
 
 class XiaoshiTimeCard extends HTMLElement {
@@ -1624,8 +1624,137 @@ class XiaoshiTimeCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 时间卡 \n%c   Version 2.0.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 时间卡 \n%c   Version 2.0.2    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
+
+class XiaoshiGridCard extends LitElement {
+  static get properties() {
+    return {
+      hass: Object,
+      config: Object,
+    };
+  }
+
+  static get styles() {
+    return css`
+      .container {
+        position: relative;
+        display: block;
+        overflow: hidden;
+      }
+      .grid-item {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        box-sizing: border-box;
+        border: 0;
+				cursor: pointer;
+      }
+    `;
+  }
+
+  setConfig(config) {
+    if (!config.entities) {
+      throw new Error('You need to define entities');
+    }
+    this.config = {
+      width: config.width || '400px',
+      height: config.height || '80px',
+      min: config.min || 0,
+      max: config.max || 100,
+      mode: config.mode || '温度',
+      entities: config.entities.map(entity => ({
+        ...entity,
+        state: entity.state !== false, // 默认true，除非显式设置为false
+        
+      })),
+    };
+  }
+
+  render() {
+		return html`
+			<div class="container" 
+				style="width: ${this.config.width}; 
+				height: ${this.config.height};"
+			>
+				${this.config.entities.map((entityConfig) => {
+					const entity = this.hass.states[entityConfig.entity];
+					if (!entity) return html``;
+					
+					const value = parseFloat(entity.state);
+					const grid = entityConfig.grid ? entityConfig.grid.split(',') : ['0%', '0%', '100%', '100%'];
+					const unit = entityConfig.unit || '';
+					
+					// 计算背景颜色
+					let filter;
+					if (this.config.mode === '温度') {
+						filter = this._calculateTemperatureFilter(value);
+					} else if (this.config.mode === '湿度') {
+						filter = this._calculateHumidityFilter(value);
+					}
+					let size = Number(grid[2].slice(0, grid[2].length-1));
+					let fsize ="11px";
+					if (size<25 )  fsize ="10px";
+					if (size<20 )  fsize ="9px";
+					if (size<15 )  fsize ="8px";
+					return html`
+						<div 
+							class="grid-item" 
+							style="
+								left: ${grid[0]};
+								top: ${grid[1]};
+								width: ${grid[2]};
+								height: ${grid[3]};
+								background-color: rgba(0, 200, 0, 0.8);
+								filter: ${filter};
+								font-size: ${fsize};
+							"
+						>
+							${entityConfig.state !== false ? html`${entity.state}${unit}` : ''}
+						</div>
+					`;
+				})}
+			</div> 
+		`;
+	}
+
+	_calculateTemperatureFilter(temp) {
+		temp = parseFloat(temp);
+		const { min, max } = this.config;
+		let deg;
+		  
+		if (temp > 25) {
+			deg = (25 - temp) * 120 / (max - 25);
+		} else {
+			deg = (25 - temp) * 100 / (25 - min);
+		}
+		
+		return `hue-rotate(${deg}deg)`;
+	}
+	 
+	_calculateHumidityFilter(hum) {
+		hum = parseFloat(hum);
+		const { min, max } = this.config;
+		let deg;
+		
+		if (hum > 50) {
+			deg = (50 - hum) * 100 / (50 - max);
+		} else {
+			deg = (50 - hum) * 120 / (min - 50);
+		}
+		
+		return `hue-rotate(${deg}deg)`;
+	}
+
+  getCardSize() {
+    return 1;
+  }
+}
+console.info("%c 消逝集合卡. 分布卡 \n%c   Version 2.0.2    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+customElements.define('xiaoshi-grid-card', XiaoshiGridCard);
+
 
 window.customCards = window.customCards || [];
 window.customCards.push(
@@ -1658,5 +1787,10 @@ window.customCards.push(
     type: 'xiaoshi-time-card',
     name: '消逝卡片组 时间卡',
     description: '显示时间（需要配合万年历NR和button模板）'
+  },
+  {
+    type: 'xiaoshi-grid-card',
+    name: '消逝卡片组 分布卡',
+    description: '房间温度分布、湿度分布卡片'
   },
 );
