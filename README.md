@@ -73,3 +73,21 @@ type: custom:xiaoshi-time-card
 entity: sensor.lunar  #该实体需要配合NR使用
                       #弹出菜单需要button_card模板配合
 ~~~
+
+## 功能7：分布卡(温度分布、湿度分布)
+**引用示例**
+~~~
+type: custom:xiaoshi-grid-card
+entities:
+  - entity: sensor.shidu_ciwo
+    grid: 0%,0%,30%,29%
+  - entity: sensor.shidu_keting
+    grid: 32%,69%,17%,9%     # 横坐标、纵坐标、宽度、高度
+    state: false             # false不显示数值，默认显示，可省略 
+    unit: " %"               # 显示的单位，默认不显示，可省略
+width: 100px                 # 卡片 整体宽度
+height: 120px                # 卡片 整体高度
+min: 20                      # 当前地区最小值
+max: 80                      # 当前地区最大值
+mode: 湿度                   # 【温度】或者【湿度】
+~~~
