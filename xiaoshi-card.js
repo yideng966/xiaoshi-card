@@ -39,17 +39,18 @@ class XiaoshiLightCard extends LitElement {
       border-radius: 6px;
 			background: rgba(180, 180, 180, 0.2);
       text-align: start;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
       align-items: start;
       justify-content: start;
-      height: 24px;
-      max-width: 50px;
+      height: 20px;
+      max-width: 40px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      gap: 4px;
     }
     
     .main-container {
@@ -659,7 +660,7 @@ class XiaoshiLightCard extends LitElement {
     }
   }
 }
-console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 2.0.6    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-card', XiaoshiLightCard);
 
 class XiaoshiSwitchCard extends LitElement {
@@ -998,7 +999,7 @@ class XiaoshiSwitchCard extends LitElement {
     this._unlockedCards = {};
   }
 }
-console.info("%c 消逝集合卡. 插座卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 插座卡 \n%c   Version 2.0.6    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-switch-card', XiaoshiSwitchCard); 
 
 class XiaoshiTextCard extends LitElement {
@@ -1170,7 +1171,7 @@ class XiaoshiTextCard extends LitElement {
     return 1;
   }
 }
-console.info("%c 消逝集合卡. 输入卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 输入卡 \n%c   Version 2.0.6    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-text-card', XiaoshiTextCard);
 
 class VideoCard extends HTMLElement {
@@ -1459,7 +1460,7 @@ class VideoCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 视频卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 视频卡 \n%c   Version 2.0.6    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-video-card', VideoCard);
 
 class ImageCard extends HTMLElement {
@@ -1584,7 +1585,7 @@ class ImageCard extends HTMLElement {
 
   }
 }
-console.info("%c 消逝集合卡. 图片卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 图片卡 \n%c   Version 2.0.6    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-image-card', ImageCard);
 
 class XiaoshiTimeCard extends HTMLElement {
@@ -1710,7 +1711,7 @@ class XiaoshiTimeCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 时间卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 时间卡 \n%c   Version 2.0.6    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
 
 class XiaoshiGridCard extends LitElement {
@@ -1838,7 +1839,7 @@ class XiaoshiGridCard extends LitElement {
     return 1;
   }
 }
-console.info("%c 消逝集合卡. 分布卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 分布卡 \n%c   Version 2.0.6    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-grid-card', XiaoshiGridCard);
 
 
