@@ -5,11 +5,53 @@ class XiaoshiLightCard extends LitElement {
     hass: { type: Object },
     _config: { type: Object, state: true },
     _onCount: { type: Number, state: true },
-    _sliderValues: { type: Object, state: true } // 存储滑动条实时值
+    _sliderValues: { type: Object, state: true },
+    _showScenes: { type: Object, state: true }
   };
 
   static styles = css`
-    /* 所有样式保持不变，只是语法改为Lit的css标签函数 */
+		.scene-mode-button {
+			position: absolute;
+			bottom: 4px;
+			left: 0;
+			padding: 2px 6px;
+			font-size: 0.7rem;
+			border-radius: 4px;
+			background: rgba(180, 180, 180, 0.2);
+			color: #FE6F21;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			width: fit-content;
+		}
+    
+    .scenes-container {
+      flex: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0px;
+      z-index: 1;
+      align-items: center;
+    }
+    
+    .scene-button {
+      padding: 0px 4px 0px 4px;
+      border-radius: 6px;
+			background: rgba(180, 180, 180, 0.2);
+      text-align: start;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: start;
+      justify-content: start;
+      height: 24px;
+      max-width: 50px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
     .main-container {
       display: flex;
       flex-direction: column;
@@ -72,16 +114,38 @@ class XiaoshiLightCard extends LitElement {
       overflow: hidden;
       width: 100%;
     }
-
-    .device-name {
+    .device-name-area {
+      min-width: 80px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      z-index: 1;
+    }
+    .device-name-container {
       min-width: 80px;
       flex: 1;
       font-size: 1.2rem;
       font-weight: 600;
       white-space: nowrap;
       z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
+    .device-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+    }
     .controls-container {
       flex: 2;
       display: flex;
@@ -100,7 +164,7 @@ class XiaoshiLightCard extends LitElement {
       width: 30px;
       font-size: 0.8rem;
       background: rgb(0,0,0,0);
-			line-height: 1.1;
+      line-height: 1.1;
     }
 
     .slider-track {
@@ -198,11 +262,11 @@ class XiaoshiLightCard extends LitElement {
     this._config = null;
     this._hass = null;
     this._onCount = 0;
-    this._sliderValues = {}; // 初始化滑动条值存储
-    this._debounceTimers = {}; // 防抖计时器存储
+    this._sliderValues = {};
+    this._debounceTimers = {};
+    this._showScenes = {};
   }
 
-  // 设置配置（保持不变）
   setConfig(config) {
     const configCopy = JSON.parse(JSON.stringify(config));
     const normalizedEntities = this._normalizeEntities(configCopy);
@@ -214,15 +278,15 @@ class XiaoshiLightCard extends LitElement {
       width: configCopy.width || '100%',
       height: configCopy.height || '60px',
       show: configCopy.show,
-      total: config.total !== undefined ? config.total : 'on' // 默认值为'on'
+      total: config.total !== undefined ? config.total : 'on'
     };
     
-    // 初始化滑动条值
     normalizedEntities.forEach(entity => {
       this._sliderValues[entity] = {
         brightness: null,
         color_temp: null
       };
+      this._showScenes[entity] = false;
     });
     
     this.requestUpdate();
@@ -242,7 +306,6 @@ class XiaoshiLightCard extends LitElement {
     throw new Error('必须配置至少一个实体');
   }
 
-  // 评估主题
   _evaluateTheme() {
     try {
       if (typeof this._config.theme === 'function') return this._config.theme();
@@ -255,7 +318,6 @@ class XiaoshiLightCard extends LitElement {
     }
   }
 
-  // 获取背景样式
   _getBackground(state) {
     const theme = this._evaluateTheme();
     if (state === 'on') {
@@ -266,11 +328,9 @@ class XiaoshiLightCard extends LitElement {
     return theme === 'off' ? '#323232' : '#FFF';
   }
 
-  // 渲染头部
   _renderHeader() {
     if (this._config.total === 'off') return html``;
 
-    // 计算开启的灯数量
     this._onCount = this._config.entities.filter(entity => 
       this.hass?.states[entity]?.state === 'on'
     ).length;
@@ -298,7 +358,6 @@ class XiaoshiLightCard extends LitElement {
     `;
   }
 
-  // 渲染单个实体
   _renderEntity(entity) {
     if (!this.hass?.states[entity]) {
       console.error(`实体 ${entity} 不存在`);
@@ -311,35 +370,44 @@ class XiaoshiLightCard extends LitElement {
     const attributes = stateObj.attributes || {};
     const showMode = this._config.show || 'always';
     const showCard = showMode === 'auto' ? state === 'on' : true;
+    const showScenes = this._showScenes[entity];
+    const hasScenes = attributes.effect_list && attributes.effect_list.length > 0;
 
     return html`
-      <div 
-        class="entity-container"
+      <div class="entity-container"
         style="
           width: ${this._config.width || '100%'};
           height: ${this._config.height};
           background: ${this._getBackground(state)};
           box-shadow: ${this._evaluateTheme() === 'off' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'};
           display: ${showCard ? 'flex' : 'none'};
-        "
-      >
-        <div class="device-name" style="color: ${this._evaluateTheme() === 'off' ? '#FFF' : '#333'}">
-          ${attributes.friendly_name || entity}
+        ">
+        <div class="device-name-area" style="color: ${this._evaluateTheme() === 'off' ? '#FFF' : '#333'}">
+          <div class="device-name">
+            ${attributes.friendly_name || entity}
+          </div>
+          ${hasScenes ? html`
+            <div class="scene-mode-button" style="color: ${this._evaluateTheme() === 'off' ? '#FFF' : '#333'}"
+							@click=${() => this._toggleSceneMode(entity)}>
+              情景模式
+            </div>
+          ` : ''}
         </div>
         
-        ${this._config.rgb ? this._renderControls(entity, isActive, attributes) : ''}
+        ${showScenes && hasScenes ? 
+          this._renderScenes(entity) : 
+          (this._config.rgb ? this._renderControls(entity, isActive, attributes) : '')
+        }
         
         ${this._renderPowerButton(entity, isActive)}
       </div>
     `;
   }
 
-  // 渲染控制部分
   _renderControls(entity, isActive, attributes) {
     const themeColor = this._evaluateTheme() === 'on' ? '#333' : '#FFF';
     const controls = [];
     
-    // 亮度控制
     if (attributes.brightness !== undefined) {
       const brightness = Math.max(5, Math.min(255, attributes.brightness || 5));
       const brightnessPercent = ((brightness - 5) / 250 * 100).toFixed(1);
@@ -350,7 +418,6 @@ class XiaoshiLightCard extends LitElement {
       ));
     }
     
-    // 色温控制
     if (attributes.supported_color_modes?.includes('color_temp')) {
       const kelvin = attributes.color_temp_kelvin || Math.round(1000000 / (attributes.color_temp || 370));
       const colorTempPercent = ((kelvin - 2700) / 3800 * 100).toFixed(1);
@@ -368,9 +435,7 @@ class XiaoshiLightCard extends LitElement {
     `;
   }
 
-  // 渲染滑动条（改进版）
   _renderSlider(entity, label, type, color, value, min, max, percent, isActive) {
-    // 使用存储的实时值或初始值
     const currentValue = this._sliderValues[entity]?.[type] ?? value;
     const currentPercent = ((currentValue - min) / (max - min) * 100).toFixed(1);
 
@@ -390,7 +455,7 @@ class XiaoshiLightCard extends LitElement {
             data-type=${type}
             data-entity=${entity}
             @input=${this._handleSliderInput}
-            @change=${this._handleSliderChange}  // 添加change事件处理
+            @change=${this._handleSliderChange}
           />
           <div class="slider-thumb ${isActive ? 'active' : 'inactive'}" style="left: ${currentPercent}%"></div>
         </div>
@@ -398,7 +463,6 @@ class XiaoshiLightCard extends LitElement {
     `;
   }
 
-  // 渲染电源按钮
   _renderPowerButton(entity, isActive) {
     return html`
       <div 
@@ -411,7 +475,28 @@ class XiaoshiLightCard extends LitElement {
     `;
   }
 
-  // 主渲染函数
+  _renderScenes(entity) {
+    const stateObj = this.hass.states[entity];
+    if (!stateObj) return html``;
+    
+    const effectList = stateObj.attributes.effect_list || [];
+    
+    return html`
+      <div class="scenes-container">
+        ${effectList.map(scene => html`
+          <div 
+            class="scene-button"
+            @click=${() => this._activateScene(entity, scene)}
+            style="color: ${this._evaluateTheme() === 'off' ? '#FFF' : '#333'}"
+            title=${scene}
+          >
+            ${scene}
+          </div>
+        `)}
+      </div>
+    `;
+  }
+
   render() {
     if (!this._config || !this.hass) return html``;
     
@@ -423,7 +508,6 @@ class XiaoshiLightCard extends LitElement {
     `;
   }
 
-  // 滑动条输入处理（实时反馈）
   _handleSliderInput(e) {
     const type = e.target.dataset.type;
     const entity = e.target.dataset.entity;
@@ -431,42 +515,34 @@ class XiaoshiLightCard extends LitElement {
     const min = parseInt(e.target.min);
     const max = parseInt(e.target.max);
     const percent = ((value - min) / (max - min) * 100).toFixed(1);
-
-    // 更新实时值存储
     this._sliderValues[entity][type] = value;
-    
-    // 立即更新UI（不调用服务）
     const track = e.target.parentElement;
     if (track) {
       track.querySelector('.slider-progress').style.width = `${percent}%`;
       track.querySelector('.slider-thumb').style.left = `${percent}%`;
     }
     
-    // 更新显示值
     this.requestUpdate();
   }
 
-	  // 滑动条变化处理（防抖调用服务）
-	_handleSliderChange(e) {
-		const type = e.target.dataset.type;
-		const entity = e.target.dataset.entity;
-		const value = parseInt(e.target.value);
+  _handleSliderChange(e) {
+    const type = e.target.dataset.type;
+    const entity = e.target.dataset.entity;
+    const value = parseInt(e.target.value);
 
-		// 设置新的防抖计时器（300ms延迟）
-		this._debounceTimers[`${entity}_${type}`] = setTimeout(() => {
-			if (type === 'brightness') {
-				this._adjustBrightness(entity, value);
-			} else if (type === 'color_temp') {
-				this._adjustColorTemp(entity, value);
-			}
-		}, 300);
-	}
+    this._debounceTimers[`${entity}_${type}`] = setTimeout(() => {
+      if (type === 'brightness') {
+        this._adjustBrightness(entity, value);
+      } else if (type === 'color_temp') {
+        this._adjustColorTemp(entity, value);
+      }
+    }, 300);
+  }
 
   _togglePower(entity) {
     this.hass.callService('light', 'toggle', { entity_id: entity });
     try { navigator.vibrate(50); } catch(e) {}
     
-    // 按钮动画
     const button = this.shadowRoot.querySelector(`[data-entity="${entity}"] .power-button`);
     if (button) {
       button.style.transform = 'scale(0.8)';
@@ -479,7 +555,6 @@ class XiaoshiLightCard extends LitElement {
       entity_id: this._config.entities
     });
     
-    // 按钮动画
     const button = this.shadowRoot.querySelector('.all-off-button');
     if (button) {
       button.style.transform = 'scale(0.8)';
@@ -487,13 +562,10 @@ class XiaoshiLightCard extends LitElement {
     }
   }
 
-  // 调整亮度（独立处理）
   async _adjustBrightness(entity, value) {
-    // 确保只调整亮度，不影响色温
     const attributes = this.hass.states[entity]?.attributes || {};
     const params = { brightness: Math.max(5, Math.min(255, value)) };
     
-    // 如果灯是关闭状态，先打开
     if (this.hass.states[entity]?.state === 'off') {
       await this.hass.callService('light', 'turn_on', {
         entity_id: entity,
@@ -508,13 +580,10 @@ class XiaoshiLightCard extends LitElement {
       });
     }
     
-    // 更新实际值
     this._syncSliderValue(entity, 'brightness');
   }
 
-  // 调整色温（独立处理）
   async _adjustColorTemp(entity, value) {
-    // 确保只调整色温，不影响亮度
     const attributes = this.hass.states[entity]?.attributes || {};
     const params = {};
     
@@ -524,7 +593,6 @@ class XiaoshiLightCard extends LitElement {
       params.color_temp = Math.round(1000000 / value);
     }
     
-    // 如果灯是关闭状态，先打开
     if (this.hass.states[entity]?.state === 'off') {
       await this.hass.callService('light', 'turn_on', {
         entity_id: entity,
@@ -539,10 +607,9 @@ class XiaoshiLightCard extends LitElement {
       });
     }
     
-    // 更新实际值
     this._syncSliderValue(entity, 'color_temp');
   }
-  // 同步滑动条值与实际值
+
   _syncSliderValue(entity, type) {
     const state = this.hass.states[entity];
     if (!state) return;
@@ -562,7 +629,24 @@ class XiaoshiLightCard extends LitElement {
     
     this.requestUpdate();
   }
-  // 在hass更新时同步所有滑动条值
+
+  _toggleSceneMode(entity) {
+    this._showScenes[entity] = !this._showScenes[entity];
+    this.requestUpdate();
+  }
+
+  _activateScene(entity, scene) {
+    this.hass.callService('light', 'turn_on', {
+      entity_id: entity,
+      effect: scene
+    });
+    
+    this._showScenes[entity] = false;
+    this.requestUpdate();
+    
+    try { navigator.vibrate(50); } catch(e) {}
+  }
+
   updated(changedProperties) {
     if (changedProperties.has('hass') && this._config) {
       this._config.entities.forEach(entity => {
@@ -571,9 +655,8 @@ class XiaoshiLightCard extends LitElement {
       });
     }
   }
-
-} 
-console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 2.0.3    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+}
+console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-card', XiaoshiLightCard);
 
 class XiaoshiSwitchCard extends LitElement {
@@ -912,7 +995,7 @@ class XiaoshiSwitchCard extends LitElement {
     this._unlockedCards = {};
   }
 }
-console.info("%c 消逝集合卡. 插座卡 \n%c   Version 2.0.3    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 插座卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-switch-card', XiaoshiSwitchCard); 
 
 class XiaoshiTextCard extends LitElement {
@@ -1084,7 +1167,7 @@ class XiaoshiTextCard extends LitElement {
     return 1;
   }
 }
-console.info("%c 消逝集合卡. 输入卡 \n%c   Version 2.0.3    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 输入卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-text-card', XiaoshiTextCard);
 
 class VideoCard extends HTMLElement {
@@ -1373,7 +1456,7 @@ class VideoCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 视频卡 \n%c   Version 2.0.3    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 视频卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-video-card', VideoCard);
 
 class ImageCard extends HTMLElement {
@@ -1498,7 +1581,7 @@ class ImageCard extends HTMLElement {
 
   }
 }
-console.info("%c 消逝集合卡. 图片卡 \n%c   Version 2.0.3    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 图片卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-image-card', ImageCard);
 
 class XiaoshiTimeCard extends HTMLElement {
@@ -1624,7 +1707,7 @@ class XiaoshiTimeCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 时间卡 \n%c   Version 2.0.3    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 时间卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
 
 class XiaoshiGridCard extends LitElement {
@@ -1752,7 +1835,7 @@ class XiaoshiGridCard extends LitElement {
     return 1;
   }
 }
-console.info("%c 消逝集合卡. 分布卡 \n%c   Version 2.0.3    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 分布卡 \n%c   Version 2.0.4    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-grid-card', XiaoshiGridCard);
 
 
