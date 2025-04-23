@@ -122,6 +122,7 @@ class XiaoshiLightCard extends LitElement {
       height: 100%;
       position: relative;
       z-index: 1;
+			overflow: visible;
     }
     .device-name-container {
       min-width: 80px;
@@ -133,6 +134,7 @@ class XiaoshiLightCard extends LitElement {
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: visible;
     }
 
     .device-name {
@@ -145,6 +147,7 @@ class XiaoshiLightCard extends LitElement {
       top: 50%;
       transform: translateY(-50%);
       width: 100%;
+      overflow: visible;
     }
     .controls-container {
       flex: 2;
