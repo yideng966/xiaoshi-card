@@ -28,7 +28,7 @@ class XiaoshiLightCard extends LitElement {
       flex: 2;
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 3px;
       padding: 0px;
       z-index: 1;
       align-items: center;
@@ -46,7 +46,7 @@ class XiaoshiLightCard extends LitElement {
       align-items: start;
       justify-content: start;
       height: 20px;
-      max-width: 40px;
+      max-width: 35px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
