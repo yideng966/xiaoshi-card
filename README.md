@@ -18,6 +18,7 @@ rgb: true             # 是否显示亮度、色温控制
 show: auto            # 当有这行调用时，仅当灯光时on时才会显示，当灯光时off时卡片整体隐藏
 theme: "on"           # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 total: "on"           # 选项on显示表头统计行，选项off不显示统计行，默认参数为on
+columns: 1            # 布局的列数，默认1列
 ~~~
 
 ## 功能2：插座控制卡2.0
@@ -33,6 +34,7 @@ height: 85vw                 # 卡片宽度
 width: 20vw                  # 卡片高度
 theme: "on"                  # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 total: "on"                  # 选项on显示表头统计行，选项off不显示统计行，默认参数为on
+columns: 1                   # 布局的列数，默认1列
 ~~~
 
 ## 功能3：text输入框卡2.0
