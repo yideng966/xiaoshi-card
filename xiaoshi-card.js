@@ -10,19 +10,19 @@ class XiaoshiLightCard extends LitElement {
   };
 
   static styles = css`
-		.scene-mode-button {
-			position: absolute;
-			bottom: 4px;
-			left: 0;
-			padding: 2px 6px;
-			font-size: 0.7rem;
-			border-radius: 4px;
-			background: rgba(180, 180, 180, 0.2);
-			color: #FE6F21;
-			cursor: pointer;
-			transition: all 0.3s ease;
-			width: fit-content;
-		}
+    .scene-mode-button {
+      position: absolute;
+      bottom: 4px;
+      left: 0;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      border-radius: 4px;
+      background: rgba(180, 180, 180, 0.2);
+      color: #FE6F21;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: fit-content;
+    }
     
     .scenes-container {
       flex: 2;
@@ -37,7 +37,7 @@ class XiaoshiLightCard extends LitElement {
     .scene-button {
       padding: 0px 4px 0px 4px;
       border-radius: 6px;
-			background: rgba(180, 180, 180, 0.2);
+      background: rgba(180, 180, 180, 0.2);
       text-align: start;
       font-size: 0.65rem;
       cursor: pointer;
@@ -59,6 +59,13 @@ class XiaoshiLightCard extends LitElement {
       gap: 8px;
       width: 100%;
       padding: 0;
+    }
+
+    .entities-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--column-count, 1), 1fr);
+      gap: 8px !important;
+      width: 100%;
     }
 
     .stats-header {
@@ -123,7 +130,7 @@ class XiaoshiLightCard extends LitElement {
       height: 100%;
       position: relative;
       z-index: 1;
-			overflow: visible;
+      overflow: visible;
     }
     .device-name-container {
       min-width: 80px;
@@ -282,7 +289,8 @@ class XiaoshiLightCard extends LitElement {
       width: configCopy.width || '100%',
       height: configCopy.height || '60px',
       show: configCopy.show,
-      total: config.total !== undefined ? config.total : 'on'
+      total: config.total !== undefined ? config.total : 'on',
+      columns: config.columns || 1  // Add columns configuration
     };
     
     normalizedEntities.forEach(entity => {
@@ -343,7 +351,7 @@ class XiaoshiLightCard extends LitElement {
     
     return html`
       <div class="stats-header">
-        <div class="stats-text" style="color: ${themeColor}">
+        <div class="stats-text" style="color: #ffffff">
           总共开启 ${this._onCount} 盏灯
         </div>
         <div 
@@ -392,7 +400,7 @@ class XiaoshiLightCard extends LitElement {
           </div>
           ${hasScenes ? html`
             <div class="scene-mode-button" style="color: ${this._evaluateTheme() === 'off' ? '#FFF' : '#333'}"
-							@click=${() => this._toggleSceneMode(entity)}>
+              @click=${() => this._toggleSceneMode(entity)}>
               情景模式
             </div>
           ` : ''}
@@ -507,7 +515,9 @@ class XiaoshiLightCard extends LitElement {
     return html`
       <div class="main-container">
         ${this._renderHeader()}
-        ${this._config.entities.map(entity => this._renderEntity(entity))}
+        <div class="entities-grid" style="--column-count: ${this._config.columns}">
+          ${this._config.entities.map(entity => this._renderEntity(entity))}
+        </div>
       </div>
     `;
   }
@@ -660,7 +670,7 @@ class XiaoshiLightCard extends LitElement {
     }
   }
 }
-console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 2.1.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-card', XiaoshiLightCard);
 
 class XiaoshiSwitchCard extends LitElement {
@@ -703,6 +713,14 @@ class XiaoshiSwitchCard extends LitElement {
         background: var(--card-background-color, #f0f0f0);
       }
 
+      /* 网格布局容器 */
+      .entities-grid {
+        display: grid;
+        grid-template-columns: repeat(var(--column-count, 1), 1fr);
+        gap: 8px;
+        width: 100%;
+      }
+
       /* 设备名称样式 */
       .device-name {
         font-size: 1.2rem;
@@ -720,6 +738,7 @@ class XiaoshiSwitchCard extends LitElement {
         font-size: 1rem;
         text-align: center;
         padding: 12px 0;
+        margin-bottom: 8px;
       }
 
       .name-container {
@@ -820,7 +839,8 @@ class XiaoshiSwitchCard extends LitElement {
       height: config.height || '60px',
       entities: config.entities || [],
       theme: config.theme || 'off',
-      total: config.total !== undefined ? config.total : 'on' // 默认值为'on'
+      total: config.total !== undefined ? config.total : 'on', // 默认值为'on',
+      columns: config.columns || 1  // 新增列数配置
     };
     this.requestUpdate();
   }
@@ -929,6 +949,7 @@ class XiaoshiSwitchCard extends LitElement {
 
     return html`
       ${this._createStatsRow()}
+      <div class="entities-grid" style="--column-count: ${this._config.columns}">
       ${this._config.entities.map((entityPair, index) => {
         const [switchEntity, sensorEntity] = this._parseEntityConfig(entityPair);
         const stateObj = this.hass.states[switchEntity] || {};
@@ -993,15 +1014,15 @@ class XiaoshiSwitchCard extends LitElement {
       })}
     `;
   }
-
+ 
   disconnectedCallback() {
     super.disconnectedCallback();
     this._unlockedCards = {};
   }
 }
-console.info("%c 消逝集合卡. 插座卡 \n%c   Version 2.1.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
-customElements.define('xiaoshi-switch-card', XiaoshiSwitchCard); 
-
+console.info("%c 消逝集合卡. 插座卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+customElements.define('xiaoshi-switch-card', XiaoshiSwitchCard);  
+ 
 class XiaoshiTextCard extends LitElement {
   static get properties() {
     return {
@@ -1171,7 +1192,7 @@ class XiaoshiTextCard extends LitElement {
     return 1;
   }
 }
-console.info("%c 消逝集合卡. 输入卡 \n%c   Version 2.1.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 输入卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-text-card', XiaoshiTextCard);
 
 class VideoCard extends HTMLElement {
@@ -1460,7 +1481,7 @@ class VideoCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 视频卡 \n%c   Version 2.1.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 视频卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-video-card', VideoCard);
 
 class ImageCard extends HTMLElement {
@@ -1585,7 +1606,7 @@ class ImageCard extends HTMLElement {
 
   }
 }
-console.info("%c 消逝集合卡. 图片卡 \n%c   Version 2.1.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 图片卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-image-card', ImageCard);
 
 class XiaoshiTimeCard extends HTMLElement {
@@ -1711,7 +1732,7 @@ class XiaoshiTimeCard extends HTMLElement {
     });
   }
 }
-console.info("%c 消逝集合卡. 时间卡 \n%c   Version 2.1.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 时间卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
 
 class XiaoshiGridCard extends LitElement {
@@ -1839,7 +1860,7 @@ class XiaoshiGridCard extends LitElement {
     return 1;
   }
 }
-console.info("%c 消逝集合卡. 分布卡 \n%c   Version 2.1.0    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡. 分布卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-grid-card', XiaoshiGridCard);
 
 
