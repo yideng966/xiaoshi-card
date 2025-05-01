@@ -1,3 +1,4 @@
+console.info("%c 消逝集合卡 \n%c   v 2.1.2  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -670,7 +671,6 @@ class XiaoshiLightCard extends LitElement {
     }
   }
 }
-console.info("%c 消逝集合卡. 灯光卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-light-card', XiaoshiLightCard);
 
 class XiaoshiSwitchCard extends LitElement {
@@ -1020,7 +1020,6 @@ class XiaoshiSwitchCard extends LitElement {
     this._unlockedCards = {};
   }
 }
-console.info("%c 消逝集合卡. 插座卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-switch-card', XiaoshiSwitchCard);  
  
 class XiaoshiTextCard extends LitElement {
@@ -1192,7 +1191,6 @@ class XiaoshiTextCard extends LitElement {
     return 1;
   }
 }
-console.info("%c 消逝集合卡. 输入卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-text-card', XiaoshiTextCard);
 
 class VideoCard extends HTMLElement {
@@ -1480,8 +1478,7 @@ class VideoCard extends HTMLElement {
       }
     });
   }
-}
-console.info("%c 消逝集合卡. 视频卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+} 
 customElements.define('xiaoshi-video-card', VideoCard);
 
 class ImageCard extends HTMLElement {
@@ -1606,7 +1603,6 @@ class ImageCard extends HTMLElement {
 
   }
 }
-console.info("%c 消逝集合卡. 图片卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-image-card', ImageCard);
 
 class XiaoshiTimeCard extends HTMLElement {
@@ -1718,21 +1714,24 @@ class XiaoshiTimeCard extends HTMLElement {
   _getAttribute(state, path) {
     return path.split('.').reduce((obj, key) => (obj || {})[key], state?.attributes || {}) || '';
   }
-  _showPopup() {
-    window.browser_mod.service('popup', { 
-      style: `
-				--popup-min-width: 870px;
-				--mdc-theme-surface: rgb(0,0,0,0);
-				--dialog-backdrop-filter: blur(10px) brightness(1);
-			`,
-      content: {
-        type: 'custom:button-card',
-				template: '万年历平板端'
-      }
-    });
-  }
+	_showPopup() {
+		const popupContent = this.config.popup_content || {
+			type: 'custom:button-card',
+			template: '万年历平板端'
+		};
+		
+		const popupStyle = this.config.popup_style || `
+			--popup-min-width: 870px;
+			--mdc-theme-surface: rgb(0,0,0,0);
+			--dialog-backdrop-filter: blur(10px) brightness(1);
+		`;
+		
+		window.browser_mod.service('popup', { 
+			style: popupStyle,
+			content: popupContent
+		});
+	}
 }
-console.info("%c 消逝集合卡. 时间卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-time-card', XiaoshiTimeCard);
 
 class XiaoshiGridCard extends LitElement {
@@ -1860,9 +1859,7 @@ class XiaoshiGridCard extends LitElement {
     return 1;
   }
 }
-console.info("%c 消逝集合卡. 分布卡 \n%c   Version 2.1.1    ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 customElements.define('xiaoshi-grid-card', XiaoshiGridCard);
-
 
 window.customCards = window.customCards || [];
 window.customCards.push(
