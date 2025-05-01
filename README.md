@@ -73,7 +73,9 @@ url:
 ~~~
 type: custom:xiaoshi-time-card
 entity: sensor.lunar  #该实体需要配合NR使用
-                      #弹出菜单需要button_card模板配合
+popup_content:
+  type: custom:button-card  #弹出菜单需要button_card
+  template: 万年历平板端     
 ~~~
 
 ## 功能7：分布卡(温度分布、湿度分布)
