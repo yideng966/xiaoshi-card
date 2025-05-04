@@ -100,10 +100,14 @@ mode: 湿度                   # 【温度】或者【湿度】
 **引用示例**
 ~~~
 type: custom:xiaoshi-slider-card
-entity: number.yinliang
-width: 150px                 # 宽度，默认100px
-height: 20px                 # 高度，默认10px
-border: 8px                  # 圆角，默认0
-color: red                   # 前景色，默认rgb(255,255,255)
-background: white            # 背景色，默认rgb(255,255,255,0.5)
+entity: number.xxxxxxx
+style:
+  slider-width: 110px                 # 总宽度，默认100px
+  slider-height: 10px                 # 总高度，默认30px
+  track-color: rgba(200,200,200,0.5)  # 背景色，默认rgba(255,255,255,0.3)
+  thumb-size: 15px                    # 进度点大小，默认15px
+  thumb-color: rgb(255,255,255)       # 进度点颜色，默认，白色
+  slider-color: rgb(25,155,125)       # 进度条背景色，默认，浅蓝色
+  track-height: 20px                  # 进度条高度，默认5px
+  track-radius: 4px                   # 圆角大小，默认2px
 ~~~
