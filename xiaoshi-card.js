@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.1.2  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.1.3  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -1861,6 +1861,162 @@ class XiaoshiGridCard extends LitElement {
 }
 customElements.define('xiaoshi-grid-card', XiaoshiGridCard);
 
+class XiaoshiSliderCard extends LitElement {
+  static get properties() {
+    return {
+      hass: Object,
+      entity: String,
+      width: String,
+      height: String,
+      border: String,
+      color: String,
+      background: String,
+      _value: Number,
+      _min: Number,
+      _max: Number,
+      _dragging: Boolean,
+      _entityType: String
+    };
+  }
+
+  static get styles() {
+    return css`
+      .slider-container {
+        position: relative;
+        width: var(--width, 100px);
+        height: var(--height, 10px);
+        background-color: var(--background, var(--disabled-color));
+        border-radius: var(--border, 0px);
+        overflow: hidden;
+        cursor: pointer;
+      }
+      
+      .slider-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background-color: var(--color, var(--primary-color));
+      }
+      
+    `;
+  }
+
+  constructor() {
+    super();
+    this.width = '100px';
+    this.height = '10px';
+    this.border = '0px';
+    this.color = 'rgb(255,255,255)';
+    this.background = 'rgb(255,255,255,0.5)';
+    this._value = 0;
+    this._min = 0;
+    this._max = 100;
+    this._dragging = false;
+    this._entityType = '';
+  }
+
+  setConfig(config) {
+    if (!config.entity) {
+      throw new Error('请指定实体');
+    }
+    
+    this.entity = config.entity;
+    this.width = config.width || '100px';
+    this.height = config.height || '10px';
+    this.border = config.border || '0px';
+    this.color = config.color || 'rgb(255,255,255)';
+    this.background = config.background || 'rgb(255,255,255,0.5)';
+    const heightNum = parseInt(this.height);
+    if (heightNum < 2) {
+      this.height = '2px';
+    }
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('hass')) {
+      const stateObj = this.hass.states[this.entity];
+      if (stateObj) {
+        this._value = Number(stateObj.state);
+        this._min = Number(stateObj.attributes.min || 0);
+        this._max = Number(stateObj.attributes.max || 100);
+        this._entityType = stateObj.entity_id.split('.')[0];
+      }
+    }
+  }
+
+  render() {
+    const percentage = ((this._value - this._min) / (this._max - this._min)) * 100;
+    
+    return html`
+      <div 
+        class="slider-container ${this._dragging ? 'dragging' : ''}"
+        style="
+          --width: ${this.width};
+          --height: ${this.height};
+          --border: ${this.border};
+          --color: ${this.color};
+          --background: ${this.background};
+        "
+        @mousedown="${this._startDrag}"
+        @touchstart="${this._startDrag}"
+      >
+        <div class="slider-fill" style="width: ${percentage}%"></div>
+        <div class="slider-handle" style="left: ${percentage}%"></div>
+      </div>
+    `;
+  }
+
+  _startDrag(e) {
+    this._dragging = true;
+    this._handleDrag(e);
+    
+    const moveHandler = (e) => this._handleDrag(e);
+    const upHandler = () => {
+      this._dragging = false;
+      window.removeEventListener('mousemove', moveHandler);
+      window.removeEventListener('touchmove', moveHandler);
+      window.removeEventListener('mouseup', upHandler);
+      window.removeEventListener('touchend', upHandler);
+    };
+    
+    window.addEventListener('mousemove', moveHandler);
+    window.addEventListener('touchmove', moveHandler);
+    window.addEventListener('mouseup', upHandler);
+    window.addEventListener('touchend', upHandler);
+  }
+
+  _handleDrag(e) {
+    const slider = this.shadowRoot.querySelector('.slider-container');
+    const rect = slider.getBoundingClientRect();
+    
+    let clientX;
+    if (e.type.includes('touch')) {
+      clientX = e.touches[0].clientX;
+    } else {
+      clientX = e.clientX;
+    }
+    
+    let percentage = (clientX - rect.left) / rect.width;
+    percentage = Math.max(0, Math.min(1, percentage));
+    
+    const newValue = this._min + percentage * (this._max - this._min);
+    
+    if (this._entityType === 'input_number') {
+      this.hass.callService('input_number', 'set_value', {
+        entity_id: this.entity,
+        value: newValue
+      });
+    } else if (this._entityType === 'number') {
+      this.hass.callService('number', 'set_value', {
+        entity_id: this.entity,
+        value: newValue
+      });
+    }
+  }
+}
+customElements.define('xiaoshi-slider-card', XiaoshiSliderCard);
+
 window.customCards = window.customCards || [];
 window.customCards.push(
   {
@@ -1897,5 +2053,10 @@ window.customCards.push(
     type: 'xiaoshi-grid-card',
     name: '消逝卡片组 分布卡',
     description: '房间温度分布、湿度分布卡片'
+  },
+  {
+    type: 'xiaoshi-slider-card',
+    name: '消逝卡片组 进度条',
+    description: '进度条'
   },
 );
