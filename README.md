@@ -95,3 +95,15 @@ min: 20                      # 当前地区最小值
 max: 80                      # 当前地区最大值
 mode: 湿度                   # 【温度】或者【湿度】
 ~~~
+
+## 功能8：进度条
+**引用示例**
+~~~
+type: custom:xiaoshi-slider-card
+entity: number.yinliang
+width: 150px                 # 宽度，默认100px
+height: 20px                 # 高度，默认10px
+border: 8px                  # 圆角，默认0
+color: red                   # 前景色，默认rgb(255,255,255)
+background: white            # 背景色，默认rgb(255,255,255,0.5)
+~~~
