@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.1.3  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.1.4  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -1865,154 +1865,172 @@ class XiaoshiSliderCard extends LitElement {
   static get properties() {
     return {
       hass: Object,
-      entity: String,
-      width: String,
-      height: String,
-      border: String,
-      color: String,
-      background: String,
+      config: Object,
       _value: Number,
       _min: Number,
       _max: Number,
-      _dragging: Boolean,
-      _entityType: String
+      _dragging: Boolean
     };
   }
 
   static get styles() {
     return css`
-      .slider-container {
+      .slider-root {
         position: relative;
-        width: var(--width, 100px);
-        height: var(--height, 10px);
-        background-color: var(--background, var(--disabled-color));
-        border-radius: var(--border, 0px);
-        overflow: hidden;
-        cursor: pointer;
+        width: var(--slider-width, 100%);
+        height: var(--slider-height, 30px);
+        touch-action: none; /* 禁用浏览器默认触摸行为 */
+      }
+      
+      .slider-track {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 100%;
+        height: var(--track-height, 5px);
+        background: var(--track-color, rgba(255,255,255,0.3));
+        border-radius: var(--track-radius, 2px);
       }
       
       .slider-fill {
         position: absolute;
-        top: 0;
-        left: 0;
         height: 100%;
-        background-color: var(--color, var(--primary-color));
+        background: var(--slider-color, #f00);
+        border-radius: inherit;
       }
       
+      .slider-thumb {
+        position: absolute;
+        top: 50%;
+        width: var(--thumb-size, 15px);
+        height: var(--thumb-size, 15px);
+        background: var(--thumb-color, #fff);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
     `;
   }
 
   constructor() {
     super();
-    this.width = '100px';
-    this.height = '10px';
-    this.border = '0px';
-    this.color = 'rgb(255,255,255)';
-    this.background = 'rgb(255,255,255,0.5)';
     this._value = 0;
     this._min = 0;
     this._max = 100;
     this._dragging = false;
-    this._entityType = '';
+    this._startX = 0;
+    this._startValue = 0;
+    this._moveHandler = (e) => this._handleDrag(e);
+    this._endHandler = () => this._endDrag();
   }
 
   setConfig(config) {
-    if (!config.entity) {
-      throw new Error('请指定实体');
-    }
-    
-    this.entity = config.entity;
-    this.width = config.width || '100px';
-    this.height = config.height || '10px';
-    this.border = config.border || '0px';
-    this.color = config.color || 'rgb(255,255,255)';
-    this.background = config.background || 'rgb(255,255,255,0.5)';
-    const heightNum = parseInt(this.height);
-    if (heightNum < 2) {
-      this.height = '2px';
+    if (!config.entity) throw new Error('必须指定实体');
+    this.config = config;
+    if (config.style) {
+      Object.keys(config.style).forEach(key => {
+        this.style.setProperty(`--${key}`, config.style[key]);
+      });
     }
   }
 
   updated(changedProperties) {
     if (changedProperties.has('hass')) {
-      const stateObj = this.hass.states[this.entity];
-      if (stateObj) {
-        this._value = Number(stateObj.state);
-        this._min = Number(stateObj.attributes.min || 0);
-        this._max = Number(stateObj.attributes.max || 100);
-        this._entityType = stateObj.entity_id.split('.')[0];
+      const state = this.hass.states[this.config.entity];
+      if (state) {
+        this._value = Number(state.state);
+        this._min = Number(state.attributes.min || 0);
+        this._max = Number(state.attributes.max || 100);
       }
     }
   }
 
   render() {
-    const percentage = ((this._value - this._min) / (this._max - this._min)) * 100;
+    const percent = Math.max(0, Math.min(100, (this._value - this._min) / (this._max - this._min) * 100));
     
     return html`
-      <div 
-        class="slider-container ${this._dragging ? 'dragging' : ''}"
-        style="
-          --width: ${this.width};
-          --height: ${this.height};
-          --border: ${this.border};
-          --color: ${this.color};
-          --background: ${this.background};
-        "
-        @mousedown="${this._startDrag}"
-        @touchstart="${this._startDrag}"
-      >
-        <div class="slider-fill" style="width: ${percentage}%"></div>
-        <div class="slider-handle" style="left: ${percentage}%"></div>
+      <div class="slider-root"
+           @mousedown=${this._startDrag}
+           @touchstart=${this._startDrag}>
+        <div class="slider-track">
+          <div class="slider-fill" style="width: ${percent}%"></div>
+          <div class="slider-thumb" style="left: ${percent}%"></div>
+        </div>
       </div>
     `;
   }
 
   _startDrag(e) {
+    e.preventDefault();
     this._dragging = true;
-    this._handleDrag(e);
     
-    const moveHandler = (e) => this._handleDrag(e);
-    const upHandler = () => {
-      this._dragging = false;
-      window.removeEventListener('mousemove', moveHandler);
-      window.removeEventListener('touchmove', moveHandler);
-      window.removeEventListener('mouseup', upHandler);
-      window.removeEventListener('touchend', upHandler);
-    };
+    const slider = this.shadowRoot.querySelector('.slider-track');
+    const rect = slider.getBoundingClientRect();
+    this._sliderLeft = rect.left;
+    this._sliderWidth = rect.width;
     
-    window.addEventListener('mousemove', moveHandler);
-    window.addEventListener('touchmove', moveHandler);
-    window.addEventListener('mouseup', upHandler);
-    window.addEventListener('touchend', upHandler);
+    window.addEventListener('mousemove', this._moveHandler);
+    window.addEventListener('touchmove', this._moveHandler, { passive: false });
+    window.addEventListener('mouseup', this._endHandler);
+    window.addEventListener('touchend', this._endHandler);
+    
+    // 立即处理初始点击位置
+    const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    this._updateValue((clientX - this._sliderLeft) / this._sliderWidth);
+  }
+
+  _endDrag() {
+    if (!this._dragging) return;
+    
+    this._dragging = false;
+    this._removeEventListeners();
   }
 
   _handleDrag(e) {
-    const slider = this.shadowRoot.querySelector('.slider-container');
-    const rect = slider.getBoundingClientRect();
+    if (!this._dragging) return;
+    e.preventDefault();
     
-    let clientX;
-    if (e.type.includes('touch')) {
-      clientX = e.touches[0].clientX;
-    } else {
-      clientX = e.clientX;
+    const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+    this._updateValue((clientX - this._sliderLeft) / this._sliderWidth);
+  }
+
+  _removeEventListeners() {
+    window.removeEventListener('mousemove', this._moveHandler);
+    window.removeEventListener('touchmove', this._moveHandler);
+    window.removeEventListener('mouseup', this._endHandler);
+    window.removeEventListener('touchend', this._endHandler);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this._removeEventListeners();
+  }
+  _updateValue(ratio) {
+    // 严格限制在0-1范围内
+    const safeRatio = Math.max(0, Math.min(1, ratio));
+    const newValue = this._min + safeRatio * (this._max - this._min);
+    const roundedValue = Math.round(newValue);
+    
+    // 只有值确实变化了才更新
+    if (roundedValue !== this._value) {
+      this._value = roundedValue;
+      this._debouncedSetValue(roundedValue);
     }
-    
-    let percentage = (clientX - rect.left) / rect.width;
-    percentage = Math.max(0, Math.min(1, percentage));
-    
-    const newValue = this._min + percentage * (this._max - this._min);
-    
-    if (this._entityType === 'input_number') {
-      this.hass.callService('input_number', 'set_value', {
-        entity_id: this.entity,
-        value: newValue
-      });
-    } else if (this._entityType === 'number') {
-      this.hass.callService('number', 'set_value', {
-        entity_id: this.entity,
-        value: newValue
-      });
-    }
+  }
+
+  _debouncedSetValue(value) {
+    clearTimeout(this._debounceTimer);
+    this._debounceTimer = setTimeout(() => {
+      this._callService(value);
+    }, 50); // 50ms防抖
+  }
+
+  _callService(value) {
+    const service = this.config.entity.split('.')[0];
+    this.hass.callService(service, 'set_value', {
+      entity_id: this.config.entity,
+      value: value
+    });
   }
 }
 customElements.define('xiaoshi-slider-card', XiaoshiSliderCard);
