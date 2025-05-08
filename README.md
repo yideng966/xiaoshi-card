@@ -111,3 +111,37 @@ style:
   track-height: 20px                  # 进度条高度，默认5px
   track-radius: 4px                   # 圆角大小，默认2px
 ~~~
+
+## 功能9：国网表格（横向布局）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid1-card
+id: 888888888888888
+price: 0.6                   #直接指定单价，或者用下面的方式计算
+price: |
+  [[[
+    var num = states["sensor.state_grid_888888888888888_year_ele_num"].state;
+    var cost = states["sensor.state_grid_888888888888888_year_ele_cost"].state;
+    return cost / num;
+  ]]]
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 300px               # 总高度
+width: 400px                # 总宽度
+~~~
+
+## 功能10：国网表格（纵向布局）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid2-card
+id: 888888888888888
+price: 0.6                   #直接指定单价，或者用下面的方式计算
+price: |
+  [[[
+    var num = states["sensor.state_grid_888888888888888_year_ele_num"].state;
+    var cost = states["sensor.state_grid_888888888888888_year_ele_cost"].state;
+    return cost / num;
+  ]]]
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 500px               # 总高度
+width: 300px                # 总宽度
+~~~
