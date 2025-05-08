@@ -127,6 +127,7 @@ price: |
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 height: 300px               # 总高度
 width: 400px                # 总宽度
+border: 10px                # 圆角大小
 ~~~
 
 ## 功能10：国网表格（纵向布局）
@@ -144,4 +145,5 @@ price: |
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 height: 500px               # 总高度
 width: 300px                # 总宽度
+border: 10px                # 圆角大小
 ~~~
