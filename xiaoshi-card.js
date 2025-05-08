@@ -2150,7 +2150,7 @@ class XiaoshiStateGrid1Card extends LitElement {
       }
       
       .data-item-icon {
-        width: 90px;
+        width: 9px;
         color: rgb(0,200,200);
         margin-right: 5px;
         flex-shrink: 0;
