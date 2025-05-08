@@ -2063,7 +2063,7 @@ class XiaoshiStateGrid1Card extends LitElement {
           "年总用电 年峰用电 年平用电 年谷用电 年用电费";
         grid-template-columns: auto auto auto auto auto;
         grid-template-rows: auto auto auto auto auto auto;
-        border-radius: 10px;
+        border-radius: 3vw;
         padding: 0 5px 0 5px;
         cursor: default;
 				justify-items: center; /* 默认所有网格项居中 */
