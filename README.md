@@ -128,6 +128,7 @@ theme: "off"                # 选项on是白色，选项off是黑色，也可以
 height: 300px               # 总高度
 width: 400px                # 总宽度
 border: 10px                # 圆角大小
+cardwidth: 70px             # 每个按钮宽度
 ~~~
 
 ## 功能10：国网表格（纵向布局）
@@ -146,4 +147,5 @@ theme: "off"                # 选项on是白色，选项off是黑色，也可以
 height: 500px               # 总高度
 width: 300px                # 总宽度
 border: 10px                # 圆角大小
+cardwidth: 70px             # 每个按钮宽度
 ~~~
