@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.1.8  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.1.9  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2044,6 +2044,7 @@ class XiaoshiStateGrid1Card extends LitElement {
       _price: { type: Number, state: true },
 			border: { type: String, attribute: 'border-radius' },
 			cardwidth: { type: String, attribute: 'card-width' },
+			cardheight: { type: String, attribute: 'card-height' }
     };
   }
 
@@ -2132,11 +2133,11 @@ class XiaoshiStateGrid1Card extends LitElement {
         border: 1.5px solid rgba(0,200,200,0.5);
         border-radius: 20px;
         width: var(--card-width, 70px);
-        height: 35px;
+        height: var(--card-height, 35px);
       }
       
       .data-item.light {
-        background: rgb(230,230,230);
+        background: rgb(250,250,250);
       }
       
       .data-item.dark {
@@ -2154,6 +2155,7 @@ class XiaoshiStateGrid1Card extends LitElement {
         color: rgb(0,200,200);
         margin-right: 5px;
         flex-shrink: 0;
+        transform: scale(0.7);
       }
       
       .data-item-text {
@@ -2203,6 +2205,7 @@ class XiaoshiStateGrid1Card extends LitElement {
       width: '400px',
 			border: '10px',
 			cardwidth: '70px',
+			cardheight: '35px',
     };
     this._data = {};
     this._price = 0.5;
@@ -2216,6 +2219,7 @@ class XiaoshiStateGrid1Card extends LitElement {
     };
 		this.border = this.config.border || '10px';
 		this.cardwidth = this.config.cardwidth || '70px';
+		this.cardheight = this.config.cardheight || '35px';
     this._calculatePrice();
   }
 
@@ -2354,7 +2358,8 @@ class XiaoshiStateGrid1Card extends LitElement {
 			     style="height: ${this.config.height}; 
 					 width: ${this.config.width};
 					 --border-radius: ${this.border};
-					 --card-width: ${this.cardwidth}">
+					 --card-width: ${this.cardwidth};
+					 --card-height: ${this.cardheight}">
         <div class="title">电费信息</div>
         
         <div class="refresh-time">
@@ -2422,6 +2427,7 @@ class XiaoshiStateGrid2Card extends LitElement {
       _price: { type: Number, state: true },
 			border: { type: String, attribute: 'border-radius' },
 			cardwidth: { type: String, attribute: 'card-width' },
+			cardheight: { type: String, attribute: 'card-height' },
     };
   }
 
@@ -2516,11 +2522,11 @@ class XiaoshiStateGrid2Card extends LitElement {
         border: 1.5px solid rgba(0,200,200,0.5);
         border-radius: 20px;
         width: var(--card-width, 70px);
-        height: 35px;
+        height: var(--card-height, 35px);
       }
       
       .data-item.light {
-        background: rgb(230,230,230);
+        background: rgb(250,250,250);
       }
       
       .data-item.dark {
@@ -2538,6 +2544,7 @@ class XiaoshiStateGrid2Card extends LitElement {
         color: rgb(0,200,200);
         margin-right: 5px;
         flex-shrink: 0;
+        transform: scale(0.7);
       }
       
       .data-item-text {
@@ -2587,6 +2594,7 @@ class XiaoshiStateGrid2Card extends LitElement {
       width: '400px',
 			border: '10px',
 			cardwidth: '70px',
+			cardheight: '35px',
     };
     this._data = {};
     this._price = 0.5;
@@ -2600,6 +2608,7 @@ class XiaoshiStateGrid2Card extends LitElement {
     };
 		this.border = this.config.border || '10px'; // 设置圆角值
 		this.cardwidth = this.config.cardwidth || '70px';
+		this.cardheight = this.config.cardheight || '35px';
     this._calculatePrice();
   }
 
@@ -2736,9 +2745,10 @@ class XiaoshiStateGrid2Card extends LitElement {
     return html`
       <div class="card-container ${themeClass}" 
 			     style="height: ${this.config.height}; 
-					        width: ${this.config.width};
-									--border-radius: ${this.border};
-									--card-width: ${this.cardwidth}">
+					    width: ${this.config.width};
+						--border-radius: ${this.border};
+						--card-width: ${this.cardwidth};
+						--card-height: ${this.cardheight}">
         <div class="title">电费信息</div>
         
         <div class="refresh-time">
