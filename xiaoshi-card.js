@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.1.9  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.2.0  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -1028,7 +1028,8 @@ class XiaoshiTextCard extends LitElement {
       hass: Object,
       config: Object,
       _value: String,
-      _isEditing: Boolean
+      _isEditing: Boolean,
+      _pendingSave: Boolean
     }; 
   }
 
@@ -1042,7 +1043,7 @@ class XiaoshiTextCard extends LitElement {
         display: flex;
         align-items: center;
         padding: 0;
-				height: 100%;
+        height: 100%;
         transition: all 0.3s ease;
       }
       
@@ -1059,7 +1060,7 @@ class XiaoshiTextCard extends LitElement {
       .icon {
         margin-right: 0.5rem;
         font-size: 1.2rem;
-				margin-left: 0.5rem;
+        margin-left: 0.5rem;
       }
       
       .input-wrapper {
@@ -1104,6 +1105,7 @@ class XiaoshiTextCard extends LitElement {
     super();
     this._value = '';
     this._isEditing = false;
+    this._pendingSave = false;
   }
 
   _getTheme() {
@@ -1136,6 +1138,7 @@ class XiaoshiTextCard extends LitElement {
 
     const showPlaceholder = !this._value && !this._isEditing;
     const borderRadius = this.config.border_radius || '10px';
+		const icon = this.config.icon || 'mdi:magnify';
 
     return html`
       <div class="input-container ${themeClass}" 
@@ -1143,7 +1146,7 @@ class XiaoshiTextCard extends LitElement {
                   height: ${this.config.height || '8vw'};
                   border-radius: ${borderRadius};">
         <div class="icon">
-          <ha-icon icon="mdi:magnify"></ha-icon>
+          <ha-icon icon="${icon}"></ha-icon>
         </div>
         <div class="input-wrapper">
           <input
@@ -1152,7 +1155,7 @@ class XiaoshiTextCard extends LitElement {
             @input=${this._handleInput}
             @keydown=${this._handleKeyDown}
             @focus=${() => this._isEditing = true}
-            @blur=${() => this._isEditing = false}
+            @blur=${this._handleBlur}
             placeholder=" "
           />
           <div class="placeholder ${!showPlaceholder ? 'hidden' : ''}">${friendlyName}</div>
@@ -1168,10 +1171,20 @@ class XiaoshiTextCard extends LitElement {
 
   _handleKeyDown(e) {
     if (e.key === 'Enter' && this.config.entity) {
+      this._pendingSave = true;
       this._setEntityValue();
       this._isEditing = false;
       e.target.blur();
     }
+  }
+
+  _handleBlur() {
+    this._isEditing = false;
+    // Only save if not already saved by Enter key
+    if (!this._pendingSave && this.config.entity) {
+      this._setEntityValue();
+    }
+    this._pendingSave = false;
   }
 
   _setEntityValue() {
