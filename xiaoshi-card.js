@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.2.1  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.2.2  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2112,9 +2112,9 @@ class XiaoshiStateGrid1Card extends LitElement {
         border-radius: var(--border-radius, 10px);
         padding: 0 5px 0 5px;
         cursor: default;
-				justify-items: center; /* 默认所有网格项居中 */
+				justify-items: center;
 				align-items: center;
-				margin: 0 auto; /* 居中显示 */
+				margin: 0 auto;
       }
       
       .light-theme {
@@ -2145,7 +2145,7 @@ class XiaoshiStateGrid1Card extends LitElement {
         align-items: flex-end;
         justify-content: flex-start;
 				padding-left: 5px;
-				justify-self: start; /* 覆盖容器的justify-items:center */
+				justify-self: start;
       }
       
       .data-date {
@@ -2156,7 +2156,7 @@ class XiaoshiStateGrid1Card extends LitElement {
         align-items: flex-start;
         justify-content: flex-start;
 				padding-left: 5px;
-				justify-self: start; /* 覆盖容器的justify-items:center */
+				justify-self: start;
       }
       
       .balance {
@@ -2242,6 +2242,7 @@ class XiaoshiStateGrid1Card extends LitElement {
     this.hass = null;
     this.config = {
       id: '',
+			title: '电费信息',
       price: 0.5,
       theme: 'on',
       height: '280px',
@@ -2403,7 +2404,7 @@ class XiaoshiStateGrid1Card extends LitElement {
 					 --border-radius: ${this.border};
 					 --card-width: ${this.cardwidth};
 					 --card-height: ${this.cardheight}">
-        <div class="title">电费信息</div>
+        <div class="title">${this.config.title || '电费信息'}</div>
         
         <div class="refresh-time">
           用电刷新时间: ${this._data.refresh_time || 'N/A'}
@@ -2498,9 +2499,9 @@ class XiaoshiStateGrid2Card extends LitElement {
         border-radius: var(--border-radius, 3vw);
         padding: 0 5px 0 5px;
         cursor: default;
-				justify-items: center; /* 新增：所有网格项水平居中 */
-				align-items: center;  /* 新增：所有网格项垂直居中 */
-				margin: 0 auto; /* 居中显示 */
+				justify-items: center;
+				align-items: center; 
+				margin: 0 auto;
       }
 
       .light-theme {
@@ -2531,7 +2532,7 @@ class XiaoshiStateGrid2Card extends LitElement {
         align-items: start;
         justify-content: flex-start;
 				padding-left: 10px;
-				justify-self: start; /* 覆盖容器的justify-items:center */
+				justify-self: start;
       }
       
       .data-date {
@@ -2542,7 +2543,7 @@ class XiaoshiStateGrid2Card extends LitElement {
         align-items: flex-start;
         justify-content: flex-start;
 				padding-left: 10px;
-				justify-self: start; /* 覆盖容器的justify-items:center */
+				justify-self: start;
       }
       
       .balance {
@@ -2593,11 +2594,11 @@ class XiaoshiStateGrid2Card extends LitElement {
       .data-item-text {
         display: flex;
         flex-direction: column;
-				align-items: center; /* 修改为居中 */
+				align-items: center;
         justify-content: center;
         overflow: hidden;
         width: 100%;
-				text-align: center; /* 新增：确保文本居中 */
+				text-align: center;
       }
       
       .data-item-value {
@@ -2606,7 +2607,7 @@ class XiaoshiStateGrid2Card extends LitElement {
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
-				text-align: center; /* 确保文本居中 */
+				text-align: center;
         margin-top: -4px;
       }
        
@@ -2616,7 +2617,7 @@ class XiaoshiStateGrid2Card extends LitElement {
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
-				text-align: center; /* 确保文本居中 */
+				text-align: center;
       }
       
       .warning {
@@ -2631,6 +2632,7 @@ class XiaoshiStateGrid2Card extends LitElement {
     this.hass = null;
     this.config = {
       id: '',
+			title: '电费信息', 
       price: 0.5,
       theme: 'on',
       height: '560px',
@@ -2649,7 +2651,7 @@ class XiaoshiStateGrid2Card extends LitElement {
       ...this.config,
       ...config
     };
-		this.border = this.config.border || '10px'; // 设置圆角值
+		this.border = this.config.border || '10px';
 		this.cardwidth = this.config.cardwidth || '70px';
 		this.cardheight = this.config.cardheight || '35px';
     this._calculatePrice();
@@ -2792,7 +2794,7 @@ class XiaoshiStateGrid2Card extends LitElement {
 						--border-radius: ${this.border};
 						--card-width: ${this.cardwidth};
 						--card-height: ${this.cardheight}">
-        <div class="title">电费信息</div>
+        <div class="title">${this.config.title || '电费信息'}</div>
         
         <div class="refresh-time">
           用电刷新时间: ${this._data.refresh_time || 'N/A'}
