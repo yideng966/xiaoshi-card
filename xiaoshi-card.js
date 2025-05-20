@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.2.2  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.2.3  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -1623,19 +1623,33 @@ class XiaoshiTimeCard extends LitElement {
     return {
       hass: { type: Object },
       config: { type: Object },
-      _currentTime: { type: String },
-      _lunarState: { type: Object }
+      _currentTime: { type: Object },
+      _lunarState: { type: Object },
+      _flipParts: { type: Array },
+      _previousTime: { type: Object },
+      _displayTime: { type: Object },
+      _theme: { type: String }, 
+      _filterValue: { type: String }
     };
   }
 
   constructor() {
     super();
-    this._currentTime = '';
+    this._currentTime = { hours: '', minutes: '', seconds: '' };
+    this._previousTime = { hours: '', minutes: '', seconds: '' };
+    this._displayTime = { hours: '', minutes: '', seconds: '' };
+    this._flipParts = [];
     this._updateInterval = null;
+    this._mode = 'A';
+    this._theme = 'off';
+    this._filterValue = '0deg';
   }
 
   setConfig(config) {
     this.config = config;
+    this._mode = config.mode || 'A';
+    this._theme = config.theme || 'off';
+    this._filterEntity = config.filter || '';
   }
 
   connectedCallback() {
@@ -1653,31 +1667,112 @@ class XiaoshiTimeCard extends LitElement {
     this._hass = hass;
     const lunarEntity = this.config?.entity || 'sensor.lunar';
     this._lunarState = this._hass.states[lunarEntity];
+    if (this._filterEntity) {
+      const filterState = this._hass.states[this._filterEntity];
+      this._filterValue = filterState ? filterState.state + 'deg' : '0deg';
+    }
+		this._updateStyles();
     this.requestUpdate();
   }
 
   _updateTime() {
-    this._currentTime = this._getCurrentTime();
+    const now = new Date();
+    this._previousTime = {...this._displayTime};
+    const newTime = {
+      hours: now.getHours().toString().padStart(2, '0'),
+      minutes: now.getMinutes().toString().padStart(2, '0'),
+      seconds: now.getSeconds().toString().padStart(2, '0')
+    };
+    
+    if (this._mode === 'B') {
+      this._updateFlipParts(newTime);
+    } else {
+      this._currentTime = newTime;
+      this._displayTime = {...newTime};
+      this.requestUpdate();
+    }
+  }
+
+  _updateFlipParts(newTime) {
+    this._flipParts = [];
+    const parts = ['hours', 'minutes', 'seconds'];
+    
+    parts.forEach(part => {
+      if (newTime[part] !== this._displayTime[part]) {
+        this._flipParts.push({
+          part,
+          newValue: newTime[part],
+          oldValue: this._displayTime[part],
+          flipping: true
+        });
+        
+        setTimeout(() => {
+          this._displayTime[part] = newTime[part];
+          this._flipParts = this._flipParts.filter(p => p.part !== part);
+          this.requestUpdate();
+        }, 600);
+      }
+    });
+    
+    this._currentTime = newTime;
     this.requestUpdate();
   }
 
   render() {
     return html`
-      <ha-card>
+      <ha-card @click=${this._showPopup}>
         <div class="grid-container">
-          <div id="tap" @click=${this._showPopup}></div>
-          <div id="time">${this._currentTime}</div>
+          ${this._mode === 'A' 
+            ? html`<div id="time">${this._currentTime.hours}:${this._currentTime.minutes}:${this._currentTime.seconds}</div>`
+            : this._renderFlipClock()
+          }
           <div id="date">${this._getAttribute(this._lunarState, 'now_solar.日期A')}</div>
           <div id="week">${this._getAttribute(this._lunarState, 'now_solar.星期A')}</div>
           <div id="jieqi">${this._getAttribute(this._lunarState, 'jieqi.节气')}</div>
           <div id="year">${this._getAttribute(this._lunarState, 'now_lunar.年')}</div>
           <div id="mon">${this._getAttribute(this._lunarState, 'now_lunar.日期')}</div>
           <div id="day">${this._getShichen()}</div>
-          <div id="line">------------------------------------</div>
+          <div id="line"></div>
           <div id="shengri">${this._getAttribute(this._lunarState, 'shengriwarn.最近的生日.0')}</div>
           <div id="jieri">${this._getAttribute(this._lunarState, 'shengriwarn.最近的节日.0')}</div>
         </div>
       </ha-card>
+    `;
+  }
+
+  _renderFlipClock() {
+    const renderPart = (part) => {
+      const flipPart = this._flipParts.find(p => p.part === part);
+      const displayValue = flipPart ? flipPart.oldValue : this._displayTime[part];
+      const topValue = flipPart ? flipPart.newValue : displayValue; // 上半部分显示新值
+      
+      return html`
+        <div class="flip-part-container">
+          <!-- 静态显示的上半部分 -->
+          <div class="part-top">${topValue}</div>
+          
+          <!-- 翻转动画部分 -->
+          ${flipPart ? html`
+            <div class="flip-animation flipping">
+              <div class="flip-animation-top">${flipPart.oldValue}</div>
+              <div class="flip-animation-bottom">${flipPart.newValue}</div>
+            </div>
+          ` : ''}
+          
+          <!-- 静态显示的下半部分 -->
+          <div class="part-bottom">${displayValue}</div>
+        </div>
+      `;
+    };
+
+    return html`
+      <div id="time" class="flip-clock">
+        ${renderPart('hours')}
+        <div class="colon">:</div>
+        ${renderPart('minutes')}
+        <div class="colon">:</div>
+        ${renderPart('seconds')}
+      </div>
     `;
   }
 
@@ -1686,18 +1781,18 @@ class XiaoshiTimeCard extends LitElement {
       :host {
         display: block;
         width: 240px;
-        height: 170px;
+        height: 145px;
         color: white !important;
         --text-color: white;
       }
       ha-card {
         background: transparent !important;
         box-shadow: none !important;
+        cursor: pointer;
       }
       .grid-container {
         display: grid;
         grid-template-areas: 
-          "tap     tap     tap     tap"
           "time    time    time    time"
           "date    week    jieqi   jieqi"
           "year    mon     mon     day"
@@ -1705,15 +1800,9 @@ class XiaoshiTimeCard extends LitElement {
           "shengri shengri shengri shengri"
           "jieri   jieri   jieri   jieri";
         grid-template-columns: 80px 58px 16px 72px;
-        grid-template-rows: 20px 45px 20px 20px 15px 20px 20px;
+        grid-template-rows: 50px 20px 20px 15px 20px 20px;
         font-weight: bold;
         font-size: 16px;
-      }
-      #tap {
-        grid-area: tap;
-        height: 170px;
-        margin-top: 0px;
-        z-index: 10;
       }
       #time {
         grid-area: time;
@@ -1723,7 +1812,92 @@ class XiaoshiTimeCard extends LitElement {
         white-space: nowrap;
         overflow: hidden;
         color: var(--text-color);
-        line-height: 0.8;  /* 防止时间换行 */
+        line-height: 0.9;
+      }
+      .colon {
+        display: flex;
+        align-items: center;
+        font-size: 50px;
+        color: var(--text-color);
+        margin: 0 -5px;
+      }
+      .flip-clock {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+      .flip-part-container {
+        position: relative;
+        width: 80px;
+        height: 50px;
+        perspective: 200px;
+      }
+      .part-top, .part-bottom {
+        position: absolute;
+        width: 100%;
+        height: 50%;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        backface-visibility: hidden;
+        border-radius: 4px;
+				filter: var(--time-filter, none);
+				background: var(--time-bg-color, rgba(0, 0, 0, 1));
+      }
+      .part-top {
+        top: 0;
+        border-radius: 4px 4px 0 0;
+        align-items: flex-start;
+        z-index: 2;
+        transform: translateZ(1px);
+      }
+      .part-bottom {
+        bottom: 0;
+        border-radius: 0 0 4px 4px;
+        align-items: flex-end;
+        z-index: 1;
+        transform: translateZ(1px);
+      }
+      .flip-animation {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 50%;
+        transform-style: preserve-3d;
+        transform-origin: bottom;
+        z-index: 3;
+      }
+      .flip-animation-top, .flip-animation-bottom {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        overflow: hidden;
+        backface-visibility: hidden;
+        border-radius: 4px;
+        transform-style: preserve-3d;
+				filter: var(--time-filter, none);
+				background: var(--time-bg-color, rgba(0, 0, 0, 1));
+      } 
+      .flip-animation-top {
+        top: 0;
+        align-items: flex-start;
+        transform: rotateX(0deg) translateZ(1px);
+        border-radius: 4px 4px 0 0;
+      }
+      .flip-animation-bottom {
+        top: 0;
+        align-items: flex-end;
+        transform: rotateX(180deg) translateZ(1px);
+        border-radius: 0 0 4px 4px;
+      }
+      .flipping {
+        animation: flip 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      @keyframes flip {
+        0% { transform: rotateX(0deg); }
+        100% { transform: rotateX(-180deg); }
       }
       #date    { grid-area: date; color: var(--text-color) }
       #week    { grid-area: week; color: var(--text-color) }
@@ -1731,15 +1905,47 @@ class XiaoshiTimeCard extends LitElement {
       #year    { grid-area: year; color: var(--text-color) }
       #mon     { grid-area: mon; color: var(--text-color) }
       #day     { grid-area: day; text-align: right; color: var(--text-color) }
-      #line    { grid-area: line; color: var(--text-color) }
+      #line    { 
+          grid-area: line; 
+          border-bottom: 2px solid rgb(255,255,255); 
+          margin: 5px 0;
+        }
       #shengri { grid-area: shengri; color: var(--text-color); font-size: 15px }
       #jieri   { grid-area: jieri; color: var(--text-color); font-size: 15px }
     `;
+  } 
+
+  updated(changedProperties) {
+    if (changedProperties.has('_theme') || changedProperties.has('_filterValue')) {
+      this._updateStyles(); 
+    }
+  }
+  _updateStyles() {
+		const theme = this._evaluateTheme();
+    const bgColor =  theme  == 'on' ? 'rgb(120,40,40)' : 'rgb(50, 50, 50)';
+    this.style.setProperty('--time-bg-color', bgColor);
+    this.style.setProperty('--time-filter', `hue-rotate(${this._filterValue})`);
+  }
+  
+  _evaluateTheme() {
+    try {
+      if (typeof this.config.theme === 'function') return this.config.theme();
+      if (typeof this.config.theme === 'string' && this.config.theme.includes('theme()')) {
+        return (new Function('return theme()'))();
+      }
+      return this.config.theme || 'off';
+    } catch(e) {
+      return 'off';
+    }
   }
 
   _getCurrentTime() {
     const now = new Date();
-    return now.toLocaleTimeString('en-GB').replace(/:/g, ':');
+    return {
+      hours: now.getHours().toString().padStart(2, '0'),
+      minutes: now.getMinutes().toString().padStart(2, '0'),
+      seconds: now.getSeconds().toString().padStart(2, '0')
+    };
   }
 
   _getShichen() {
