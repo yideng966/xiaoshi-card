@@ -1710,7 +1710,7 @@ class XiaoshiTimeCard extends LitElement {
           this._displayTime[part] = newTime[part];
           this._flipParts = this._flipParts.filter(p => p.part !== part);
           this.requestUpdate();
-        }, 600);
+        }, 300);
       }
     });
     
