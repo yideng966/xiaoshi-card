@@ -72,9 +72,11 @@ url:
 **引用示例**
 ~~~
 type: custom:xiaoshi-time-card
-entity: sensor.lunar  #该实体需要配合NR使用
+entity: sensor.lunar               #该实体需要配合NR使用
+theme: '[[[ return theme() ]]]'    # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+filter: number.pad                 # 色相对应的实体
 popup_content:
-  type: custom:button-card  #弹出菜单需要button_card
+  type: custom:button-card         #弹出菜单需要button_card
   template: 万年历平板端     
 ~~~
 
