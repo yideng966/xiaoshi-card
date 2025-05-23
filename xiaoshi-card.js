@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.2.4  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.2.5  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -1629,6 +1629,8 @@ class XiaoshiTimeCard extends LitElement {
       _previousTime: { type: Object },
       _displayTime: { type: Object },
       _theme: { type: String }, 
+      _theme_on: { type: String }, 
+      _theme_off: { type: String }, 
       _filterValue: { type: String }
     };
   }
@@ -1642,6 +1644,8 @@ class XiaoshiTimeCard extends LitElement {
     this._updateInterval = null;
     this._mode = 'A';
     this._theme = 'off';
+		this._theme_on= 'rgb(150,70,70)';
+		this._theme_off = 'rgb(50,50,50)'; 
     this._filterValue = '0deg';
   }
 
@@ -1649,6 +1653,8 @@ class XiaoshiTimeCard extends LitElement {
     this.config = config;
     this._mode = config.mode || 'A';
     this._theme = config.theme || 'off';
+    this._theme_on = config.theme_on || 'rgb(150,70,70)';
+    this._theme_off = config.theme_off || 'rgb(50,50,50)';
     this._filterEntity = config.filter || '';
   }
 
@@ -1800,7 +1806,7 @@ class XiaoshiTimeCard extends LitElement {
           "shengri shengri shengri shengri"
           "jieri   jieri   jieri   jieri";
         grid-template-columns: 80px 58px 16px 72px;
-        grid-template-rows: 50px 20px 20px 15px 20px 20px;
+        grid-template-rows: 55px 20px 20px 15px 20px 20px;
         font-weight: bold;
         font-size: 16px;
       }
@@ -1833,6 +1839,8 @@ class XiaoshiTimeCard extends LitElement {
         perspective: 200px;
       }
       .part-top, .part-bottom {
+				line-height: 50px;
+				font-size: 47px;
         position: absolute;
         width: 100%;
         height: 50%;
@@ -1845,14 +1853,15 @@ class XiaoshiTimeCard extends LitElement {
 				background: var(--time-bg-color, rgba(0, 0, 0, 1));
       }
       .part-top {
-        top: 0;
+        top: 0px;
+				bottom: 2px;
         border-radius: 4px 4px 0 0;
         align-items: flex-start;
         z-index: 2;
         transform: translateZ(1px);
       }
       .part-bottom {
-        bottom: 0;
+				bottom: -1px;
         border-radius: 0 0 4px 4px;
         align-items: flex-end;
         z-index: 1;
@@ -1862,12 +1871,14 @@ class XiaoshiTimeCard extends LitElement {
         position: absolute;
         top: 0;
         width: 100%;
-        height: 50%;
+        height: 52%;
         transform-style: preserve-3d;
         transform-origin: bottom;
         z-index: 3;
       }
       .flip-animation-top, .flip-animation-bottom {
+				line-height: 50px;
+				font-size: 47px;
         position: absolute;
         width: 100%;
         height: 100%;
@@ -1881,13 +1892,14 @@ class XiaoshiTimeCard extends LitElement {
 				background: var(--time-bg-color, rgba(0, 0, 0, 1));
       } 
       .flip-animation-top {
-        top: 0;
+        top: 0px;
+				bottom: 2px;
         align-items: flex-start;
         transform: rotateX(0deg) translateZ(1px);
         border-radius: 4px 4px 0 0;
       }
       .flip-animation-bottom {
-        top: 0;
+				bottom: -1px;
         align-items: flex-end;
         transform: rotateX(180deg) translateZ(1px);
         border-radius: 0 0 4px 4px;
@@ -1922,7 +1934,7 @@ class XiaoshiTimeCard extends LitElement {
   }
   _updateStyles() {
 		const theme = this._evaluateTheme();
-    const bgColor =  theme  == 'on' ? 'rgb(120,40,40)' : 'rgb(50, 50, 50)';
+    const bgColor =  theme  == 'on' ? this.config.theme_on : this.config.theme_off;
     this.style.setProperty('--time-bg-color', bgColor);
     this.style.setProperty('--time-filter', `hue-rotate(${this._filterValue})`);
   }
@@ -1959,7 +1971,7 @@ class XiaoshiTimeCard extends LitElement {
     return `${tzArr[shichenIndex]}时${skArr[shikeIndex]}刻`;
   }
 
-  _getAttribute(state, path) {
+  _getAttribute(state, path) { 
     return path.split('.').reduce((obj, key) => (obj || {})[key], state?.attributes || {}) || '';
   }
 
