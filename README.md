@@ -75,6 +75,8 @@ type: custom:xiaoshi-time-card
 entity: sensor.lunar               # 该实体需要配合NR使用
 mode: A                            # A是普通时钟，B是翻页时钟
 theme: '[[[ return theme() ]]]'    # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+theme_on: rgb(120,40,40)   # 与背景色相同rgb(150,70,70) #再暗一点背景色rgb(90,10,10) 或其他颜色
+theme_off: rgb(50,50,50)
 filter: number.pad                 # 色相对应的实体
 popup_content:
   type: custom:button-card         #弹出菜单需要button_card
