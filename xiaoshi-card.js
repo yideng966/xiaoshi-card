@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.2.5  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.2.6  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2314,6 +2314,7 @@ class XiaoshiStateGrid1Card extends LitElement {
       :host {
         display: block;
         font-family: Arial, sans-serif;
+				--title-font-size: 20px;
       }
       
       .card-container {
@@ -2347,7 +2348,7 @@ class XiaoshiStateGrid1Card extends LitElement {
       
       .title {
         grid-area: 名称;
-        font-size: 20px;
+        font-size: var(--title-font-size);;
         font-weight: bold;
         display: flex;
         align-items: center;
@@ -2468,6 +2469,7 @@ class XiaoshiStateGrid1Card extends LitElement {
 			border: '10px',
 			cardwidth: '70px',
 			cardheight: '35px',
+			titleFontSize: '20px'
     };
     this._data = {};
     this._price = 0.5;
@@ -2482,6 +2484,7 @@ class XiaoshiStateGrid1Card extends LitElement {
 		this.border = this.config.border || '10px';
 		this.cardwidth = this.config.cardwidth || '70px';
 		this.cardheight = this.config.cardheight || '35px';
+		this.style.setProperty('--title-font-size', this.config.titleFontSize || '20px'); 
     this._calculatePrice();
   }
 
@@ -2698,6 +2701,7 @@ class XiaoshiStateGrid2Card extends LitElement {
       :host {
         display: block;
         font-family: Arial, sans-serif;
+				--title-font-size: 20px;
       }
       
       .card-container {
@@ -2734,7 +2738,7 @@ class XiaoshiStateGrid2Card extends LitElement {
       
       .title {
         grid-area: 名称;
-        font-size: 20px;
+        font-size: var(--title-font-size);
         font-weight: bold;
         display: flex;
         align-items: center;
@@ -2858,6 +2862,7 @@ class XiaoshiStateGrid2Card extends LitElement {
 			border: '10px',
 			cardwidth: '70px',
 			cardheight: '35px',
+			titleFontSize: '20px'
     };
     this._data = {};
     this._price = 0.5;
@@ -2872,6 +2877,7 @@ class XiaoshiStateGrid2Card extends LitElement {
 		this.border = this.config.border || '10px';
 		this.cardwidth = this.config.cardwidth || '70px';
 		this.cardheight = this.config.cardheight || '35px';
+		this.style.setProperty('--title-font-size', this.config.titleFontSize || '20px'); 
     this._calculatePrice();
   }
 
