@@ -122,6 +122,7 @@ style:
 ~~~
 type: custom:xiaoshi-state-grid1-card
 title: 电费信息               # 标题，默认电费信息
+titleFontSize: 20px          # 标题字体大小
 id: 888888888888888
 price: 0.6                   #直接指定单价，或者用下面的方式计算
 price: |
@@ -143,6 +144,7 @@ cardheight: 35px            # 每个按钮高度
 ~~~
 type: custom:xiaoshi-state-grid2-card
 title: 电费信息               # 标题，默认电费信息
+titleFontSize: 20px          # 标题字体大小
 id: 888888888888888
 price: 0.6                   #直接指定单价，或者用下面的方式计算
 price: |
