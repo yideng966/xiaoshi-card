@@ -121,16 +121,9 @@ style:
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid1-card
-title: 电费信息               # 标题，默认电费信息
-titleFontSize: 20px          # 标题字体大小
-id: 888888888888888
-price: 0.6                   #直接指定单价，或者用下面的方式计算
-price: |
-  [[[
-    var num = states["sensor.state_grid_888888888888888_year_ele_num"].state;
-    var cost = states["sensor.state_grid_888888888888888_year_ele_cost"].state;
-    return cost / num;
-  ]]]
+entity: sensor.state_grid
+title: 电费信息              # 标题，默认电费信息
+titleFontSize: 20px         # 标题字体大小
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 height: 300px               # 总高度
 width: 400px                # 总宽度
@@ -143,16 +136,9 @@ cardheight: 35px            # 每个按钮高度
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid2-card
-title: 电费信息               # 标题，默认电费信息
-titleFontSize: 20px          # 标题字体大小
-id: 888888888888888
-price: 0.6                   #直接指定单价，或者用下面的方式计算
-price: |
-  [[[
-    var num = states["sensor.state_grid_888888888888888_year_ele_num"].state;
-    var cost = states["sensor.state_grid_888888888888888_year_ele_cost"].state;
-    return cost / num;
-  ]]]
+entity: sensor.state_grid
+title: 电费信息              # 标题，默认电费信息
+titleFontSize: 20px         # 标题字体大小
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 height: 500px               # 总高度
 width: 300px                # 总宽度
