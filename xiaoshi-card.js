@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.2.8  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.3.0  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2322,11 +2322,12 @@ class XiaoshiStateGrid1Card extends LitElement {
         grid-template-areas: 
           "名称 名称 名称 名称 名称"   
           "刷新时间 刷新时间 刷新时间 刷新时间 电费余额"   
+          "数据日期 数据日期 数据日期 数据日期 电费余额"   
           "日总用电 日峰用电 日平用电 日谷用电 日用电费"      
           "月总用电 月峰用电 月平用电 月谷用电 月用电费"     
           "年总用电 年峰用电 年平用电 年谷用电 年用电费";
         grid-template-columns: auto auto auto auto auto;
-        grid-template-rows: auto auto auto auto auto;
+        grid-template-rows: auto auto auto auto auto auto;
         border-radius: var(--border-radius, 10px);
         padding: 0 5px 0 5px;
         cursor: default;
@@ -2347,7 +2348,7 @@ class XiaoshiStateGrid1Card extends LitElement {
       
       .title {
         grid-area: 名称;
-        font-size: var(--title-font-size);;
+        font-size: var(--title-font-size);
         font-weight: bold;
         display: flex;
         align-items: center;
@@ -2365,7 +2366,18 @@ class XiaoshiStateGrid1Card extends LitElement {
         padding-left: 5px;
         justify-self: start;
       }
-      
+
+      .data-date {
+        grid-area: 数据日期;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+				padding-left: 5px;
+				justify-self: start;
+      }
+
       .balance {
         grid-area: 电费余额;
         display: flex;
@@ -2513,6 +2525,7 @@ class XiaoshiStateGrid1Card extends LitElement {
       
       this._data = {
         refresh_time: attributes.date || 'N/A',
+				daily_lasted_date: dayData.day || 'N/A',
         balance: entity.state || 'N/A',
         dayEleNum: dayData.dayEleNum || '0',
         daily_p_ele_num: dayData.dayPPq || '0',
@@ -2583,7 +2596,11 @@ class XiaoshiStateGrid1Card extends LitElement {
         <div class="refresh-time">
           用电刷新时间: ${this._data.refresh_time || 'N/A'}
         </div>
-        
+
+        <div class="data-date">
+          最新用电日期: ${this._data.daily_lasted_date || 'N/A'}
+        </div>
+
         <div class="balance">
           ${this._renderDataItem('电费余额', 'mdi:cash', this._formatBalance(this._data.balance), itemThemeClass)}
         </div>
@@ -2657,6 +2674,7 @@ class XiaoshiStateGrid2Card extends LitElement {
         grid-template-areas: 
 					"名称 名称 名称"   
 					"刷新时间 刷新时间 刷新时间"   
+					"数据日期 数据日期 数据日期"  
 					"电费余额 空白 空白"   
 					"日用电费 月用电费 年用电费"   
 					"日总用电 月总用电 年总用电"      
@@ -2664,7 +2682,7 @@ class XiaoshiStateGrid2Card extends LitElement {
 					"日平用电 月平用电 年平用电"   
 					"日谷用电 月谷用电 年谷用电";
         grid-template-columns: 1fr 1fr 1fr;
-        grid-template-rows: auto auto auto auto auto auto auto auto;
+        grid-template-rows: auto auto auto auto auto auto auto auto auto;
         border-radius: var(--border-radius, 10px);
         padding: 0 5px 0 5px;
         cursor: default;
@@ -2703,8 +2721,18 @@ class XiaoshiStateGrid2Card extends LitElement {
 				padding-left: 10px;
 				justify-self: start;
       }
-      
-      
+
+      .data-date {
+        grid-area: 数据日期;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+				padding-left: 10px;
+				justify-self: start;
+      }
+
       .balance {
         grid-area: 电费余额;
         display: flex;
@@ -2856,6 +2884,7 @@ class XiaoshiStateGrid2Card extends LitElement {
       
       this._data = {
         refresh_time: attributes.date || 'N/A',
+				daily_lasted_date: dayData.day || 'N/A',
         balance: entity.state || 'N/A',
         dayEleNum: dayData.dayEleNum || '0',
         daily_p_ele_num: dayData.dayPPq || '0',
@@ -2925,6 +2954,10 @@ class XiaoshiStateGrid2Card extends LitElement {
         
         <div class="refresh-time">
           用电刷新时间: ${this._data.refresh_time || 'N/A'}
+        </div>
+
+        <div class="data-date">
+          最新用电日期: ${this._data.daily_lasted_date || 'N/A'}
         </div>
         
         <div class="balance">
