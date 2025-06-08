@@ -117,11 +117,12 @@ style:
   track-radius: 4px                   # 圆角大小，默认2px
 ~~~
 
-## 功能9：国网表格（横向布局）
+## 功能9：国网表格
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid1-card
-entity: sensor.state_grid
+entity: sensor.state_grid   # 青龙+NR实体
+button: button.qinglong     # 刷新按钮
 title: 电费信息              # 标题，默认电费信息
 titleFontSize: 20px         # 标题字体大小
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
@@ -132,16 +133,17 @@ cardwidth: 70px             # 每个按钮宽度
 cardheight: 35px            # 每个按钮高度
 ~~~
 
-## 功能10：国网表格（纵向布局）
+## 功能10：国网表格（去除平金额列、余额显示为上月电费）
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid2-card
-entity: sensor.state_grid
+entity: sensor.state_grid   # 青龙+NR实体
+button: button.qinglong     # 刷新按钮
 title: 电费信息              # 标题，默认电费信息
 titleFontSize: 20px         # 标题字体大小
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
-height: 500px               # 总高度
-width: 300px                # 总宽度
+height: 300px               # 总高度
+width: 400px                # 总宽度
 border: 10px                # 圆角大小
 cardwidth: 70px             # 每个按钮宽度
 cardheight: 35px            # 每个按钮高度
