@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.3.0  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.3.1  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2302,10 +2302,10 @@ class XiaoshiStateGrid1Card extends LitElement {
       hass: { type: Object },
       config: { type: Object },
       _data: { type: Object, state: true },
-      _price: { type: Number, state: true },
       border: { type: String, attribute: 'border-radius' },
       cardwidth: { type: String, attribute: 'card-width' },
-      cardheight: { type: String, attribute: 'card-height' }
+      cardheight: { type: String, attribute: 'card-height' },
+      _isRefreshing: { type: Boolean, state: true }
     };
   }
 
@@ -2367,6 +2367,22 @@ class XiaoshiStateGrid1Card extends LitElement {
         justify-self: start;
       }
 
+      .refresh-button {
+        margin-left: 10px;
+        cursor: pointer;
+        color: rgb(0,200,200);
+        transition: transform 1s ease;
+      }
+
+      .refresh-button.rotating {
+				transform: rotate(360deg);
+      }
+
+      @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
       .data-date {
         grid-area: 数据日期;
         font-size: 14px;
@@ -2374,8 +2390,8 @@ class XiaoshiStateGrid1Card extends LitElement {
         display: flex;
         align-items: flex-start;
         justify-content: flex-start;
-				padding-left: 5px;
-				justify-self: start;
+        padding-left: 5px;
+        justify-self: start;
       }
 
       .balance {
@@ -2469,10 +2485,12 @@ class XiaoshiStateGrid1Card extends LitElement {
       border: '10px',
       cardwidth: '70px',
       cardheight: '35px',
-      titleFontSize: '20px'
+      titleFontSize: '20px',
+      refreshButton: 'button.qinglong'
     };
     this._data = {};
     this._interval = null;
+    this._isRefreshing = false;
   }
 
   setConfig(config) {
@@ -2525,7 +2543,7 @@ class XiaoshiStateGrid1Card extends LitElement {
       
       this._data = {
         refresh_time: attributes.date || 'N/A',
-				daily_lasted_date: dayData.day || 'N/A',
+        daily_lasted_date: dayData.day || 'N/A',
         balance: entity.state || 'N/A',
         dayEleNum: dayData.dayEleNum || '0',
         daily_p_ele_num: dayData.dayPPq || '0',
@@ -2545,8 +2563,20 @@ class XiaoshiStateGrid1Card extends LitElement {
       };
     } catch (error) {
       console.error('获取数据出错:', error);
+    } finally {
+      this._isRefreshing = false;
     }
   }
+
+	 _handleRefresh() {
+		if (this._isRefreshing) return;
+		this._isRefreshing = true;
+		
+		setTimeout(() => {
+			this._isRefreshing = false;
+			this.hass.callService('button', 'press', {entity_id: this.config.refreshButton});
+		}, 1000);
+	}
 
   _formatBalance(balance) {
     const num = parseFloat(balance) || 0;
@@ -2555,7 +2585,6 @@ class XiaoshiStateGrid1Card extends LitElement {
       `${rounded}元` : 
       html`<span class="warning">${rounded}元</span>`;
   }
-  
 
   _evaluateTheme() {
     try {
@@ -2595,6 +2624,10 @@ class XiaoshiStateGrid1Card extends LitElement {
         
         <div class="refresh-time">
           用电刷新时间: ${this._data.refresh_time || 'N/A'}
+          <ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
+                   icon="mdi:refresh" 
+                   @click=${this._handleRefresh} 
+                   title="手动刷新数据"></ha-icon>
         </div>
 
         <div class="data-date">
@@ -2649,15 +2682,16 @@ class XiaoshiStateGrid1Card extends LitElement {
 }
 customElements.define('xiaoshi-state-grid1-card', XiaoshiStateGrid1Card);
 
-class XiaoshiStateGrid2Card extends LitElement {
+class XiaoshiStateGrid1Card extends LitElement {
   static get properties() {
     return {
       hass: { type: Object },
       config: { type: Object },
       _data: { type: Object, state: true },
-			border: { type: String, attribute: 'border-radius' },
-			cardwidth: { type: String, attribute: 'card-width' },
-			cardheight: { type: String, attribute: 'card-height' },
+      border: { type: String, attribute: 'border-radius' },
+      cardwidth: { type: String, attribute: 'card-width' },
+      cardheight: { type: String, attribute: 'card-height' },
+      _isRefreshing: { type: Boolean, state: true }
     };
   }
 
@@ -2666,31 +2700,28 @@ class XiaoshiStateGrid2Card extends LitElement {
       :host {
         display: block;
         font-family: Arial, sans-serif;
-				--title-font-size: 20px;
+        --title-font-size: 20px;
       }
       
       .card-container {
         display: grid;
         grid-template-areas: 
-					"名称 名称 名称"   
-					"刷新时间 刷新时间 刷新时间"   
-					"数据日期 数据日期 数据日期"  
-					"电费余额 空白 空白"   
-					"日用电费 月用电费 年用电费"   
-					"日总用电 月总用电 年总用电"      
-					"日峰用电 月峰用电 年峰用电"     
-					"日平用电 月平用电 年平用电"   
-					"日谷用电 月谷用电 年谷用电";
-        grid-template-columns: 1fr 1fr 1fr;
-        grid-template-rows: auto auto auto auto auto auto auto auto auto;
+          "名称 名称 名称  名称"   
+          "刷新时间 刷新时间  刷新时间 电费余额"   
+          "数据日期 数据日期  数据日期 电费余额"   
+          "日总用电 日峰用电  日谷用电 日用电费"      
+          "月总用电 月峰用电  月谷用电 月用电费"     
+          "年总用电 年峰用电  年谷用电 年用电费";
+        grid-template-columns: auto  auto auto auto;
+        grid-template-rows: auto auto auto auto auto auto;
         border-radius: var(--border-radius, 10px);
         padding: 0 5px 0 5px;
         cursor: default;
-				justify-items: center;
-				align-items: center; 
-				margin: 0 auto;
+        justify-items: center;
+        align-items: center;
+        margin: 0 auto;
       }
-
+      
       .light-theme {
         background: rgb(255,255,255);
         color: rgb(0,0,0);
@@ -2715,11 +2746,27 @@ class XiaoshiStateGrid2Card extends LitElement {
         grid-area: 刷新时间;
         font-size: 14px;
         font-weight: bold;
-        display: flex-start;
-        align-items: start;
+        display: flex;
+        align-items: flex-end;
         justify-content: flex-start;
-				padding-left: 10px;
-				justify-self: start;
+        padding-left: 5px;
+        justify-self: start;
+      }
+
+      .refresh-button {
+        margin-left: 10px;
+        cursor: pointer;
+        color: rgb(0,200,200);
+        transition: transform 1s ease;
+      }
+
+      .refresh-button.rotating {
+				transform: rotate(360deg);
+      }
+
+      @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
       }
 
       .data-date {
@@ -2729,8 +2776,8 @@ class XiaoshiStateGrid2Card extends LitElement {
         display: flex;
         align-items: flex-start;
         justify-content: flex-start;
-				padding-left: 10px;
-				justify-self: start;
+        padding-left: 5px;
+        justify-self: start;
       }
 
       .balance {
@@ -2739,10 +2786,7 @@ class XiaoshiStateGrid2Card extends LitElement {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        border: 1.5px solid rgba(0,200,200,0.5);
-        border-radius: 20px;
         width: var(--card-width, 70px);
-        height: 35px;
       }
       
       .data-item {
@@ -2781,11 +2825,11 @@ class XiaoshiStateGrid2Card extends LitElement {
       .data-item-text {
         display: flex;
         flex-direction: column;
-				align-items: center;
+        align-items: center;
         justify-content: center;
         overflow: hidden;
         width: 100%;
-				text-align: center;
+        text-align: center;
       }
       
       .data-item-value {
@@ -2794,17 +2838,17 @@ class XiaoshiStateGrid2Card extends LitElement {
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
-				text-align: center;
+        text-align: center;
         margin-top: -4px;
       }
-       
+      
       .data-item-name {
         font-size: 9px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
-				text-align: center;
+        text-align: center;
         margin-top: 2px;
       }
       
@@ -2820,18 +2864,19 @@ class XiaoshiStateGrid2Card extends LitElement {
     this.hass = null;
     this.config = {
       entity: 'sensor.state_grid',
-			title: '电费信息', 
-      price: 0.5,
+      title: '电费信息',
       theme: 'on',
-      height: '560px',
+      height: '280px',
       width: '400px',
-			border: '10px',
-			cardwidth: '70px',
-			cardheight: '35px',
-			titleFontSize: '20px'
+      border: '10px',
+      cardwidth: '70px',
+      cardheight: '35px',
+      titleFontSize: '20px',
+      refreshButton: 'button.qinglong'
     };
     this._data = {};
     this._interval = null;
+    this._isRefreshing = false;
   }
 
   setConfig(config) {
@@ -2839,10 +2884,10 @@ class XiaoshiStateGrid2Card extends LitElement {
       ...this.config,
       ...config
     };
-		this.border = this.config.border || '10px';
-		this.cardwidth = this.config.cardwidth || '70px';
-		this.cardheight = this.config.cardheight || '35px';
-		this.style.setProperty('--title-font-size', this.config.titleFontSize || '20px'); 
+    this.border = this.config.border || '10px';
+    this.cardwidth = this.config.cardwidth || '70px';
+    this.cardheight = this.config.cardheight || '35px';
+    this.style.setProperty('--title-font-size', this.config.titleFontSize || '20px'); 
   }
 
   updated(changedProperties) {
@@ -2884,7 +2929,7 @@ class XiaoshiStateGrid2Card extends LitElement {
       
       this._data = {
         refresh_time: attributes.date || 'N/A',
-				daily_lasted_date: dayData.day || 'N/A',
+        daily_lasted_date: dayData.day || 'N/A',
         balance: entity.state || 'N/A',
         dayEleNum: dayData.dayEleNum || '0',
         daily_p_ele_num: dayData.dayPPq || '0',
@@ -2904,8 +2949,20 @@ class XiaoshiStateGrid2Card extends LitElement {
       };
     } catch (error) {
       console.error('获取数据出错:', error);
+    } finally {
+      this._isRefreshing = false;
     }
   }
+
+	 _handleRefresh() {
+		if (this._isRefreshing) return;
+		this._isRefreshing = true;
+		
+		setTimeout(() => {
+			this._isRefreshing = false;
+			this.hass.callService('button', 'press', {entity_id: this.config.refreshButton});
+		}, 1000);
+	}
 
   _formatBalance(balance) {
     const num = parseFloat(balance) || 0;
@@ -2914,7 +2971,6 @@ class XiaoshiStateGrid2Card extends LitElement {
       `${rounded}元` : 
       html`<span class="warning">${rounded}元</span>`;
   }
-  
 
   _evaluateTheme() {
     try {
@@ -2945,40 +3001,41 @@ class XiaoshiStateGrid2Card extends LitElement {
     
     return html`
       <div class="card-container ${themeClass}" 
-			      style="height: ${this.config.height}; 
-					  width: ${this.config.width};
-						--border-radius: ${this.border};
-						--card-width: ${this.cardwidth};
-						--card-height: ${this.cardheight}">
+           style="height: ${this.config.height}; 
+           width: ${this.config.width};
+           --border-radius: ${this.border};
+           --card-width: ${this.cardwidth};
+           --card-height: ${this.cardheight}">
         <div class="title">${this.config.title || '电费信息'}</div>
         
         <div class="refresh-time">
           用电刷新时间: ${this._data.refresh_time || 'N/A'}
+          <ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
+                   icon="mdi:refresh" 
+                   @click=${this._handleRefresh} 
+                   title="手动刷新数据"></ha-icon>
         </div>
 
         <div class="data-date">
           最新用电日期: ${this._data.daily_lasted_date || 'N/A'}
         </div>
-        
+
         <div class="balance">
-          ${this._renderDataItem('电费余额', 'mdi:cash', this._formatBalance(this._data.balance), itemThemeClass)}
+          ${this._renderDataItem('上月电费', 'mdi:cash', this._formatBalance(this._data.balance), itemThemeClass)}
         </div>
         
         ${this._renderDataItem('日总用电', 'mdi:lightning-bolt', `${this._data.dayEleNum || '0'}°`, itemThemeClass, '日总用电')}
         ${this._renderDataItem('日峰用电', 'mdi:lightning-bolt', `${this._data.daily_p_ele_num || '0'}°`, itemThemeClass, '日峰用电')}
-        ${this._renderDataItem('日平用电', 'mdi:lightning-bolt', `${this._data.daily_n_ele_num || '0'}°`, itemThemeClass, '日平用电')}
         ${this._renderDataItem('日谷用电', 'mdi:lightning-bolt', `${this._data.daily_v_ele_num || '0'}°`, itemThemeClass, '日谷用电')}
         ${this._renderDataItem('日用电费', 'mdi:cash',           `${this._data.daily_ele_cost || '0'}元`, itemThemeClass, '日用电费')}
         
         ${this._renderDataItem('月总用电', 'mdi:lightning-bolt', `${this._data.month_ele_num || '0'}°`, itemThemeClass, '月总用电')}
         ${this._renderDataItem('月峰用电', 'mdi:lightning-bolt', `${this._data.month_p_ele_num || '0'}°`, itemThemeClass, '月峰用电')}
-        ${this._renderDataItem('月平用电', 'mdi:lightning-bolt', `${this._data.month_n_ele_num || '0'}°`, itemThemeClass, '月平用电')}
         ${this._renderDataItem('月谷用电', 'mdi:lightning-bolt', `${this._data.month_v_ele_num || '0'}°`, itemThemeClass, '月谷用电')}
         ${this._renderDataItem('月用电费', 'mdi:cash',           `${this._data.month_ele_cost || '0'}元`, itemThemeClass, '月用电费')}
         
         ${this._renderDataItem('年总用电', 'mdi:lightning-bolt', `${this._data.year_ele_num || '0'}°`, itemThemeClass, '年总用电')}
         ${this._renderDataItem('年峰用电', 'mdi:lightning-bolt', `${this._data.year_p_ele_num || '0'}°`, itemThemeClass, '年峰用电')}
-        ${this._renderDataItem('年平用电', 'mdi:lightning-bolt', `${this._data.year_n_ele_num || '0'}°`, itemThemeClass, '年平用电')}
         ${this._renderDataItem('年谷用电', 'mdi:lightning-bolt', `${this._data.year_v_ele_num || '0'}°`, itemThemeClass, '年谷用电')}
         ${this._renderDataItem('年用电费', 'mdi:cash',           `${this._data.year_ele_cost || '0'}元`, itemThemeClass, '年用电费')}
       </div>
@@ -2992,13 +3049,13 @@ class XiaoshiStateGrid2Card extends LitElement {
           <div class="data-item-content">
             <ha-icon class="data-item-icon" .icon=${icon}></ha-icon>
             <div class="data-item-text">
-							<div class="data-item-name">${name}</div>
+              <div class="data-item-name">${name}</div>
               <div class="data-item-value">${value}</div>
             </div>
           </div>
         ` : html`
           <div class="data-item-text">
-						<div class="data-item-name">${name}</div>
+            <div class="data-item-name">${name}</div>
             <div class="data-item-value">${value}</div>
           </div>
         `}
@@ -3006,7 +3063,7 @@ class XiaoshiStateGrid2Card extends LitElement {
     `;
   }
 }
-customElements.define('xiaoshi-state-grid2-card', XiaoshiStateGrid2Card);
+customElements.define('xiaoshi-state-grid2-card', XiaoshiStateGrid1Card);
 
 window.customCards = window.customCards || [];
 window.customCards.push(
