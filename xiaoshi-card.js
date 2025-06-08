@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.3.1  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.3.2  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -3063,7 +3063,7 @@ class XiaoshiStateGrid1Card extends LitElement {
     `;
   }
 }
-customElements.define('xiaoshi-state-grid2-card', XiaoshiStateGrid1Card);
+customElements.define('xiaoshi-state-grid2-card', XiaoshiStateGrid2Card);
 
 window.customCards = window.customCards || [];
 window.customCards.push(
