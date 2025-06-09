@@ -117,10 +117,10 @@ style:
   track-radius: 4px                   # 圆角大小，默认2px
 ~~~
 
-## 功能9：国网表格
+## 功能9：国网表格（青龙数据）
 **引用示例**
 ~~~
-type: custom:xiaoshi-state-grid1-card
+type: custom:xiaoshi-state-grid-qinglong
 entity: sensor.state_grid   # 青龙+NR实体
 button: button.qinglong     # 刷新按钮
 title: 电费信息              # 标题，默认电费信息
@@ -133,14 +133,58 @@ cardwidth: 70px             # 每个按钮宽度
 cardheight: 35px            # 每个按钮高度
 ~~~
 
-## 功能10：国网表格（去除平金额列、余额显示为上月电费）
+## 功能10：国网表格（hassbox数据）
 **引用示例**
 ~~~
-type: custom:xiaoshi-state-grid2-card
+type: custom:xiaoshi-state-grid-card-hassbox
+title: 电费信息               # 标题，默认电费信息
+titleFontSize: 20px          # 标题字体大小
+id: 888888888888888          # 国网id
+price: 0.6                   #直接指定单价，或者用下面的方式计算
+price: |
+  [[[
+    var num = states["sensor.state_grid_888888888888888_year_ele_num"].state;
+    var cost = states["sensor.state_grid_888888888888888_year_ele_cost"].state;
+    return cost / num;
+  ]]]
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 300px               # 总高度
+width: 400px                # 总宽度
+border: 10px                # 圆角大小
+cardwidth: 70px             # 每个按钮宽度
+cardheight: 35px            # 每个按钮高度
+~~~
+
+## 功能11：国网表格（青龙数据-去除平金额列）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid-qinglong-n
 entity: sensor.state_grid   # 青龙+NR实体
 button: button.qinglong     # 刷新按钮
 title: 电费信息              # 标题，默认电费信息
 titleFontSize: 20px         # 标题字体大小
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 300px               # 总高度
+width: 400px                # 总宽度
+border: 10px                # 圆角大小
+cardwidth: 70px             # 每个按钮宽度
+cardheight: 35px            # 每个按钮高度
+~~~
+
+## 功能12：国网表格（hassbox数据-去除平金额列）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid-card-hassbox-n
+title: 电费信息               # 标题，默认电费信息
+titleFontSize: 20px          # 标题字体大小
+id: 888888888888888          # 国网id
+price: 0.6                   #直接指定单价，或者用下面的方式计算
+price: |
+  [[[
+    var num = states["sensor.state_grid_888888888888888_year_ele_num"].state;
+    var cost = states["sensor.state_grid_888888888888888_year_ele_cost"].state;
+    return cost / num;
+  ]]]
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 height: 300px               # 总高度
 width: 400px                # 总宽度
