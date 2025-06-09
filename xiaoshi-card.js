@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.3.4  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.3.5  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2296,7 +2296,7 @@ class XiaoshiSliderCard extends LitElement {
 }
 customElements.define('xiaoshi-slider-card', XiaoshiSliderCard);
 
-class XiaoshiStateGrid1Card extends LitElement {
+class XiaoshiStateGridQinglong extends LitElement {
   static get properties() {
     return {
       hass: { type: Object },
@@ -2680,9 +2680,396 @@ class XiaoshiStateGrid1Card extends LitElement {
     `;
   }
 }
-customElements.define('xiaoshi-state-grid1-card', XiaoshiStateGrid1Card);
+customElements.define('xiaoshi-state-grid-qinglong', XiaoshiStateGridQinglong);
 
-class XiaoshiStateGrid2Card extends LitElement {
+class XiaoshiStateGridHassbox extends LitElement {
+  static get properties() {
+    return {
+      hass: { type: Object },
+      config: { type: Object },
+      _data: { type: Object, state: true },
+      _price: { type: Number, state: true },
+			border: { type: String, attribute: 'border-radius' },
+			cardwidth: { type: String, attribute: 'card-width' },
+			cardheight: { type: String, attribute: 'card-height' }
+    };
+  }
+
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+        font-family: Arial, sans-serif;
+				--title-font-size: 20px;
+      }
+      
+      .card-container {
+        display: grid;
+        grid-template-areas: 
+          "名称 名称 名称 名称 名称"   
+          "刷新时间 刷新时间 刷新时间 刷新时间 电费余额"   
+          "数据日期 数据日期 数据日期 数据日期 电费余额"
+          "日总用电 日峰用电 日平用电 日谷用电 日用电费"      
+          "月总用电 月峰用电 月平用电 月谷用电 月用电费"     
+          "年总用电 年峰用电 年平用电 年谷用电 年用电费";
+        grid-template-columns: auto auto auto auto auto;
+        grid-template-rows: auto auto auto auto auto auto;
+        border-radius: var(--border-radius, 10px);
+        padding: 0 5px 0 5px;
+        cursor: default;
+				justify-items: center;
+				align-items: center;
+				margin: 0 auto;
+      }
+      
+      .light-theme {
+        background: rgb(255,255,255);
+        color: rgb(0,0,0);
+      }
+      
+      .dark-theme {
+        background: rgb(50,50,50);
+        color: rgb(255,255,255);
+      }
+      
+      .title {
+        grid-area: 名称;
+        font-size: var(--title-font-size);;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+      }
+      
+      .refresh-time {
+        grid-area: 刷新时间;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+				padding-left: 5px;
+				justify-self: start;
+      }
+      
+      .data-date {
+        grid-area: 数据日期;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+				padding-left: 5px;
+				justify-self: start;
+      }
+      
+      .balance {
+        grid-area: 电费余额;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: var(--card-width, 70px);
+      }
+      
+      .data-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1.5px solid rgba(0,200,200,0.5);
+        border-radius: 20px;
+        width: var(--card-width, 70px);
+        height: var(--card-height, 35px);
+      }
+      
+      .data-item.light {
+        background: rgb(250,250,250);
+      }
+      
+      .data-item.dark {
+        background: rgb(80,80,80);
+      }
+      
+      .data-item-content {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+      
+      .data-item-icon {
+        width: 9px;
+        color: rgb(0,200,200);
+        margin-right: 5px;
+        flex-shrink: 0;
+        transform: scale(0.7);
+      }
+      
+      .data-item-text {
+        display: flex;
+        flex-direction: column;
+				align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        width: 100%;
+				text-align: center;
+      }
+      
+      .data-item-value {
+        font-size: 11px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+				text-align: center;
+        margin-top: -4px;
+      }
+      
+      .data-item-name {
+        font-size: 9px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+				text-align: center;
+      }
+      
+      .warning {
+        color: #FF2000;
+        font-weight: bold;
+      }
+    `;
+  }
+
+  constructor() {
+    super();
+    this.hass = null;
+    this.config = {
+      id: '',
+			title: '电费信息',
+      price: 0.5,
+      theme: 'on',
+      height: '280px',
+      width: '400px',
+			border: '10px',
+			cardwidth: '70px',
+			cardheight: '35px',
+			titleFontSize: '20px'
+    };
+    this._data = {};
+    this._price = 0.5;
+    this._interval = null;
+  }
+
+  setConfig(config) {
+    this.config = {
+      ...this.config,
+      ...config
+    };
+		this.border = this.config.border || '10px';
+		this.cardwidth = this.config.cardwidth || '70px';
+		this.cardheight = this.config.cardheight || '35px';
+		this.style.setProperty('--title-font-size', this.config.titleFontSize || '20px'); 
+    this._calculatePrice();
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('hass')) {
+      this._calculatePrice();
+      this._fetchData();
+    }
+  }
+
+	_calculatePrice() {
+		try {
+			if (!this.hass || !this.config) {
+				this._price = 0.5;
+				return;
+			}
+			if (typeof this.config.price === 'number') {
+				this._price = this.config.price;
+				return;
+			}
+			if (typeof this.config.price === 'string') {
+				const template = this.config.price.trim();
+				if (template.startsWith('[[[') && template.endsWith(']]]')) {
+					const jsCode = template.slice(3, -3).trim();
+					try {
+						const calculateFn = new Function('states', `
+							try {
+								${jsCode}
+							} catch (e) {
+								return 0.5;
+							}
+						`);
+						const result = calculateFn(this.hass.states);
+						this._price = Number(result) || 0.5;
+					} catch (e) {
+						this._price = 0.5;
+					}
+				} else {
+					this._price = Number(template) || 0.5;
+				}
+				return;
+			}
+			this._price = 0.5;
+		} catch (e) {
+			this._price = 0.5;
+		}
+	}
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._fetchData();
+    this._setupInterval();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this._interval) {
+      clearInterval(this._interval);
+    }
+  }
+
+  _setupInterval() {
+    this._interval = setInterval(() => {
+      this._fetchData();
+    }, 60000);
+  }
+
+  async _fetchData() {
+    if (!this.hass || !this.config.id) return;
+    
+    try {
+      const entities = [
+        'refresh_time', 'daily_lasted_date', 'balance',
+        'daily_ele_num', 'month_ele_num', 'year_ele_num',
+        'daily_p_ele_num', 'month_p_ele_num', 'year_p_ele_num',
+        'daily_n_ele_num', 'month_n_ele_num', 'year_n_ele_num',
+        'daily_v_ele_num', 'month_v_ele_num', 'year_v_ele_num'
+      ];
+      
+      const data = {};
+      
+      for (const entity of entities) {
+        const fullEntity = `sensor.state_grid_${this.config.id}_${entity}`;
+        data[entity] = this.hass.states[fullEntity]?.state || 'N/A';
+      }
+      
+      this._data = data;
+    } catch (error) {
+      console.error('获取数据出错:', error);
+    }
+  }
+
+  _formatBalance(balance) {
+    const num = parseFloat(balance) || 0;
+    const rounded = Math.round(num * 10) / 10;
+    return num >= 20 ? 
+      `${rounded}元` : 
+      html`<span class="warning">${rounded}元</span>`;
+  }
+  
+  _formatCost(value) {
+    const num = parseFloat(value) || 0;
+    const rounded = Math.round(num * this._price * 10) / 10;
+    return `${rounded}元`;
+  }
+
+  _evaluateTheme() {
+    try {
+      if (!this.config || !this.config.theme) return 'on';
+      
+      if (typeof this.config.theme === 'function') {
+        return this.config.theme();
+      }
+      
+      if (typeof this.config.theme === 'string' && 
+          (this.config.theme.includes('return') || this.config.theme.includes('=>'))) {
+        return (new Function(`return ${this.config.theme}`))();
+      }
+      
+      return this.config.theme;
+    } catch(e) {
+      console.error('计算主题时出错:', e);
+      return 'on';
+    }
+  }
+
+  render() {
+    if (!this.config) return html``;
+    
+    const theme = this._evaluateTheme();
+    const themeClass = theme === 'on' ? 'light-theme' : 'dark-theme';
+    const itemThemeClass = theme === 'on' ? 'light' : 'dark';
+    
+    return html`
+      <div class="card-container ${themeClass}" 
+			     style="height: ${this.config.height}; 
+					 width: ${this.config.width};
+					 --border-radius: ${this.border};
+					 --card-width: ${this.cardwidth};
+					 --card-height: ${this.cardheight}">
+        <div class="title">${this.config.title || '电费信息'}</div>
+        
+        <div class="refresh-time">
+          用电刷新时间: ${this._data.refresh_time || 'N/A'}
+        </div>
+        
+        <div class="data-date">
+          最新用电日期: ${this._data.daily_lasted_date || 'N/A'}
+        </div>
+        
+        <div class="balance">
+          ${this._renderDataItem('电费余额', 'mdi:cash', this._formatBalance(this._data.balance), itemThemeClass)}
+        </div>
+        
+        ${this._renderDataItem('日总用电', 'mdi:lightning-bolt', `${this._data.daily_ele_num || '0'}°`, itemThemeClass, '日总用电')}
+        ${this._renderDataItem('日峰用电', 'mdi:lightning-bolt', `${this._data.daily_p_ele_num || '0'}°`, itemThemeClass, '日峰用电')}
+        ${this._renderDataItem('日平用电', 'mdi:lightning-bolt', `${this._data.daily_n_ele_num || '0'}°`, itemThemeClass, '日平用电')}
+        ${this._renderDataItem('日谷用电', 'mdi:lightning-bolt', `${this._data.daily_v_ele_num || '0'}°`, itemThemeClass, '日谷用电')}
+        ${this._renderDataItem('日用电费', 'mdi:cash', this._formatCost(this._data.daily_ele_num), itemThemeClass, '日用电费')}
+        
+        ${this._renderDataItem('月总用电', 'mdi:lightning-bolt', `${this._data.month_ele_num || '0'}°`, itemThemeClass, '月总用电')}
+        ${this._renderDataItem('月峰用电', 'mdi:lightning-bolt', `${this._data.month_p_ele_num || '0'}°`, itemThemeClass, '月峰用电')}
+        ${this._renderDataItem('月平用电', 'mdi:lightning-bolt', `${this._data.month_n_ele_num || '0'}°`, itemThemeClass, '月平用电')}
+        ${this._renderDataItem('月谷用电', 'mdi:lightning-bolt', `${this._data.month_v_ele_num || '0'}°`, itemThemeClass, '月谷用电')}
+        ${this._renderDataItem('月用电费', 'mdi:cash', this._formatCost(this._data.month_ele_num), itemThemeClass, '月用电费')}
+        
+        ${this._renderDataItem('年总用电', 'mdi:lightning-bolt', `${this._data.year_ele_num || '0'}°`, itemThemeClass, '年总用电')}
+        ${this._renderDataItem('年峰用电', 'mdi:lightning-bolt', `${this._data.year_p_ele_num || '0'}°`, itemThemeClass, '年峰用电')}
+        ${this._renderDataItem('年平用电', 'mdi:lightning-bolt', `${this._data.year_n_ele_num || '0'}°`, itemThemeClass, '年平用电')}
+        ${this._renderDataItem('年谷用电', 'mdi:lightning-bolt', `${this._data.year_v_ele_num || '0'}°`, itemThemeClass, '年谷用电')}
+        ${this._renderDataItem('年用电费', 'mdi:cash', this._formatCost(this._data.year_ele_num), itemThemeClass, '年用电费')}
+      </div>
+    `;
+  }
+
+  _renderDataItem(name, icon, value, themeClass, gridArea) {
+    return html`
+      <div class="data-item ${themeClass}" style="${gridArea ? `grid-area: ${gridArea}` : ''}">
+        ${icon ? html`
+          <div class="data-item-content">
+            <ha-icon class="data-item-icon" .icon=${icon}></ha-icon>
+            <div class="data-item-text">
+							<div class="data-item-name">${name}</div>
+              <div class="data-item-value">${value}</div>
+            </div>
+          </div>
+        ` : html`
+          <div class="data-item-text">
+						<div class="data-item-name">${name}</div>
+            <div class="data-item-value">${value}</div>
+          </div>
+        `}
+      </div>
+    `;
+  }
+}
+customElements.define('xiaoshi-state-grid-hassbox', XiaoshiStateGridHassbox);
+
+class XiaoshiStateGridQinglongn extends LitElement {
   static get properties() {
     return {
       hass: { type: Object },
@@ -3063,7 +3450,391 @@ class XiaoshiStateGrid2Card extends LitElement {
     `;
   }
 }
-customElements.define('xiaoshi-state-grid2-card', XiaoshiStateGrid2Card);
+customElements.define('xiaoshi-state-grid-qinglong-n', XiaoshiStateGridQinglongn);
+
+class XiaoshiStateGridHassboxn extends LitElement {
+  static get properties() {
+    return {
+      hass: { type: Object },
+      config: { type: Object },
+      _data: { type: Object, state: true },
+      _price: { type: Number, state: true },
+			border: { type: String, attribute: 'border-radius' },
+			cardwidth: { type: String, attribute: 'card-width' },
+			cardheight: { type: String, attribute: 'card-height' }
+    };
+  }
+
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+        font-family: Arial, sans-serif;
+				--title-font-size: 20px;
+      }
+      
+      .card-container {
+        display: grid;
+        grid-template-areas: 
+          "名称 名称 名称 名称"   
+          "刷新时间 刷新时间 刷新时间 电费余额"   
+          "数据日期 数据日期 数据日期 电费余额"
+          "日总用电 日峰用电 日谷用电 日用电费"      
+          "月总用电 月峰用电 月谷用电 月用电费"     
+          "年总用电 年峰用电 年谷用电 年用电费";
+        grid-template-columns: auto auto auto auto;
+        grid-template-rows: auto auto auto auto auto auto;
+        border-radius: var(--border-radius, 10px);
+        padding: 0 5px 0 5px;
+        cursor: default;
+				justify-items: center;
+				align-items: center;
+				margin: 0 auto;
+      }
+      
+      .light-theme {
+        background: rgb(255,255,255);
+        color: rgb(0,0,0);
+      }
+      
+      .dark-theme {
+        background: rgb(50,50,50);
+        color: rgb(255,255,255);
+      }
+      
+      .title {
+        grid-area: 名称;
+        font-size: var(--title-font-size);;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+      }
+      
+      .refresh-time {
+        grid-area: 刷新时间;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+				padding-left: 5px;
+				justify-self: start;
+      }
+      
+      .data-date {
+        grid-area: 数据日期;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+				padding-left: 5px;
+				justify-self: start;
+      }
+      
+      .balance {
+        grid-area: 电费余额;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: var(--card-width, 70px);
+      }
+      
+      .data-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1.5px solid rgba(0,200,200,0.5);
+        border-radius: 20px;
+        width: var(--card-width, 70px);
+        height: var(--card-height, 35px);
+      }
+      
+      .data-item.light {
+        background: rgb(250,250,250);
+      }
+      
+      .data-item.dark {
+        background: rgb(80,80,80);
+      }
+      
+      .data-item-content {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+      
+      .data-item-icon {
+        width: 9px;
+        color: rgb(0,200,200);
+        margin-right: 5px;
+        flex-shrink: 0;
+        transform: scale(0.7);
+      }
+      
+      .data-item-text {
+        display: flex;
+        flex-direction: column;
+				align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        width: 100%;
+				text-align: center;
+      }
+      
+      .data-item-value {
+        font-size: 11px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+				text-align: center;
+        margin-top: -4px;
+      }
+      
+      .data-item-name {
+        font-size: 9px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+				text-align: center;
+      }
+      
+      .warning {
+        color: #FF2000;
+        font-weight: bold;
+      }
+    `;
+  }
+
+  constructor() {
+    super();
+    this.hass = null;
+    this.config = {
+      id: '',
+			title: '电费信息',
+      price: 0.5,
+      theme: 'on',
+      height: '280px',
+      width: '400px',
+			border: '10px',
+			cardwidth: '70px',
+			cardheight: '35px',
+			titleFontSize: '20px'
+    };
+    this._data = {};
+    this._price = 0.5;
+    this._interval = null;
+  }
+
+  setConfig(config) {
+    this.config = {
+      ...this.config,
+      ...config
+    };
+		this.border = this.config.border || '10px';
+		this.cardwidth = this.config.cardwidth || '70px';
+		this.cardheight = this.config.cardheight || '35px';
+		this.style.setProperty('--title-font-size', this.config.titleFontSize || '20px'); 
+    this._calculatePrice();
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('hass')) {
+      this._calculatePrice();
+      this._fetchData();
+    }
+  }
+
+	_calculatePrice() {
+		try {
+			if (!this.hass || !this.config) {
+				this._price = 0.5;
+				return;
+			}
+			if (typeof this.config.price === 'number') {
+				this._price = this.config.price;
+				return;
+			}
+			if (typeof this.config.price === 'string') {
+				const template = this.config.price.trim();
+				if (template.startsWith('[[[') && template.endsWith(']]]')) {
+					const jsCode = template.slice(3, -3).trim();
+					try {
+						const calculateFn = new Function('states', `
+							try {
+								${jsCode}
+							} catch (e) {
+								return 0.5;
+							}
+						`);
+						const result = calculateFn(this.hass.states);
+						this._price = Number(result) || 0.5;
+					} catch (e) {
+						this._price = 0.5;
+					}
+				} else {
+					this._price = Number(template) || 0.5;
+				}
+				return;
+			}
+			this._price = 0.5;
+		} catch (e) {
+			this._price = 0.5;
+		}
+	}
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._fetchData();
+    this._setupInterval();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this._interval) {
+      clearInterval(this._interval);
+    }
+  }
+
+  _setupInterval() {
+    this._interval = setInterval(() => {
+      this._fetchData();
+    }, 60000);
+  }
+
+  async _fetchData() {
+    if (!this.hass || !this.config.id) return;
+    
+    try {
+      const entities = [
+        'refresh_time', 'daily_lasted_date', 'balance',
+        'daily_ele_num', 'month_ele_num', 'year_ele_num',
+        'daily_p_ele_num', 'month_p_ele_num', 'year_p_ele_num',
+        'daily_n_ele_num', 'month_n_ele_num', 'year_n_ele_num',
+        'daily_v_ele_num', 'month_v_ele_num', 'year_v_ele_num'
+      ];
+      
+      const data = {};
+      
+      for (const entity of entities) {
+        const fullEntity = `sensor.state_grid_${this.config.id}_${entity}`;
+        data[entity] = this.hass.states[fullEntity]?.state || 'N/A';
+      }
+      
+      this._data = data;
+    } catch (error) {
+      console.error('获取数据出错:', error);
+    }
+  }
+
+  _formatBalance(balance) {
+    const num = parseFloat(balance) || 0;
+    const rounded = Math.round(num * 10) / 10;
+    return num >= 20 ? 
+      `${rounded}元` : 
+      html`<span class="warning">${rounded}元</span>`;
+  }
+  
+  _formatCost(value) {
+    const num = parseFloat(value) || 0;
+    const rounded = Math.round(num * this._price * 10) / 10;
+    return `${rounded}元`;
+  }
+
+  _evaluateTheme() {
+    try {
+      if (!this.config || !this.config.theme) return 'on';
+      
+      if (typeof this.config.theme === 'function') {
+        return this.config.theme();
+      }
+      
+      if (typeof this.config.theme === 'string' && 
+          (this.config.theme.includes('return') || this.config.theme.includes('=>'))) {
+        return (new Function(`return ${this.config.theme}`))();
+      }
+      
+      return this.config.theme;
+    } catch(e) {
+      console.error('计算主题时出错:', e);
+      return 'on';
+    }
+  }
+
+  render() {
+    if (!this.config) return html``;
+    
+    const theme = this._evaluateTheme();
+    const themeClass = theme === 'on' ? 'light-theme' : 'dark-theme';
+    const itemThemeClass = theme === 'on' ? 'light' : 'dark';
+    
+    return html`
+      <div class="card-container ${themeClass}" 
+			     style="height: ${this.config.height}; 
+					 width: ${this.config.width};
+					 --border-radius: ${this.border};
+					 --card-width: ${this.cardwidth};
+					 --card-height: ${this.cardheight}">
+        <div class="title">${this.config.title || '电费信息'}</div>
+        
+        <div class="refresh-time">
+          用电刷新时间: ${this._data.refresh_time || 'N/A'}
+        </div>
+        
+        <div class="data-date">
+          最新用电日期: ${this._data.daily_lasted_date || 'N/A'}
+        </div>
+        
+        <div class="balance">
+          ${this._renderDataItem('上月电费', 'mdi:cash', this._formatBalance(this._data.balance), itemThemeClass)}
+        </div>
+        
+        ${this._renderDataItem('日总用电', 'mdi:lightning-bolt', `${this._data.daily_ele_num || '0'}°`, itemThemeClass, '日总用电')}
+        ${this._renderDataItem('日峰用电', 'mdi:lightning-bolt', `${this._data.daily_p_ele_num || '0'}°`, itemThemeClass, '日峰用电')}
+        ${this._renderDataItem('日谷用电', 'mdi:lightning-bolt', `${this._data.daily_v_ele_num || '0'}°`, itemThemeClass, '日谷用电')}
+        ${this._renderDataItem('日用电费', 'mdi:cash', this._formatCost(this._data.daily_ele_num), itemThemeClass, '日用电费')}
+        
+        ${this._renderDataItem('月总用电', 'mdi:lightning-bolt', `${this._data.month_ele_num || '0'}°`, itemThemeClass, '月总用电')}
+        ${this._renderDataItem('月峰用电', 'mdi:lightning-bolt', `${this._data.month_p_ele_num || '0'}°`, itemThemeClass, '月峰用电')}
+        ${this._renderDataItem('月谷用电', 'mdi:lightning-bolt', `${this._data.month_v_ele_num || '0'}°`, itemThemeClass, '月谷用电')}
+        ${this._renderDataItem('月用电费', 'mdi:cash', this._formatCost(this._data.month_ele_num), itemThemeClass, '月用电费')}
+        
+        ${this._renderDataItem('年总用电', 'mdi:lightning-bolt', `${this._data.year_ele_num || '0'}°`, itemThemeClass, '年总用电')}
+        ${this._renderDataItem('年峰用电', 'mdi:lightning-bolt', `${this._data.year_p_ele_num || '0'}°`, itemThemeClass, '年峰用电')}
+        ${this._renderDataItem('年谷用电', 'mdi:lightning-bolt', `${this._data.year_v_ele_num || '0'}°`, itemThemeClass, '年谷用电')}
+        ${this._renderDataItem('年用电费', 'mdi:cash', this._formatCost(this._data.year_ele_num), itemThemeClass, '年用电费')}
+      </div>
+    `;
+  }
+
+  _renderDataItem(name, icon, value, themeClass, gridArea) {
+    return html`
+      <div class="data-item ${themeClass}" style="${gridArea ? `grid-area: ${gridArea}` : ''}">
+        ${icon ? html`
+          <div class="data-item-content">
+            <ha-icon class="data-item-icon" .icon=${icon}></ha-icon>
+            <div class="data-item-text">
+							<div class="data-item-name">${name}</div>
+              <div class="data-item-value">${value}</div>
+            </div>
+          </div>
+        ` : html`
+          <div class="data-item-text">
+						<div class="data-item-name">${name}</div>
+            <div class="data-item-value">${value}</div>
+          </div>
+        `}
+      </div>
+    `;
+  }
+}
+customElements.define('xiaoshi-state-grid-hassbox-n', XiaoshiStateGridHassboxn);
 
 window.customCards = window.customCards || [];
 window.customCards.push(
@@ -3108,13 +3879,23 @@ window.customCards.push(
     description: '进度条'
   },
   {
-    type: 'xiaoshi-state-grid1-card',
-    name: '消逝卡片组 国网卡片横向信息卡',
+    type: 'xiaoshi-state-grid-qinglong',
+    name: '消逝卡片组 国网卡片-青龙数据',
     description: '国网信息卡'
   },
   {
-    type: 'xiaoshi-state-grid2-card',
-    name: '消逝卡片组 国网卡片横向纵向卡',
+    type: 'xiaoshi-state-grid-hassbox',
+    name: '消逝卡片组 国网卡片-hassbox集成数据',
+    description: '国网信息卡'
+  },
+  {
+    type: 'xiaoshi-state-grid-qinglong-n',
+    name: '消逝卡片组 国网卡片-青龙数据(无平用电)',
+    description: '国网信息卡'
+  },
+  {
+    type: 'xiaoshi-state-grid-hassbox-n',
+    name: '消逝卡片组 国网卡片-hassbox集成数据(无平用电)',
     description: '国网信息卡'
   },
 );
