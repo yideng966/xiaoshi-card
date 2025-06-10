@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.3.6  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.3.7  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2486,7 +2486,6 @@ class XiaoshiStateGridNodeRed extends LitElement {
       cardwidth: '70px',
       cardheight: '35px',
       titleFontSize: '20px',
-      refreshButton: 'button.qinglong'
     };
     this._data = {};
     this._interval = null;
@@ -2569,12 +2568,13 @@ class XiaoshiStateGridNodeRed extends LitElement {
   }
 
 	 _handleRefresh() {
-		if (this._isRefreshing) return;
+    if (this._isRefreshing || !this.config.button || 
+        !this.hass.states[this.config.button]) return;
 		this._isRefreshing = true;
 		
 		setTimeout(() => {
 			this._isRefreshing = false;
-			this.hass.callService('button', 'press', {entity_id: this.config.refreshButton});
+			this.hass.callService('button', 'press', {entity_id: this.config.button});
 		}, 1000);
 	}
 
@@ -2624,10 +2624,12 @@ class XiaoshiStateGridNodeRed extends LitElement {
         
         <div class="refresh-time">
           用电刷新时间: ${this._data.refresh_time || 'N/A'}
-          <ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
-                   icon="mdi:refresh" 
-                   @click=${this._handleRefresh} 
-                   title="手动刷新数据"></ha-icon>
+					${this.config.button ? html`
+					<ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
+									 icon="mdi:refresh" 
+									 @click=${this._handleRefresh} 
+									 title="手动刷新数据"></ha-icon>
+				` : ''}
         </div>
 
         <div class="data-date">
@@ -3258,8 +3260,7 @@ class XiaoshiStateGridNodeRedn extends LitElement {
       border: '10px',
       cardwidth: '70px',
       cardheight: '35px',
-      titleFontSize: '20px',
-      refreshButton: 'button.qinglong'
+      titleFontSize: '20px'
     };
     this._data = {};
     this._interval = null;
@@ -3342,7 +3343,8 @@ class XiaoshiStateGridNodeRedn extends LitElement {
   }
 
 	 _handleRefresh() {
-		if (this._isRefreshing) return;
+    if (this._isRefreshing || !this.config.button || 
+        !this.hass.states[this.config.button]) return;
 		this._isRefreshing = true;
 		
 		setTimeout(() => {
@@ -3396,11 +3398,12 @@ class XiaoshiStateGridNodeRedn extends LitElement {
         <div class="title">${this.config.title || '电费信息'}</div>
         
         <div class="refresh-time">
-          用电刷新时间: ${this._data.refresh_time || 'N/A'}
-          <ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
-                   icon="mdi:refresh" 
-                   @click=${this._handleRefresh} 
-                   title="手动刷新数据"></ha-icon>
+				${this.config.button ? html`
+					<ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
+									 icon="mdi:refresh" 
+									 @click=${this._handleRefresh} 
+									 title="手动刷新数据"></ha-icon>
+				` : ''}
         </div>
 
         <div class="data-date">
