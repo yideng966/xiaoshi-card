@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.3.5  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.3.6  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2296,7 +2296,7 @@ class XiaoshiSliderCard extends LitElement {
 }
 customElements.define('xiaoshi-slider-card', XiaoshiSliderCard);
 
-class XiaoshiStateGridQinglong extends LitElement {
+class XiaoshiStateGridNodeRed extends LitElement {
   static get properties() {
     return {
       hass: { type: Object },
@@ -2680,7 +2680,7 @@ class XiaoshiStateGridQinglong extends LitElement {
     `;
   }
 }
-customElements.define('xiaoshi-state-grid-qinglong', XiaoshiStateGridQinglong);
+customElements.define('xiaoshi-state-grid-nodered', XiaoshiStateGridNodeRed);
 
 class XiaoshiStateGridHassbox extends LitElement {
   static get properties() {
@@ -3069,7 +3069,7 @@ class XiaoshiStateGridHassbox extends LitElement {
 }
 customElements.define('xiaoshi-state-grid-hassbox', XiaoshiStateGridHassbox);
 
-class XiaoshiStateGridQinglongn extends LitElement {
+class XiaoshiStateGridNodeRedn extends LitElement {
   static get properties() {
     return {
       hass: { type: Object },
@@ -3450,7 +3450,7 @@ class XiaoshiStateGridQinglongn extends LitElement {
     `;
   }
 }
-customElements.define('xiaoshi-state-grid-qinglong-n', XiaoshiStateGridQinglongn);
+customElements.define('xiaoshi-state-grid-nodered-n', XiaoshiStateGridNodeRedn);
 
 class XiaoshiStateGridHassboxn extends LitElement {
   static get properties() {
@@ -3879,8 +3879,8 @@ window.customCards.push(
     description: '进度条'
   },
   {
-    type: 'xiaoshi-state-grid-qinglong',
-    name: '消逝卡片组 国网卡片-青龙数据',
+    type: 'xiaoshi-state-grid-nodered',
+    name: '消逝卡片组 国网卡片-NR整合数据',
     description: '国网信息卡'
   },
   {
@@ -3889,8 +3889,8 @@ window.customCards.push(
     description: '国网信息卡'
   },
   {
-    type: 'xiaoshi-state-grid-qinglong-n',
-    name: '消逝卡片组 国网卡片-青龙数据(无平用电)',
+    type: 'xiaoshi-state-grid-nodered-n',
+    name: '消逝卡片组 国网卡片-NR整合数据(无平用电)',
     description: '国网信息卡'
   },
   {
