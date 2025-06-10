@@ -117,10 +117,10 @@ style:
   track-radius: 4px                   # 圆角大小，默认2px
 ~~~
 
-## 功能9：国网表格（青龙数据）
+## 功能9：国网表格（NR整合数据）
 **引用示例**
 ~~~
-type: custom:xiaoshi-state-grid-qinglong
+type: custom:xiaoshi-state-grid-nodered
 entity: sensor.state_grid   # 青龙+NR实体
 button: button.qinglong     # 刷新按钮
 title: 电费信息              # 标题，默认电费信息
@@ -136,7 +136,7 @@ cardheight: 35px            # 每个按钮高度
 ## 功能10：国网表格（hassbox数据）
 **引用示例**
 ~~~
-type: custom:xiaoshi-state-grid-card-hassbox
+type: custom:xiaoshi-state-grid-hassbox
 title: 电费信息               # 标题，默认电费信息
 titleFontSize: 20px          # 标题字体大小
 id: 888888888888888          # 国网id
@@ -155,10 +155,10 @@ cardwidth: 70px             # 每个按钮宽度
 cardheight: 35px            # 每个按钮高度
 ~~~
 
-## 功能11：国网表格（青龙数据-去除平金额列）
+## 功能11：国网表格（NR整合数据-去除平金额列）
 **引用示例**
 ~~~
-type: custom:xiaoshi-state-grid-qinglong-n
+type: custom:xiaoshi-state-grid-nodered-n
 entity: sensor.state_grid   # 青龙+NR实体
 button: button.qinglong     # 刷新按钮
 title: 电费信息              # 标题，默认电费信息
@@ -174,7 +174,7 @@ cardheight: 35px            # 每个按钮高度
 ## 功能12：国网表格（hassbox数据-去除平金额列）
 **引用示例**
 ~~~
-type: custom:xiaoshi-state-grid-card-hassbox-n
+type: custom:xiaoshi-state-grid-hassbox-n
 title: 电费信息               # 标题，默认电费信息
 titleFontSize: 20px          # 标题字体大小
 id: 888888888888888          # 国网id
