@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.3.8  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.3.9  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -3349,7 +3349,7 @@ class XiaoshiStateGridNodeRedn extends LitElement {
 		
 		setTimeout(() => {
 			this._isRefreshing = false;
-			this.hass.callService('button', 'press', {entity_id: this.config.refreshButton});
+			this.hass.callService('button', 'press', {entity_id: this.config.button});
 		}, 1000);
 	}
 
@@ -3400,11 +3400,11 @@ class XiaoshiStateGridNodeRedn extends LitElement {
         <div class="refresh-time">
 				用电刷新时间: ${this._data.refresh_time || 'N/A'}
 				${this.config.button ? html`
-					<ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
-									 icon="mdi:refresh" 
-									 @click=${this._handleRefresh} 
-									 title="手动刷新数据"></ha-icon>
-				` : ''}
+				<ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
+								 icon="mdi:refresh" 
+								 @click=${this._handleRefresh} 
+								 title="手动刷新数据"></ha-icon>
+			` : ''}
         </div>
 
         <div class="data-date">
