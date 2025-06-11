@@ -87,6 +87,7 @@ popup_content:
 **引用示例**
 ~~~
 type: custom:xiaoshi-grid-card
+display: true                # 当display为true或者[[[ return true]]] 时 隐藏整张卡片
 entities:
   - entity: sensor.shidu_ciwo
     grid: 0%,0%,30%,29%
