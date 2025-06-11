@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.3.7  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.3.8  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -3398,6 +3398,7 @@ class XiaoshiStateGridNodeRedn extends LitElement {
         <div class="title">${this.config.title || '电费信息'}</div>
         
         <div class="refresh-time">
+				用电刷新时间: ${this._data.refresh_time || 'N/A'}
 				${this.config.button ? html`
 					<ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
 									 icon="mdi:refresh" 
