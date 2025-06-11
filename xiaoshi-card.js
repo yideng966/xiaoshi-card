@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.3.9  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.4.0  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2033,6 +2033,7 @@ class XiaoshiGridCard extends LitElement {
       min: config.min || 0,
       max: config.max || 100,
       mode: config.mode || '温度',
+      display: config.display || false,
       entities: config.entities.map(entity => ({
         ...entity,
         state: entity.state !== false, // 默认true，除非显式设置为false
@@ -2042,6 +2043,7 @@ class XiaoshiGridCard extends LitElement {
   }
 
   render() {
+		if(this._display()) return;
 		return html`
 			<div class="container" 
 				style="width: ${this.config.width}; 
@@ -2086,6 +2088,37 @@ class XiaoshiGridCard extends LitElement {
 				})}
 			</div> 
 		`;
+	}
+
+	_display() {
+		try {
+			if (this.config.display === undefined) return false;
+			if (typeof this.config.display === 'boolean') {
+				return this.config.display;
+			}
+			if (typeof this.config.display === 'function') {
+				const result = this.config.display();
+				return result === true || result === "true"; // 同时接受 true 和 "true"
+			}
+			if (typeof this.config.display === 'string') {
+				const displayStr = this.config.display.trim();
+				if (displayStr.startsWith('[[[') && displayStr.endsWith(']]]')) {
+					const funcBody = displayStr.slice(3, -3).trim();
+					const result = new Function('states', funcBody)(this.hass.states);
+					return result === true || result === "true"; // 同时接受 true 和 "true"
+				}
+				if (displayStr.includes('return') || displayStr.includes('=>')) {
+					const result = (new Function(`return ${displayStr}`))();
+					return result === true || result === "true";
+				}
+				const result = (new Function(`return ${displayStr}`))();
+				return result === true || result === "true";
+			}
+			return false;
+		} catch(e) {
+			console.error('显示出错:', e);
+			return false;
+		}
 	}
 
 	_calculateTemperatureFilter(temp) {
