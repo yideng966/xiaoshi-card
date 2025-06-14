@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.4.0  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.4.1  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2358,9 +2358,10 @@ class XiaoshiStateGridNodeRed extends LitElement {
           "数据日期 数据日期 数据日期 数据日期 电费余额"   
           "日总用电 日峰用电 日平用电 日谷用电 日用电费"      
           "月总用电 月峰用电 月平用电 月谷用电 月用电费"     
+          "上月总用电 上月峰用电 上月平用电 上月谷用电 上月用电费"       
           "年总用电 年峰用电 年平用电 年谷用电 年用电费";
         grid-template-columns: auto auto auto auto auto;
-        grid-template-rows: auto auto auto auto auto auto;
+        grid-template-rows: auto auto auto auto auto auto auto;
         border-radius: var(--border-radius, 10px);
         padding: 0 5px 0 5px;
         cursor: default;
@@ -2571,6 +2572,7 @@ class XiaoshiStateGridNodeRed extends LitElement {
       const attributes = entity.attributes || {};
       const dayData = attributes.daylist?.[0] || {};
       const monthData = attributes.monthlist?.[0] || {};
+      const last_monthData = attributes.monthlist?.[1] || {};
       const yearData = attributes.yearlist?.[0] || {};
       
       this._data = {
@@ -2587,6 +2589,11 @@ class XiaoshiStateGridNodeRed extends LitElement {
         month_n_ele_num: monthData.monthNPq || '0',
         month_v_ele_num: monthData.monthVPq || '0',
         month_ele_cost: monthData.monthEleCost || '0',
+        last_month_ele_num: last_monthData.monthEleNum || '0',
+        last_month_p_ele_num: last_monthData.monthPPq || '0',
+        last_month_n_ele_num: last_monthData.monthNPq || '0',
+        last_month_v_ele_num: last_monthData.monthVPq || '0',
+        last_month_ele_cost: last_monthData.monthEleCost || '0',
         year_ele_num: yearData.yearEleNum || '0',
         year_p_ele_num: yearData.yearPPq || '0',
         year_n_ele_num: yearData.yearNPq || '0',
@@ -2684,6 +2691,12 @@ class XiaoshiStateGridNodeRed extends LitElement {
         ${this._renderDataItem('月平用电', 'mdi:lightning-bolt', `${this._data.month_n_ele_num || '0'}°`, itemThemeClass, '月平用电')}
         ${this._renderDataItem('月谷用电', 'mdi:lightning-bolt', `${this._data.month_v_ele_num || '0'}°`, itemThemeClass, '月谷用电')}
         ${this._renderDataItem('月用电费', 'mdi:cash',           `${this._data.month_ele_cost || '0'}元`, itemThemeClass, '月用电费')}
+
+        ${this._renderDataItem('上月总用电', 'mdi:lightning-bolt', `${this._data.last_month_ele_num || '0'}°`, itemThemeClass, '上月总用电')}
+        ${this._renderDataItem('上月峰用电', 'mdi:lightning-bolt', `${this._data.last_month_p_ele_num || '0'}°`, itemThemeClass, '上月峰用电')}
+        ${this._renderDataItem('上月平用电', 'mdi:lightning-bolt', `${this._data.last_month_n_ele_num || '0'}°`, itemThemeClass, '上月平用电')}
+        ${this._renderDataItem('上月谷用电', 'mdi:lightning-bolt', `${this._data.last_month_v_ele_num || '0'}°`, itemThemeClass, '上月谷用电')}
+        ${this._renderDataItem('上月用电费', 'mdi:cash',           `${this._data.last_month_ele_cost || '0'}元`, itemThemeClass, '上月用电费')}
         
         ${this._renderDataItem('年总用电', 'mdi:lightning-bolt', `${this._data.year_ele_num || '0'}°`, itemThemeClass, '年总用电')}
         ${this._renderDataItem('年峰用电', 'mdi:lightning-bolt', `${this._data.year_p_ele_num || '0'}°`, itemThemeClass, '年峰用电')}
@@ -3133,9 +3146,10 @@ class XiaoshiStateGridNodeRedn extends LitElement {
           "数据日期 数据日期  数据日期 电费余额"   
           "日总用电 日峰用电  日谷用电 日用电费"      
           "月总用电 月峰用电  月谷用电 月用电费"     
-          "年总用电 年峰用电  年谷用电 年用电费";
-        grid-template-columns: auto  auto auto auto;
-        grid-template-rows: auto auto auto auto auto auto;
+          "上月总用电 上月峰用电 上月谷用电 上月用电费"       
+          "年总用电 年峰用电 年谷用电 年用电费";
+        grid-template-columns: auto auto auto auto;
+        grid-template-rows: auto auto auto auto auto auto auto;
         border-radius: var(--border-radius, 10px);
         padding: 0 5px 0 5px;
         cursor: default;
@@ -3293,7 +3307,7 @@ class XiaoshiStateGridNodeRedn extends LitElement {
       border: '10px',
       cardwidth: '70px',
       cardheight: '35px',
-      titleFontSize: '20px'
+      titleFontSize: '20px',
     };
     this._data = {};
     this._interval = null;
@@ -3346,6 +3360,7 @@ class XiaoshiStateGridNodeRedn extends LitElement {
       const attributes = entity.attributes || {};
       const dayData = attributes.daylist?.[0] || {};
       const monthData = attributes.monthlist?.[0] || {};
+      const last_monthData = attributes.monthlist?.[1] || {};
       const yearData = attributes.yearlist?.[0] || {};
       
       this._data = {
@@ -3362,6 +3377,11 @@ class XiaoshiStateGridNodeRedn extends LitElement {
         month_n_ele_num: monthData.monthNPq || '0',
         month_v_ele_num: monthData.monthVPq || '0',
         month_ele_cost: monthData.monthEleCost || '0',
+        last_month_ele_num: last_monthData.monthEleNum || '0',
+        last_month_p_ele_num: last_monthData.monthPPq || '0',
+        last_month_n_ele_num: last_monthData.monthNPq || '0',
+        last_month_v_ele_num: last_monthData.monthVPq || '0',
+        last_month_ele_cost: last_monthData.monthEleCost || '0',
         year_ele_num: yearData.yearEleNum || '0',
         year_p_ele_num: yearData.yearPPq || '0',
         year_n_ele_num: yearData.yearNPq || '0',
@@ -3431,13 +3451,13 @@ class XiaoshiStateGridNodeRedn extends LitElement {
         <div class="title">${this.config.title || '电费信息'}</div>
         
         <div class="refresh-time">
-				用电刷新时间: ${this._data.refresh_time || 'N/A'}
-				${this.config.button ? html`
-				<ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
-								 icon="mdi:refresh" 
-								 @click=${this._handleRefresh} 
-								 title="手动刷新数据"></ha-icon>
-			` : ''}
+          用电刷新时间: ${this._data.refresh_time || 'N/A'}
+					${this.config.button ? html`
+					<ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
+									 icon="mdi:refresh" 
+									 @click=${this._handleRefresh} 
+									 title="手动刷新数据"></ha-icon>
+				` : ''}
         </div>
 
         <div class="data-date">
@@ -3457,6 +3477,11 @@ class XiaoshiStateGridNodeRedn extends LitElement {
         ${this._renderDataItem('月峰用电', 'mdi:lightning-bolt', `${this._data.month_p_ele_num || '0'}°`, itemThemeClass, '月峰用电')}
         ${this._renderDataItem('月谷用电', 'mdi:lightning-bolt', `${this._data.month_v_ele_num || '0'}°`, itemThemeClass, '月谷用电')}
         ${this._renderDataItem('月用电费', 'mdi:cash',           `${this._data.month_ele_cost || '0'}元`, itemThemeClass, '月用电费')}
+
+        ${this._renderDataItem('上月总用电', 'mdi:lightning-bolt', `${this._data.last_month_ele_num || '0'}°`, itemThemeClass, '上月总用电')}
+        ${this._renderDataItem('上月峰用电', 'mdi:lightning-bolt', `${this._data.last_month_p_ele_num || '0'}°`, itemThemeClass, '上月峰用电')}
+        ${this._renderDataItem('上月谷用电', 'mdi:lightning-bolt', `${this._data.last_month_v_ele_num || '0'}°`, itemThemeClass, '上月谷用电')}
+        ${this._renderDataItem('上月用电费', 'mdi:cash',           `${this._data.last_month_ele_cost || '0'}元`, itemThemeClass, '上月用电费')}
         
         ${this._renderDataItem('年总用电', 'mdi:lightning-bolt', `${this._data.year_ele_num || '0'}°`, itemThemeClass, '年总用电')}
         ${this._renderDataItem('年峰用电', 'mdi:lightning-bolt', `${this._data.year_p_ele_num || '0'}°`, itemThemeClass, '年峰用电')}
