@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.4.1  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.4.2  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2619,11 +2619,9 @@ class XiaoshiStateGridNodeRed extends LitElement {
 	}
 
   _formatBalance(balance) {
-    const num = parseFloat(balance) || 0;
-    const rounded = Math.round(num * 10) / 10;
-    return num >= 20 ? 
-      `${rounded}元` : 
-      html`<span class="warning">${rounded}元</span>`;
+    return balance >= 20 ? 
+      `${balance}元` : 
+      html`<span class="warning">${balance}元</span>`;
   }
 
   _evaluateTheme() {
@@ -3012,11 +3010,9 @@ class XiaoshiStateGridHassbox extends LitElement {
   }
 
   _formatBalance(balance) {
-    const num = parseFloat(balance) || 0;
-    const rounded = Math.round(num * 10) / 10;
-    return num >= 20 ? 
-      `${rounded}元` : 
-      html`<span class="warning">${rounded}元</span>`;
+    return balance >= 20 ? 
+      `${balance}元` : 
+      html`<span class="warning">${balance}元</span>`;
   }
   
   _formatCost(value) {
@@ -3407,11 +3403,9 @@ class XiaoshiStateGridNodeRedn extends LitElement {
 	}
 
   _formatBalance(balance) {
-    const num = parseFloat(balance) || 0;
-    const rounded = Math.round(num * 10) / 10;
-    return num >= 20 ? 
-      `${rounded}元` : 
-      html`<span class="warning">${rounded}元</span>`;
+    return balance >= 20 ? 
+      `${balance}元` : 
+      html`<span class="warning">${balance}元</span>`;
   }
 
   _evaluateTheme() {
@@ -3796,11 +3790,9 @@ class XiaoshiStateGridHassboxn extends LitElement {
   }
 
   _formatBalance(balance) {
-    const num = parseFloat(balance) || 0;
-    const rounded = Math.round(num * 10) / 10;
-    return num >= 20 ? 
-      `${rounded}元` : 
-      html`<span class="warning">${rounded}元</span>`;
+    return balance >= 20 ? 
+      `${balance}元` : 
+      html`<span class="warning">${balance}元</span>`;
   }
   
   _formatCost(value) {
