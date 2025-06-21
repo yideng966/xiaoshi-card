@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.4.2  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.4.3  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -1961,14 +1961,13 @@ class XiaoshiTimeCard extends LitElement {
   }
 
   _getShichen() {
-    const tzArr = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-    const skArr = ['一','二','三','四'];
-    const date = new Date();
-    const h = date.getHours();
-    const m = date.getMinutes();
-    const shichenIndex = Math.floor(h / 2);
-    const shikeIndex = Math.floor(m / 15);
-    return `${tzArr[shichenIndex]}时${skArr[shikeIndex]}刻`;
+		const tzArr = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子']
+		const skArr = ['一', '二', '三', '四', '五', '六', '七', '八']
+		const h = new Date().getHours()
+		const m = new Date().getMinutes();
+		const shichen = tzArr[parseInt( (h+1) / 2)] + '时';
+		const shike = skArr[parseInt(m / 15) + Math.abs((h % 2) - 1) * 4] + "刻";
+    return shichen+shike;
   }
 
   _getAttribute(state, path) { 
