@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.4.4  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.4.5  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2923,11 +2923,11 @@ class XiaoshiStateGridNodeRed extends LitElement {
       }
       
       .data-item.light {
-        background: rgb(250,250,250);
+        background: rgb(255,255,255);
       }
       
       .data-item.dark {
-        background: rgb(80,80,80);
+        background: rgb(50,50,50);
       }
       
       .data-item-content {
@@ -3324,18 +3324,18 @@ class XiaoshiStateGridHassbox extends LitElement {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        border: 1.5px solid rgba(0,200,200,0.5);
+        border: 1px solid rgba(0,200,200,0.5);
         border-radius: 20px;
         width: var(--card-width, 70px);
         height: var(--card-height, 35px);
       }
       
       .data-item.light {
-        background: rgb(250,250,250);
+        background: rgb(255,255,255);
       }
       
       .data-item.dark {
-        background: rgb(80,80,80);
+        background: rgb(50,50,50);
       }
       
       .data-item-content {
