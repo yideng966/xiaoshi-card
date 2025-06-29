@@ -1,0 +1,335 @@
+[
+    {
+        "id": "c4d60c2a78a129d6",
+        "type": "group",
+        "z": "0c77ec98a221d7bd",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "0bf84726cac591f5",
+            "22c491df76d431c2",
+            "12e94691df84ca8a",
+            "4d1750c4ca278e8b",
+            "bbc0435b02c2946e",
+            "d66993e39f0c2a09",
+            "6817eca02bf7e7f1",
+            "16550fac2e17dee6",
+            "63006eb51fc76080"
+        ],
+        "x": 34,
+        "y": 359,
+        "w": 872,
+        "h": 122
+    },
+    {
+        "id": "0bf84726cac591f5",
+        "type": "file in",
+        "z": "0c77ec98a221d7bd",
+        "g": "c4d60c2a78a129d6",
+        "name": "读取hass文件",
+        "filename": "/homeassistant/.storage/state_grid.config",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 300,
+        "y": 440,
+        "wires": [
+            [
+                "22c491df76d431c2"
+            ]
+        ]
+    },
+    {
+        "id": "22c491df76d431c2",
+        "type": "json",
+        "z": "0c77ec98a221d7bd",
+        "g": "c4d60c2a78a129d6",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 450,
+        "y": 440,
+        "wires": [
+            [
+                "d66993e39f0c2a09"
+            ]
+        ]
+    },
+    {
+        "id": "12e94691df84ca8a",
+        "type": "inject",
+        "z": "0c77ec98a221d7bd",
+        "g": "c4d60c2a78a129d6",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "300",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 440,
+        "wires": [
+            [
+                "0bf84726cac591f5"
+            ]
+        ]
+    },
+    {
+        "id": "4d1750c4ca278e8b",
+        "type": "comment",
+        "z": "0c77ec98a221d7bd",
+        "g": "c4d60c2a78a129d6",
+        "name": "国网HASS：2025-06-10 更新     ",
+        "info": "",
+        "x": 760,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "bbc0435b02c2946e",
+        "type": "ha-sensor",
+        "z": "0c77ec98a221d7bd",
+        "g": "c4d60c2a78a129d6",
+        "name": "国网NR数据",
+        "entityConfig": "558b39bd514b1bfd",
+        "version": 0,
+        "state": "balance",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "date",
+                "value": "date",
+                "valueType": "msg"
+            },
+            {
+                "property": "dayList",
+                "value": "dayList",
+                "valueType": "msg"
+            },
+            {
+                "property": "monthList",
+                "value": "monthList",
+                "valueType": "msg"
+            },
+            {
+                "property": "yearList",
+                "value": "yearList",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 810,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d66993e39f0c2a09",
+        "type": "function",
+        "z": "0c77ec98a221d7bd",
+        "g": "c4d60c2a78a129d6",
+        "name": "数据结构重构",
+        "func": "const id= 0;   //户号id,多户号修改: 0  1  2  3\nconst powerUserList = msg.payload.data.powerUserList[id]; //数据部分json\n\n/* 重写日用电结构  */\n//提取文件json日用电数据（大概是最近40天左右）\nconst daily_bill_list = powerUserList.daily_bill_list;\n//重写结构\nconst daylist1 = daily_bill_list.map(item => ({\n    day: item.day.substring(0, 4) + \"-\" + item.day.substring(4, 6) + \"-\" + item.day.substring(6),\n    dayEleNum: Number(item.dayElePq),\n    dayTPq: Number(item.thisTPq),\n    dayPPq: Number(item.thisPPq),\n    dayNPq: Number(item.thisNPq),\n    dayVPq: Number(item.thisVPq),\n}));\n//提取所有的日用电，在每个月用电下面，需要for循环提取出来\nconst daylist2 = [];\nfor (var i = 0; i < powerUserList.month_bill_list.length; i++) {\n    daylist2.push(powerUserList.month_bill_list[i].daily_ele); // 逐个添加\n}\nconst daylist3 = daylist2.flat();  //将数据展平\n//重写结构\nconst daylist4 = daylist3.map(item => ({\n    day: item.day.substring(0, 4) + \"-\" + item.day.substring(4, 6) + \"-\" + item.day.substring(6),\n    dayEleNum: Number(item.dayElePq),\n    dayTPq: Number(item.thisTPq),\n    dayPPq: Number(item.thisPPq),\n    dayNPq: Number(item.thisNPq),\n    dayVPq: Number(item.thisVPq),\n}));\n//合并daylist4和daylist1\ndaylist1.push(...daylist4)\n//筛选重复，只保留数值大的数\nconst daylist5 = {};\ndaylist1.forEach(item => {\n    const { day, dayEleNum } = item;\n    if (!daylist5[day] || dayEleNum > daylist5[day].dayEleNum) {\n        daylist5[day] = { ...item };\n    }\n});\n//按日期重新排序\nconst daylist6 = Object.values(daylist5).sort((a, b) => a.day.localeCompare(b.day));\n//取最新的370个数据（总数大概370-390波动）\nconst dayList7 = daylist6.reverse().slice(0, 370);\n\n/*  增加每日电费金额\n*   请根据自己的情况计算每日电费金额\n*   下面的是年阶梯电费（7月1日-下年6月30日为一个周期）\n*/\nconst dayList = dayList7.map(item => {\n    const date = new Date(item.day); // 解析日期\n    const year = date.getFullYear();\n    const month = date.getMonth() + 1; // 月份从0开始，所以要加1\n    let cycleStartYear; // 确定当前周期\n    if (month >= 7) { cycleStartYear = year; } \n    else { cycleStartYear = year - 1; }\n    // 计算当前日期到周期开始日期(7月1日)的累计用电量\n    const cycleStartDate = new Date(cycleStartYear, 6, 1); // 7月1日(月份是0-based)\n    const cycleDays = dayList7.filter(d => {\n        const dDate = new Date(d.day);\n        return dDate >= cycleStartDate && dDate <= date;\n    });\n    // 计算累计用电量\n    const cumulativeUsage = cycleDays.reduce((sum, d) => sum + d.dayEleNum, 0);\n    // 计算当日电费\n    let dayEleCost = 0;\n    const usage = item.dayEleNum;\n    let remainingUsage = usage;\n    // 第一阶梯计算\n    const tier1Limit = 2160;\n    if (cumulativeUsage - usage < tier1Limit) {\n        const tier1Usage = Math.min(remainingUsage, tier1Limit - (cumulativeUsage - usage));\n        dayEleCost += tier1Usage * 0.4983;\n        remainingUsage -= tier1Usage;\n    }\n    // 第二阶梯计算\n    const tier2Limit = 4200;\n    if (remainingUsage > 0 && cumulativeUsage - usage < tier2Limit) {\n        const tier2Available = tier2Limit - Math.max(cumulativeUsage - usage, tier1Limit);\n        const tier2Usage = Math.min(remainingUsage, tier2Available);\n        dayEleCost += tier2Usage * 0.5483;\n        remainingUsage -= tier2Usage;\n    }\n    // 第三阶梯计算\n    if (remainingUsage > 0) {\n        dayEleCost += remainingUsage * 0.7983;\n    }\n    return {\n        day: item.day,\n        dayEleNum: item.dayEleNum,\n        dayEleCost: parseFloat(dayEleCost.toFixed(2)), // 保留两位小数\n        dayTPq: item.dayTPq,\n        dayPPq: item.dayPPq,\n        dayNPq: item.dayNPq,\n        dayVPq: item.dayVPq,\n    };\n});\n\n//重写月用电结构\nconst month_bill_list = powerUserList.month_bill_list;\nconst monthList = month_bill_list.map(item => ({\n    month: item.month.substring(0, 4) + \"-\" + item.month.substring(4), //日期\n    monthEleNum: Number(item.monthEleNum),       //总\n    monthEleCost: Number(item.monthEleCost),     //金额\n    monthTPq: Number(item.month_t_ele_num),      //尖\n    monthPPq: Number(item.month_p_ele_num),      //峰\n    monthNPq: Number(item.month_n_ele_num),      //平\n    monthVPq: Number(item.month_v_ele_num),      //谷\n}));\n\n//增加上月，统计日用电\nconst prevMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().slice(0, 7);\nconst premonthListExists = monthList.some(item => item.month === prevMonth);\nif (!premonthListExists) {\n    const yearMonth = premonthListExists.replace('-', '');\n    const daysInCurrentMonth = dayList.filter(dayItem => {\n        const dayYearMonth = dayItem.day.slice(0, 7).replace('-', '');\n        return dayYearMonth === yearMonth;\n    });\n    let monthEleNum = 0;\n    let monthTPq = 0;\n    let monthPPq = 0;\n    let monthNPq = 0;\n    let monthVPq = 0;\n    let monthEleCost = 0; \n    daysInCurrentMonth.forEach(day => {\n        monthEleNum += parseFloat(day.dayEleNum) || 0;\n        monthTPq += parseFloat(day.dayTPq) || 0;\n        monthPPq += parseFloat(day.dayPPq) || 0;\n        monthNPq += parseFloat(day.dayNPq) || 0;\n        monthVPq += parseFloat(day.dayVPq) || 0;\n        monthEleCost += parseFloat(day.dayEleCost) || 0;\n    });\n\n    monthList.unshift({\n        month: premonthListExists,\n        monthEleNum: Number(monthEleNum.toFixed(2)),\n        monthEleCost: Number(monthEleCost.toFixed(2)),\n        monthTPq: Number(monthTPq.toFixed(2)),\n        monthPPq: Number(monthPPq.toFixed(2)),\n        monthNPq: Number(monthNPq.toFixed(2)),\n        monthVPq: Number(monthVPq.toFixed(2))\n    });\n}\n\n//增加当月，统计日用电\nconst currentMonth = new Date().toISOString().slice(0, 7);\nconst monthListExists = monthList.some(item => item.month === currentMonth);\nif (!monthListExists) {\n    const yearMonth = currentMonth.replace('-', '');\n    const daysInCurrentMonth = dayList.filter(dayItem => {\n        const dayYearMonth = dayItem.day.slice(0, 7).replace('-', '');\n        return dayYearMonth === yearMonth;\n    });\n    let monthEleNum = 0;\n    let monthTPq = 0;\n    let monthPPq = 0;\n    let monthNPq = 0;\n    let monthVPq = 0;\n    let monthEleCost = 0; \n    daysInCurrentMonth.forEach(day => {\n        monthEleNum += parseFloat(day.dayEleNum) || 0;\n        monthTPq += parseFloat(day.dayTPq) || 0;\n        monthPPq += parseFloat(day.dayPPq) || 0;\n        monthNPq += parseFloat(day.dayNPq) || 0;\n        monthVPq += parseFloat(day.dayVPq) || 0;\n        monthEleCost += parseFloat(day.dayEleCost) || 0;\n    });\n\n    monthList.unshift({\n        month: currentMonth,\n        monthEleNum: Number(monthEleNum.toFixed(2)),\n        monthEleCost: Number(monthEleCost.toFixed(2)),\n        monthTPq: Number(monthTPq.toFixed(2)),\n        monthPPq: Number(monthPPq.toFixed(2)),\n        monthNPq: Number(monthNPq.toFixed(2)),\n        monthVPq: Number(monthVPq.toFixed(2))\n    });\n}\n\n//重写年用电结构\nconst yearMap = {}; // 用于按年份暂存数据\nmonthList.forEach(monthData => {\n    const year = monthData.month.split('-')[0];\n    if (!yearMap[year]) {\n        yearMap[year] = {\n            year: year,\n            yearEleNum: 0,\n            yearEleCost: 0,\n            yearTPq: 0,\n            yearPPq: 0,\n            yearNPq: 0,\n            yearVPq: 0\n        };\n    }\n    yearMap[year].yearEleNum += parseFloat(monthData.monthEleNum) || 0;\n    yearMap[year].yearEleCost += parseFloat(monthData.monthEleCost) || 0;\n    yearMap[year].yearTPq += parseFloat(monthData.monthTPq) || 0;\n    yearMap[year].yearPPq += parseFloat(monthData.monthPPq) || 0;\n    yearMap[year].yearNPq += parseFloat(monthData.monthNPq) || 0;\n    yearMap[year].yearVPq += parseFloat(monthData.monthVPq) || 0;\n});\nconst yearList = Object.values(yearMap).map(yearData => ({\n    ...yearData,\n    yearEleNum: Number(yearData.yearEleNum.toFixed(2)),\n    yearEleCost: Number(yearData.yearEleCost.toFixed(2)),\n    yearTPq: Number(yearData.yearTPq.toFixed(2)),\n    yearPPq: Number(yearData.yearPPq.toFixed(2)),\n    yearNPq: Number(yearData.yearNPq.toFixed(2)),\n    yearVPq: Number(yearData.yearVPq.toFixed(2))\n}));\n\n\n/*输出json*/\nmsg.date = powerUserList.refresh_time;\nmsg.balance = powerUserList.balance;\nmsg.dayList = dayList;\nmsg.monthList = monthList;\nmsg.yearList = yearList;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 440,
+        "wires": [
+            [
+                "bbc0435b02c2946e"
+            ]
+        ]
+    },
+    {
+        "id": "6817eca02bf7e7f1",
+        "type": "server-events",
+        "z": "0c77ec98a221d7bd",
+        "g": "c4d60c2a78a129d6",
+        "name": "系统事件",
+        "server": "d5d3e351.02443",
+        "version": 3,
+        "exposeAsEntityConfig": "",
+        "eventType": "home_assistant_client",
+        "eventData": "",
+        "waitForRunning": true,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "eventData"
+            },
+            {
+                "property": "topic",
+                "propertyType": "msg",
+                "value": "$outputData(\"eventData\").event_type",
+                "valueType": "jsonata"
+            },
+            {
+                "property": "event_type",
+                "propertyType": "msg",
+                "value": "$outputData(\"eventData\").event_type",
+                "valueType": "jsonata"
+            }
+        ],
+        "x": 120,
+        "y": 400,
+        "wires": [
+            [
+                "16550fac2e17dee6"
+            ]
+        ]
+    },
+    {
+        "id": "16550fac2e17dee6",
+        "type": "switch",
+        "z": "0c77ec98a221d7bd",
+        "g": "c4d60c2a78a129d6",
+        "name": "启动事件",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "running",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 260,
+        "y": 400,
+        "wires": [
+            [
+                "63006eb51fc76080"
+            ]
+        ]
+    },
+    {
+        "id": "63006eb51fc76080",
+        "type": "delay",
+        "z": "0c77ec98a221d7bd",
+        "g": "c4d60c2a78a129d6",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "60",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 400,
+        "y": 400,
+        "wires": [
+            [
+                "0bf84726cac591f5"
+            ]
+        ]
+    },
+    {
+        "id": "558b39bd514b1bfd",
+        "type": "ha-entity-config",
+        "server": "d5d3e351.02443",
+        "deviceConfig": "78036d8940da3889",
+        "name": "state_grid",
+        "version": 6,
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "state_grid"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "d5d3e351.02443",
+        "type": "server",
+        "name": "消逝Home Assistant",
+        "addon": false,
+        "rejectUnauthorizedCerts": false,
+        "ha_boolean": "",
+        "connectionDelay": false,
+        "cacheJson": false,
+        "heartbeat": false,
+        "heartbeatInterval": "30",
+        "areaSelector": "friendlyName",
+        "deviceSelector": "friendlyName",
+        "entitySelector": "friendlyName",
+        "statusSeparator": ":",
+        "statusYear": "hidden",
+        "statusMonth": "short",
+        "statusDay": "numeric",
+        "statusHourCycle": "default",
+        "statusTimeFormat": "h:m",
+        "enableGlobalContextStore": false
+    },
+    {
+        "id": "78036d8940da3889",
+        "type": "ha-device-config",
+        "name": "国家电网",
+        "hwVersion": "",
+        "manufacturer": "Node-RED",
+        "model": "",
+        "swVersion": ""
+    }
+]
