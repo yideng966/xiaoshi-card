@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.4.6  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.4.7  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -2371,7 +2371,7 @@ class XiaoshiStateGridCalendar extends LitElement {
     this.dayData = [];
     this.activeNav = '';
     this.monthData = null;
-    this.colorNum = '#FF6347';
+    this.colorNum = '#0fccc3';
     this.colorCost = '#804aff';
   }
 
@@ -2444,6 +2444,7 @@ class XiaoshiStateGridCalendar extends LitElement {
         user-select: none;
         font-size: 12px;
         transition: all 0.2s ease;
+				border-radius: 10px;
       }
       
       .nav-button:active {
@@ -2958,6 +2959,7 @@ class XiaoshiStateGridNodeRed extends LitElement {
       
       .data-item-value {
         font-size: 11px;
+        font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -2968,6 +2970,7 @@ class XiaoshiStateGridNodeRed extends LitElement {
       
       .data-item-name {
         font-size: 9px;
+        font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -3002,7 +3005,7 @@ class XiaoshiStateGridNodeRed extends LitElement {
     this._data = {};
     this._interval = null;
     this._isRefreshing = false;
-    this.colorNum = '#FF6347';
+    this.colorNum = '#0fccc3';
     this.colorCost = '#804aff';
   }
 
@@ -3366,6 +3369,7 @@ class XiaoshiStateGridHassbox extends LitElement {
       
       .data-item-value {
         font-size: 11px;
+        font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -3376,6 +3380,7 @@ class XiaoshiStateGridHassbox extends LitElement {
       
       .data-item-name {
         font-size: 9px;
+        font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -3410,7 +3415,7 @@ class XiaoshiStateGridHassbox extends LitElement {
     this._data = {};
     this._price = 0.5;
     this._interval = null;
-    this.colorNum = '#FF6347';
+    this.colorNum = '#0fccc3';
     this.colorCost = '#804aff';
   }
 
