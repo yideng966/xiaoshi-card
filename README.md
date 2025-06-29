@@ -176,3 +176,50 @@ color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
 n_num: none                 # 有此项时，不显示平相关数据
 balance_name: '电费余额'     # 电费余额的名字
 ~~~
+
+## 功能12：万年历手机端（需要配合NR）
+**引用示例**
+~~~
+type: custom:xiaoshi-lunar-phone
+lunar: seosor.lunar
+date: seosor.lunar_date
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 90vh                # 总高度
+width: 100%                 # 总宽度
+~~~
+
+## 功能13：万年历平板端（需要配合NR）
+**引用示例**
+~~~
+type: custom:xiaoshi-lunar-pad
+lunar: seosor.lunar
+date: seosor.lunar_date
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+~~~
+
+
+## 功能14：万年历-其他零散card（需要配合NR）
+**引用示例**
+~~~
+type: custom:xiaoshi-lunar
+type: xiaoshi-lunar-head
+type: xiaoshi-lunar-body1
+type: xiaoshi-lunar-body2
+type: xiaoshi-lunar-body3
+type: xiaoshi-lunar-body4
+type: xiaoshi-lunar-body5
+type: xiaoshi-lunar-body6
+type: xiaoshi-lunar-body7
+type: xiaoshi-lunar-left1
+type: xiaoshi-lunar-left2
+type: xiaoshi-lunar-left3
+type: xiaoshi-lunar-left4
+type: xiaoshi-lunar-left5
+type: xiaoshi-lunar-left6
+type: xiaoshi-lunar-right1
+type: xiaoshi-lunar-right2
+type: xiaoshi-lunar-right3
+type: xiaoshi-lunar-right4
+type: xiaoshi-lunar-right5
+type: xiaoshi-lunar-right6
+~~~
