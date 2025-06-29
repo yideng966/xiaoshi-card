@@ -118,7 +118,7 @@ style:
   track-radius: 4px                   # 圆角大小，默认2px
 ~~~
 
-## 功能9：国网表格（电费日历）
+## 功能9：国网表格（电费日历）(需要NR整合数据)
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid-calendar
