@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.5.0  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.5.1  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -7185,7 +7185,7 @@ class XiaoshiLunarPad extends LitElement {
       ...config
     };
   }
-
+ 
   static get styles() {
     return css`
       :host {
@@ -7282,7 +7282,6 @@ class XiaoshiLunarPad extends LitElement {
             .hass=${this.hass}
             .config=${this.config}
 						.height=${headHeight9}
-						.theme=${theme}
             style="width:100%;height:100%">
           </xiaoshi-lunar-left1>
         </div>
