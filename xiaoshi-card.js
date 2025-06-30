@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.5.2  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.5.3  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -4705,7 +4705,6 @@ class XiaoshiLunarBody1 extends LitElement {
         font-size: 13px;
 				width: 100%;
 				height: 100%;
-				min-width: 0; 
 				justify-content: center;
 				align-items: center;
       }
@@ -4755,17 +4754,16 @@ class XiaoshiLunarBody1 extends LitElement {
     // 获取当前时间信息
     const now = new Date();
     const hour = now.getHours();
-    const minutes = now.getMinutes();
     
     // 特殊处理子时（23:00-1:00）
     let currentShichenIndex = -1;
     if (isCurrentDay) {
-      if (hour === 23 || (hour === 0 && minutes < 60)) {
+      if (hour === 23 || hour === 0) {
         // 子时特殊处理
         if (hour === 23) {
-          currentShichenIndex = 0; // 当天最后一个时辰（a0）
+          currentShichenIndex = 12; // 当天最后一个时辰（a0）
         } else {
-          currentShichenIndex = 12; // 次日第一个时辰（a12）
+          currentShichenIndex = 0; // 次日第一个时辰（a12）
         }
       } else {
         // 正常时辰计算
@@ -7107,8 +7105,8 @@ class XiaoshiLunarPhone extends LitElement {
     
     // 计算各部分高度 (按比例分配)
     const headHeight = '60px'; 
-    const calendarHeight = '260px';
-    const bodyHeight = `calc((${totalHeight} - 60px - 260px - ${7 * 6}px) / 7)`;
+    const calendarHeight = '250px';
+    const bodyHeight = `calc((${totalHeight} - 60px - 250px - ${7 * 6}px) / 7)`;
     
     return html`
       <div class="card-container" style="width: ${this.config.width};">
