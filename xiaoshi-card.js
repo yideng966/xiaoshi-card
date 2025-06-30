@@ -6892,6 +6892,8 @@ class XiaoshiLunarLeft6 extends LitElement {
         justify-content: center;
         font-size: 13px;
         line-height: 13px;
+				white-space: nowrap;
+				overflow: visible;
       }
     `;
   }
