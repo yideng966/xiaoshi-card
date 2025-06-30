@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.5.1  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.5.2  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 
 class XiaoshiLightCard extends LitElement {
@@ -3736,6 +3736,7 @@ class XiaoshiLunar extends LitElement {
         cursor: default;
         font-size: 15px;
         font-weight: 600;
+				white-space: nowrap;
       }
 
       .cell {
@@ -4503,7 +4504,7 @@ class XiaoshiLunarHead extends LitElement {
 				margin-bottom: -3px;
       }
       .gongli-label, .nongli-label {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: bold;
         display: flex;
         align-items: center;
@@ -4679,8 +4680,8 @@ class XiaoshiLunarBody1 extends LitElement {
         grid-template-areas: 
           "a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12"
           "b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12";
-        grid-template-columns: repeat(13, 1fr);
-        grid-template-rows: auto auto;
+        grid-template-columns: repeat(13, minmax(0, 1fr));
+        grid-template-rows: 65% 35%;
         gap: 1px;
         padding: 2px;
         border-radius: 10px;
@@ -4690,13 +4691,23 @@ class XiaoshiLunarBody1 extends LitElement {
         writing-mode: vertical-rl;
         text-orientation: mixed;
         text-align: center;
-        padding: 3px;
         font-size: 13px;
+				white-space: nowrap;
+				overflow: visible;
+				display: flex;
+				width: 100%;
+				height: 100%;
+				justify-content: center;
+				align-items: center;
       }
       .luck-cell {
         text-align: center;
-        padding: 3px;
         font-size: 13px;
+				width: 100%;
+				height: 100%;
+				min-width: 0; 
+				justify-content: center;
+				align-items: center;
       }
     `;
   }
@@ -4855,7 +4866,7 @@ class XiaoshiLunarBody2 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-				font-size: 18px;
+				font-size: 15px;
       }
       .label2 {
         color: rgb(255,0,0);
@@ -4863,13 +4874,13 @@ class XiaoshiLunarBody2 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-				font-size: 18px;
+				font-size: 15px;
       }
       .state {
         word-wrap: break-word;
         display: flex;
         align-items: center;
-				line-height: 14px;
+				line-height: 13px;
       }
     `;
   }
@@ -4992,7 +5003,7 @@ class XiaoshiLunarBody3 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-				font-size: 15px;
+				font-size: 13px;
       }
       .label2 {
         color: rgb(255,0,0);
@@ -5000,13 +5011,13 @@ class XiaoshiLunarBody3 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-				font-size: 15px;
+				font-size: 13px;
       }
       .state {
         word-wrap: break-word;
         display: flex;
         align-items: center;
-				line-height: 14px;
+				line-height: 13px;
       }
     `;
   }
@@ -5129,7 +5140,7 @@ class XiaoshiLunarBody4 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-				font-size: 15px;
+				font-size: 13px;
       }
       .state {
         word-wrap: break-word;
@@ -5250,7 +5261,7 @@ class XiaoshiLunarBody5 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-				font-size: 15px;
+				font-size: 13px;
       }
       .state {
         word-wrap: break-word;
@@ -5371,7 +5382,7 @@ class XiaoshiLunarBody6 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-				font-size: 15px;
+				font-size: 13px;
       }
       .state {
         word-wrap: break-word;
@@ -5495,7 +5506,7 @@ class XiaoshiLunarBody7 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 15px;
+        font-size: 14px;
       }
       .state {
         word-wrap: break-word;
@@ -5641,7 +5652,7 @@ class XiaoshiLunarLeft1 extends LitElement {
 					"a1 a2 a3"
 					"b1 b2 b3"
 					"c1 c2 c3";
-        grid-template-columns: 30% 20% 50%;
+        grid-template-columns: 33% 17% 50%;
         grid-template-rows: repeat(3, 1fr);
         gap: 1px;
         padding: 2px;
@@ -5654,7 +5665,7 @@ class XiaoshiLunarLeft1 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 15px;
+        font-size: 13px;
       }
       .state {
         word-wrap: break-word;
@@ -5770,7 +5781,7 @@ class XiaoshiLunarRight1 extends LitElement {
 					"a1 a2"
 					"b1 b2"
 					"c1 c2";
-        grid-template-columns: 30% 70%;
+        grid-template-columns: 27% 73%;
         grid-template-rows: repeat(3, 1fr);
         gap: 1px;
         padding: 2px;
@@ -5783,7 +5794,7 @@ class XiaoshiLunarRight1 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 15px;
+        font-size: 13px;
       }
       .state {
         word-wrap: break-word;
@@ -6627,7 +6638,7 @@ class XiaoshiLunarLeft5 extends LitElement {
         grid-template-areas: 
 					"a1 a2"
 					"b1 b2";
-        grid-template-columns: 30% 70%;
+        grid-template-columns: 27% 73%;
         grid-template-rows: repeat(2, 1fr);
         gap: 1px;
         padding: 2px;
@@ -6640,7 +6651,7 @@ class XiaoshiLunarLeft5 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 15px;
+        font-size: 13px;
       }
       .state {
         word-wrap: break-word;
@@ -6743,7 +6754,7 @@ class XiaoshiLunarRight5 extends LitElement {
         grid-template-areas: 
 					"a1 a2"
 					"b1 b2";
-        grid-template-columns: 35% 65%;
+        grid-template-columns: 38% 62%;
         grid-template-rows: repeat(2, 1fr);
         gap: 1px;
         padding: 2px;
@@ -6756,7 +6767,7 @@ class XiaoshiLunarRight5 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 15px;
+        font-size: 13px;
       }
       .state {
         word-wrap: break-word;
@@ -6859,7 +6870,7 @@ class XiaoshiLunarLeft6 extends LitElement {
         grid-template-areas: 
 					"a1 a2"
 					"b1 b2";
-        grid-template-columns: 30% 70%;
+        grid-template-columns: 27% 73%;
         grid-template-rows: repeat(2, 1fr);
         gap: 1px;
         padding: 2px;
@@ -6872,7 +6883,7 @@ class XiaoshiLunarLeft6 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 15px;
+        font-size: 13px;
       }
       .state {
         word-wrap: break-word;
@@ -6975,7 +6986,7 @@ class XiaoshiLunarRight6 extends LitElement {
         grid-template-areas: 
 					"a1 a2"
 					"b1 b2";
-        grid-template-columns: 30% 70%;
+        grid-template-columns: 27% 73%;
         grid-template-rows: repeat(2, 1fr);
         gap: 1px;
         padding: 2px;
@@ -6988,7 +6999,7 @@ class XiaoshiLunarRight6 extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 15px;
+        font-size: 13px;
       }
       .state {
         word-wrap: break-word;
