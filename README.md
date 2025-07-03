@@ -122,7 +122,7 @@ style:
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid-calendar
-entity: sensor.state_grid   # 青龙+NR实体
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 height: 330px               # 总高度
 width: 380px                # 总宽度
@@ -135,7 +135,7 @@ color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid-nodered
-entity: sensor.state_grid   # 青龙+NR实体
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
 button: button.qinglong     # 刷新按钮
 title: 电费信息              # 标题，默认电费信息
 titleFontSize: 20px         # 标题字体大小
@@ -181,7 +181,7 @@ balance_name: '电费余额'     # 电费余额的名字
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid-chart-day
-entity: sensor.state_grid   # 青龙+NR实体
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 height: 330px               # 总高度
 width: 380px                # 总宽度
@@ -193,7 +193,7 @@ color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid-chart-month
-entity: sensor.state_grid   # 青龙+NR实体
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 height: 330px               # 总高度
 width: 380px                # 总宽度
@@ -205,7 +205,7 @@ color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid-phone
-entity: sensor.state_grid   # 青龙+NR实体
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 height: 330px               # 总高度
 width: 380px                # 总宽度
@@ -217,7 +217,7 @@ color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid-pad
-entity: sensor.state_grid   # 青龙+NR实体
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 height: 330px               # 总高度
 width: 380px                # 总宽度
