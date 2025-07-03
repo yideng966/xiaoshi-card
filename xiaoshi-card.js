@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.5.5  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.5.6  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 import tinycolor from 'https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm';
 
@@ -3997,7 +3997,7 @@ class XiaoshiStateGridChartDay extends LitElement {
               text: `${maxCost.toFixed(2)} 元`
             }
           }
-        ]
+        ] 
       },
 
 			tooltip: {
@@ -4005,8 +4005,14 @@ class XiaoshiStateGridChartDay extends LitElement {
 				intersect: false,  // 不需要精确悬停在数据点上
 				custom: function({ series, seriesIndex, dataPointIndex, w }) {
 					// 获取当前数据点的所有系列值
-					const date = new Date(w.globals.labels[0]);
-					const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+					const firstDate0 = new Date(w.globals.labels[0]); // 初始日期
+					const firstDate = new Date(firstDate0); // 创建副本，避免修改原对象
+					firstDate.setDate(firstDate.getDate() + 29); // 减去30天
+
+					const currentDate = new Date(firstDate);  
+					currentDate.setDate(firstDate.getDate() - dataPointIndex); // 按索引递增天数
+					
+					const formattedDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
 					
 					// 定义系列名称和单位
 					const seriesInfo = [
@@ -4521,15 +4527,18 @@ class XiaoshiStateGridChartMonth extends LitElement {
 				intersect: false,  // 不需要精确悬停在数据点上
 				custom: function({ series, seriesIndex, dataPointIndex, w }) {
 					// 获取当前数据点的所有系列值
-					const date = new Date(w.globals.labels[dataPointIndex]);
-					const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+					const date = new Date(w.globals.labels[0]); // 取第一个日期（如 2025-1-1）
+					const formattedDate = new Date(date);
+					formattedDate.setMonth(date.getMonth() + dataPointIndex); // 按索引递增月份
+					
+					const displayDate = `${formattedDate.getFullYear()}-${String(formattedDate.getMonth() + 1).padStart(2, '0')}`;
 					
 					// 定义系列名称和单位
 					const seriesInfo = [
 						{ name: '上年电量', unit: 'kWh', color: "#f85000" },
-						{ name: '本月电量', unit: 'kWh', color: this.colorNum },
+						{ name: '本年电量', unit: 'kWh', color: this.colorNum },
 						{ name: '上年电费', unit: '元', color: "#f30660" },
-						{ name: '本月电费', unit: '元', color: this.colorCost }
+						{ name: '本年电费', unit: '元', color: this.colorCost }
 					];
 					
 					let tooltipHTML = `
@@ -4546,7 +4555,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
 								color: ${Color};	
 								border-bottom: 1px dashed #999;
 							">
-								${formattedDate}
+								${displayDate }
 							</div>
 					`;
 					
@@ -4555,7 +4564,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
 						if (value !== null && value !== undefined) {
 							tooltipHTML += `
 								<div style="
-									display: flex;
+									display: flex; 
 									align-items: center;
 									margin: 0;
 									font-size: 12px;
