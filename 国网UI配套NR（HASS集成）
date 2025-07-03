@@ -1,0 +1,252 @@
+[
+    {
+        "id": "c4d60c2a78a129d6",
+        "type": "group",
+        "z": "7fbec2b85ff97d67",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "0bf84726cac591f5",
+            "22c491df76d431c2",
+            "12e94691df84ca8a",
+            "bbc0435b02c2946e",
+            "84b437c5058e6b5d",
+            "0450d565ee8aa48a",
+            "dc70b5743e43d2d3"
+        ],
+        "x": 34,
+        "y": 539,
+        "w": 852,
+        "h": 182
+    },
+    {
+        "id": "0bf84726cac591f5",
+        "type": "file in",
+        "z": "7fbec2b85ff97d67",
+        "g": "c4d60c2a78a129d6",
+        "name": "读取hass文件",
+        "filename": "/homeassistant/.storage/state_grid.config",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 320,
+        "y": 620,
+        "wires": [
+            [
+                "22c491df76d431c2"
+            ]
+        ]
+    },
+    {
+        "id": "22c491df76d431c2",
+        "type": "json",
+        "z": "7fbec2b85ff97d67",
+        "g": "c4d60c2a78a129d6",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 470,
+        "y": 620,
+        "wires": [
+            [
+                "0450d565ee8aa48a"
+            ]
+        ]
+    },
+    {
+        "id": "12e94691df84ca8a",
+        "type": "inject",
+        "z": "7fbec2b85ff97d67",
+        "g": "c4d60c2a78a129d6",
+        "name": "电费-hass",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "300",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 620,
+        "wires": [
+            [
+                "0bf84726cac591f5"
+            ]
+        ]
+    },
+    {
+        "id": "bbc0435b02c2946e",
+        "type": "ha-sensor",
+        "z": "7fbec2b85ff97d67",
+        "g": "c4d60c2a78a129d6",
+        "name": "国网NR数据",
+        "entityConfig": "558b39bd514b1bfd",
+        "version": 0,
+        "state": "balance",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "date",
+                "value": "date",
+                "valueType": "msg"
+            },
+            {
+                "property": "dayList",
+                "value": "dayList",
+                "valueType": "msg"
+            },
+            {
+                "property": "monthList",
+                "value": "monthList",
+                "valueType": "msg"
+            },
+            {
+                "property": "yearList",
+                "value": "yearList",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 790,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "84b437c5058e6b5d",
+        "type": "comment",
+        "z": "7fbec2b85ff97d67",
+        "g": "c4d60c2a78a129d6",
+        "name": "国网HASS集成：2025-07-03 更新     ",
+        "info": "",
+        "x": 720,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "0450d565ee8aa48a",
+        "type": "function",
+        "z": "7fbec2b85ff97d67",
+        "g": "c4d60c2a78a129d6",
+        "name": "数据结构重构",
+        "func": "const id= 0;   //户号id,多户号修改: 0  1  2  3\nconst powerUserList = msg.payload.data.powerUserList[id]; //数据部分json\n\n/* 重写日用电结构  */\n//提取文件json日用电数据（大概是最近40天左右）\nconst daily_bill_list = powerUserList.daily_bill_list;\n//重写结构\nconst daylist1 = daily_bill_list.map(item => ({\n    day: item.day.substring(0, 4) + \"-\" + item.day.substring(4, 6) + \"-\" + item.day.substring(6),\n    dayEleNum: Number(item.dayElePq),\n    dayTPq: Number(item.thisTPq),\n    dayPPq: Number(item.thisPPq),\n    dayNPq: Number(item.thisNPq),\n    dayVPq: Number(item.thisVPq),\n}));\n//提取所有的日用电，在每个月用电下面，需要for循环提取出来\nconst daylist2 = [];\nfor (var i = 0; i < powerUserList.month_bill_list.length; i++) {\n    daylist2.push(powerUserList.month_bill_list[i].daily_ele); // 逐个添加\n}\nconst daylist3 = daylist2.flat();  //将数据展平\n//重写结构\nconst daylist4 = daylist3.map(item => ({\n    day: item.day.substring(0, 4) + \"-\" + item.day.substring(4, 6) + \"-\" + item.day.substring(6),\n    dayEleNum: Number(item.dayElePq),\n    dayTPq: Number(item.thisTPq),\n    dayPPq: Number(item.thisPPq),\n    dayNPq: Number(item.thisNPq),\n    dayVPq: Number(item.thisVPq),\n}));\n//合并daylist4和daylist1\ndaylist1.push(...daylist4)\n//筛选重复，只保留数值大的数\nconst daylist5 = {};\ndaylist1.forEach(item => {\n    const { day, dayEleNum } = item;\n    if (!daylist5[day] || dayEleNum > daylist5[day].dayEleNum) {\n        daylist5[day] = { ...item };\n    }\n});\n//按日期重新排序\nconst daylist6 = Object.values(daylist5).sort((a, b) => a.day.localeCompare(b.day));\n//取最新的370个数据（总数大概370-390波动）\nconst dayList7 = daylist6.reverse().slice(0, 370);\n\n\n/*  增加每日电费金额\n*   请根据自己的情况计算每日电费金额\n*/\nconst tierConfig = {\n    tier1: {\n        limit: 2160,\n        prices: {\n            dayTPq: 0.00,   // 尖时段\n            dayPPq: 0.59,   // 峰时段\n            dayNPq: 0.00,   // 平时段\n            dayVPq: 0.44    // 谷时段\n        }\n    },\n    tier2: {\n        limit: 3120,\n        prices: {\n            dayTPq: 0.00,   // 尖时段\n            dayPPq: 0.64,   // 峰时段\n            dayNPq: 0.00, // 平时段\n            dayVPq: 0.49    // 谷时段\n        }\n    },\n    tier3: {\n        prices: {\n            dayTPq: 0.00,   // 尖时段\n            dayPPq: 0.89,   // 峰时段\n            dayNPq: 0.00,   // 平时段\n            dayVPq: 0.74    // 谷时段\n        }\n    }\n};\n// 时段优先级顺序\nconst timeSlotOrder = ['dayTPq', 'dayPPq', 'dayNPq', 'dayVPq'];\nconst dayList = dayList7.map(item => {\n    const date = new Date(item.day);\n    const year = date.getFullYear();\n    const cyclestartDate = new Date(year, 0, 1); // 1月1日\n    // 计算累计用电量\n    const cycleDays = dayList7.filter(d => {\n        const dDate = new Date(d.day);\n        return dDate >= cyclestartDate && dDate <= date;\n    });\n    const cumulativeUsage = cycleDays.reduce((sum, d) => sum + d.dayEleNum, 0);\n    // 计算当日电费\n    let dayEleCost = 0;\n    const usage = item.dayEleNum;\n    let remainingUsage = usage;\n    const usageBeforeToday = cumulativeUsage - usage;\n    // 第一阶梯计算\n    if (usageBeforeToday < tierConfig.tier1.limit) {\n        const tier1Remaining = tierConfig.tier1.limit - usageBeforeToday;\n        const tier1Usage = Math.min(remainingUsage, tier1Remaining);\n        // 按时段优先级计算\n        for (const slot of timeSlotOrder) {\n            if (tier1Usage <= 0) break;\n\n            const slotUsage = Math.min(item[slot], tier1Usage);\n            dayEleCost += slotUsage * tierConfig.tier1.prices[slot];\n            remainingUsage -= slotUsage;\n        }\n    }\n    // 第二阶梯计算\n    if (remainingUsage > 0 && usageBeforeToday < tierConfig.tier2.limit) {\n        const tier2Start = tierConfig.tier1.limit;\n        const tier2Remaining = tierConfig.tier2.limit - Math.max(usageBeforeToday, tier2Start);\n        const tier2Usage = Math.min(remainingUsage, tier2Remaining);\n\n        // 按时段优先级计算\n        for (const slot of timeSlotOrder) {\n            if (tier2Usage <= 0) break;\n\n            const slotUsage = Math.min(item[slot], tier2Usage);\n            dayEleCost += slotUsage * tierConfig.tier2.prices[slot];\n            remainingUsage -= slotUsage;\n        }\n    }\n    // 第三阶梯计算\n    if (remainingUsage > 0) {\n        // 按时段优先级计算\n        for (const slot of timeSlotOrder) {\n            if (remainingUsage <= 0) break;\n\n            const slotUsage = Math.min(item[slot], remainingUsage);\n            dayEleCost += slotUsage * tierConfig.tier3.prices[slot];\n            remainingUsage -= slotUsage;\n        }\n    }\n    return {\n        day: item.day,\n        dayEleNum: item.dayEleNum,\n        dayEleCost: parseFloat(dayEleCost.toFixed(2)), // 保留两位小数\n        dayTPq: item.dayTPq,\n        dayPPq: item.dayPPq,\n        dayNPq: item.dayNPq,\n        dayVPq: item.dayVPq,\n    };\n});\n\n//重写月用电结构\nconst month_bill_list = powerUserList.month_bill_list;\nconst monthList = month_bill_list.map(item => ({\n    month: item.month.substring(0, 4) + \"-\" + item.month.substring(4), //日期\n    monthEleNum: Number(item.monthEleNum),       //总\n    monthEleCost: Number(item.monthEleCost),     //金额\n    monthTPq: Number(item.month_t_ele_num),      //尖\n    monthPPq: Number(item.month_p_ele_num),      //峰\n    monthNPq: Number(item.month_n_ele_num),      //平\n    monthVPq: Number(item.month_v_ele_num),      //谷\n}));\n\n//增加上月，统计日用电\nconst prevMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().slice(0, 7);\nconst premonthListExists = monthList.some(item => item.month === prevMonth);\nif (!premonthListExists) {\n    const yearMonth = prevMonth.replace('-', '');\n    const daysInCurrentMonth = dayList.filter(dayItem => {\n        const dayYearMonth = dayItem.day.slice(0, 7).replace('-', '');\n        return dayYearMonth === yearMonth;\n    });\n    let monthEleNum = 0;\n    let monthTPq = 0;\n    let monthPPq = 0;\n    let monthNPq = 0;\n    let monthVPq = 0;\n    let monthEleCost = 0; \n    daysInCurrentMonth.forEach(day => {\n        monthEleNum += parseFloat(day.dayEleNum) || 0;\n        monthTPq += parseFloat(day.dayTPq) || 0;\n        monthPPq += parseFloat(day.dayPPq) || 0;\n        monthNPq += parseFloat(day.dayNPq) || 0;\n        monthVPq += parseFloat(day.dayVPq) || 0;\n        monthEleCost += parseFloat(day.dayEleCost) || 0;\n    });\n\n    monthList.unshift({\n        month: prevMonth,\n        monthEleNum: Number(monthEleNum.toFixed(2)),\n        monthEleCost: Number(monthEleCost.toFixed(2)),\n        monthTPq: Number(monthTPq.toFixed(2)),\n        monthPPq: Number(monthPPq.toFixed(2)),\n        monthNPq: Number(monthNPq.toFixed(2)),\n        monthVPq: Number(monthVPq.toFixed(2))\n    });\n}\n\n//增加当月，统计日用电\nconst currentMonth = new Date().toISOString().slice(0, 7);\nconst monthListExists = monthList.some(item => item.month === currentMonth);\nif (!monthListExists) {\n    const yearMonth = currentMonth.replace('-', '');\n    const daysInCurrentMonth = dayList.filter(dayItem => {\n        const dayYearMonth = dayItem.day.slice(0, 7).replace('-', '');\n        return dayYearMonth === yearMonth;\n    });\n    let monthEleNum = 0;\n    let monthTPq = 0;\n    let monthPPq = 0;\n    let monthNPq = 0;\n    let monthVPq = 0;\n    let monthEleCost = 0; \n    daysInCurrentMonth.forEach(day => {\n        monthEleNum += parseFloat(day.dayEleNum) || 0;\n        monthTPq += parseFloat(day.dayTPq) || 0;\n        monthPPq += parseFloat(day.dayPPq) || 0;\n        monthNPq += parseFloat(day.dayNPq) || 0;\n        monthVPq += parseFloat(day.dayVPq) || 0;\n        monthEleCost += parseFloat(day.dayEleCost) || 0;\n    });\n\n    monthList.unshift({\n        month: currentMonth,\n        monthEleNum: Number(monthEleNum.toFixed(2)),\n        monthEleCost: Number(monthEleCost.toFixed(2)),\n        monthTPq: Number(monthTPq.toFixed(2)),\n        monthPPq: Number(monthPPq.toFixed(2)),\n        monthNPq: Number(monthNPq.toFixed(2)),\n        monthVPq: Number(monthVPq.toFixed(2))\n    });\n}\n\n//重写年用电结构\nconst yearMap = {}; // 用于按年份暂存数据\nmonthList.forEach(monthData => {\n    const year = monthData.month.substring(0, 4);\n    if (!yearMap[year]) {\n        yearMap[year] = {\n            year: year,\n            yearEleNum: 0,\n            yearEleCost: 0,\n            yearTPq: 0,\n            yearPPq: 0,\n            yearNPq: 0,\n            yearVPq: 0\n        };\n    }\n    yearMap[year].yearEleNum += parseFloat(monthData.monthEleNum) || 0;\n    yearMap[year].yearEleCost += parseFloat(monthData.monthEleCost) || 0;\n    yearMap[year].yearTPq += parseFloat(monthData.monthTPq) || 0;\n    yearMap[year].yearPPq += parseFloat(monthData.monthPPq) || 0;\n    yearMap[year].yearNPq += parseFloat(monthData.monthNPq) || 0;\n    yearMap[year].yearVPq += parseFloat(monthData.monthVPq) || 0;\n});\nconst yearList = Object.values(yearMap).map(yearData => ({\n    ...yearData,\n    yearEleNum: Number(yearData.yearEleNum.toFixed(2)),\n    yearEleCost: Number(yearData.yearEleCost.toFixed(2)),\n    yearTPq: Number(yearData.yearTPq.toFixed(2)),\n    yearPPq: Number(yearData.yearPPq.toFixed(2)),\n    yearNPq: Number(yearData.yearNPq.toFixed(2)),\n    yearVPq: Number(yearData.yearVPq.toFixed(2))\n}));\n\n\n/*输出json*/\nmsg.date = powerUserList.refresh_time;\nmsg.balance = powerUserList.balance;\nmsg.dayList = dayList;\nmsg.monthList = monthList;\nmsg.yearList = yearList.reverse();\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 620,
+        "wires": [
+            [
+                "bbc0435b02c2946e"
+            ]
+        ]
+    },
+    {
+        "id": "dc70b5743e43d2d3",
+        "type": "comment",
+        "z": "7fbec2b85ff97d67",
+        "g": "c4d60c2a78a129d6",
+        "name": "用AI修改电费话术（双击查看）",
+        "info": "将下面第5步修改成自己的国网计费规则后，给ai生成代码后，替换【数据结构重置】内的50到143行内容\n\nconst dayList = dayList7.map(item => ({\n    day: item.day,                     //日期\n    dayEleCost://增加的字段 \n    dayEleNum: Number(item.dayElePq),  //总电量\n    dayTPq: Number(item.thisTPq),      //尖电量\n    dayPPq: Number(item.thisPPq),      //峰电量\n    dayNPq: Number(item.thisNPq),      //平电量\n    dayVPq: Number(item.thisVPq),      //谷电量\n}));\n中文回答，上面是现有的数据结构， \n1、增加一个字段dayEleCost\n2、dayEleCost是计算出当日的电费金额 \n3、dayEleNum是当日用电量 \n4、dayTPq、dayPP、dayNPq、dayVPq是当日的尖、峰、平、谷电量\n4、day是2025-06-14格式的日期 \n5、金额计算规则，每年的1月1日至12月31日是一个周期，\n总用电量第一阶梯是0-2160，2阶梯是2161-4200，3阶梯是4201以上，\n一阶梯尖时段单价是0.9，一阶梯峰时段单价是0.63，一阶梯平时段单价是0.4983，一阶梯谷时段单价是0.48，\n二阶梯尖时段单价是1.05，二阶梯峰时段单价是0.68，二阶梯平时段单价是0.5483，二阶梯谷时段单价是0.53，\n三阶梯尖时段单价是1.35，三阶梯峰时段单价是0.93，三阶梯平时段单价是0.7983，三阶梯谷时段单价是0.78",
+        "x": 730,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "558b39bd514b1bfd",
+        "type": "ha-entity-config",
+        "server": "d5d3e351.02443",
+        "deviceConfig": "57e9976425d3c91e",
+        "name": "state_grid",
+        "version": 6,
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "state_grid"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "d5d3e351.02443",
+        "type": "server",
+        "name": "消逝Home Assistant",
+        "addon": false,
+        "rejectUnauthorizedCerts": true,
+        "ha_boolean": "",
+        "connectionDelay": false,
+        "cacheJson": false,
+        "heartbeat": false,
+        "heartbeatInterval": "30",
+        "areaSelector": "friendlyName",
+        "deviceSelector": "friendlyName",
+        "entitySelector": "friendlyName",
+        "statusSeparator": ":",
+        "statusYear": "hidden",
+        "statusMonth": "short",
+        "statusDay": "numeric",
+        "statusHourCycle": "default",
+        "statusTimeFormat": "h:m",
+        "enableGlobalContextStore": false
+    },
+    {
+        "id": "57e9976425d3c91e",
+        "type": "ha-device-config",
+        "name": "国家电网",
+        "hwVersion": "",
+        "manufacturer": "Node-RED",
+        "model": "",
+        "swVersion": ""
+    }
+]
