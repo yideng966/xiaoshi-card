@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.5.4  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.5.5  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 import tinycolor from 'https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm';
 
@@ -3891,7 +3891,7 @@ class XiaoshiStateGridChartDay extends LitElement {
         colorCost
       ],
 
-      stroke: { width: [0, 3], curve: 'smooth' },
+      stroke: { width: [0, 2], curve: 'smooth' },
 
       xaxis: {
         type: 'datetime',
@@ -4403,7 +4403,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
         }
       ],
 
-      stroke: { width: [0,0,3,3], curve: 'smooth' },
+      stroke: { width: [0,0,2,2], curve: 'smooth' },
 
       xaxis: {
         type: 'datetime',
@@ -4654,6 +4654,8 @@ class XiaoshiStateGridPhone extends LitElement {
       theme: config?.theme || 'on',
       width: config?.width || '100%',
       height: config?.height || '300px',
+      cardwidth: config?.cardwidth || '70px',
+      cardheight: config?.cardheight || '35px',
 			color_num: config?.color_num || '#0fccc3',
 			color_cost: config?.color_cost || '#804aff',
       ...config // 保留其他可能传入的配置
@@ -4740,6 +4742,8 @@ class XiaoshiStateGridPad extends LitElement {
       theme: config?.theme || 'on',
       width: config?.width || '380px',
       height: config?.height || '300px',
+      cardwidth: config?.cardwidth || '70px',
+      cardheight: config?.cardheight || '35px',
 			color_num: config?.color_num || '#0fccc3',
 			color_cost: config?.color_cost || '#804aff',
       ...config
