@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.5.6  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.5.7  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 import tinycolor from 'https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm';
 
@@ -3736,7 +3736,7 @@ class XiaoshiStateGridChartDay extends LitElement {
       }
       
       .apexcharts-legend {
-        padding: 5px;
+        padding: 0px;
       }
     `;
   }
@@ -3897,7 +3897,9 @@ class XiaoshiStateGridChartDay extends LitElement {
         type: 'datetime',
         labels: {
           datetimeFormatter: {
-            day: 'MM-dd'
+            day: 'MM-dd',
+						month: 'MM-dd',
+						year: 'MM-dd'
           },
         },
 				tooltip: { 
@@ -3940,7 +3942,7 @@ class XiaoshiStateGridChartDay extends LitElement {
               size: 0
             },
             label: {
-              borderColor: colorNum,
+              borderColor: '#fff', 
               offsetY: -5,
               offsetX: 0,
               style: {
@@ -3965,7 +3967,7 @@ class XiaoshiStateGridChartDay extends LitElement {
               shape: "circle",
             },
             label: {
-              borderColor: colorNum,
+              borderColor: '#fff', 
               offsetY: 0,
               offsetX: 0,
               style: {
@@ -4016,7 +4018,7 @@ class XiaoshiStateGridChartDay extends LitElement {
 					
 					// 定义系列名称和单位
 					const seriesInfo = [
-						{ name: '日电量', unit: 'kWh', color: this.colorNum },
+						{ name: '日电量', unit: '度', color: this.colorNum },
 						{ name: '日电费', unit: '元', color: this.colorCost }
 					];
 					
@@ -4218,7 +4220,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
       }
       
       .apexcharts-legend {
-        padding: 2px;
+        padding: 0px;
       }
     `;
   }
@@ -4413,14 +4415,17 @@ class XiaoshiStateGridChartMonth extends LitElement {
 
       xaxis: {
         type: 'datetime',
-				tickAmount: 12,
         labels: {
           datetimeFormatter: {
-						month: 'M月'
+						day: 'M月',
+						month: 'M月',
+						year: 'M月'
           },
+					minHeight: 40,
 					style: {
-						fontSize: '11px',
-					}
+						fontSize: '10px',
+					},
+					hideOverlappingLabels: false
         },
 				tooltip: { 
 					enabled: false
@@ -4462,7 +4467,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
               size: 0
             },
             label: {
-              borderColor: colorNum,
+              borderColor: '#fff', 
               offsetY: -5,
               offsetX: 0,
               style: {
@@ -4487,7 +4492,6 @@ class XiaoshiStateGridChartMonth extends LitElement {
               shape: "circle",
             },
             label: {
-              borderColor: colorNum,
               offsetY: 0,
               offsetX: 0,
               style: {
@@ -4535,8 +4539,8 @@ class XiaoshiStateGridChartMonth extends LitElement {
 					
 					// 定义系列名称和单位
 					const seriesInfo = [
-						{ name: '上年电量', unit: 'kWh', color: "#f85000" },
-						{ name: '本年电量', unit: 'kWh', color: this.colorNum },
+						{ name: '上年电量', unit: '度', color: "#f85000" },
+						{ name: '本年电量', unit: '度', color: this.colorNum },
 						{ name: '上年电费', unit: '元', color: "#f30660" },
 						{ name: '本年电费', unit: '元', color: this.colorCost }
 					];
