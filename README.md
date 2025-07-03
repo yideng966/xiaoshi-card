@@ -177,7 +177,55 @@ n_num: none                 # 有此项时，不显示平相关数据
 balance_name: '电费余额'     # 电费余额的名字
 ~~~
 
-## 功能12：万年历手机端（需要配合NR）
+## 功能12：国网图表（日统计图表）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid-chart-day
+entity: sensor.state_grid   # 青龙+NR实体
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 330px               # 总高度
+width: 380px                # 总宽度
+color_num: '#FF6347'        # 电量颜色，默认值：'#FF6347'
+color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
+~~~
+
+## 功能13：国网图表（月统计图表）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid-chart-month
+entity: sensor.state_grid   # 青龙+NR实体
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 330px               # 总高度
+width: 380px                # 总宽度
+color_num: '#FF6347'        # 电量颜色，默认值：'#FF6347'
+color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
+~~~
+
+## 功能14：国网UI（手机端整合）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid-phone
+entity: sensor.state_grid   # 青龙+NR实体
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 330px               # 总高度
+width: 380px                # 总宽度
+color_num: '#FF6347'        # 电量颜色，默认值：'#FF6347'
+color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
+~~~
+
+## 功能15：国网UI（平板端整合）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid-pad
+entity: sensor.state_grid   # 青龙+NR实体
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 330px               # 总高度
+width: 380px                # 总宽度
+color_num: '#FF6347'        # 电量颜色，默认值：'#FF6347'
+color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
+~~~
+
+## 功能16：万年历手机端（需要配合NR）
 **引用示例**
 ~~~
 type: custom:xiaoshi-lunar-phone
@@ -188,7 +236,7 @@ height: 90vh                # 总高度
 width: 100%                 # 总宽度
 ~~~
 
-## 功能13：万年历平板端（需要配合NR）
+## 功能17：万年历平板端（需要配合NR）
 **引用示例**
 ~~~
 type: custom:xiaoshi-lunar-pad
@@ -198,7 +246,7 @@ theme: "off"                # 选项on是白色，选项off是黑色，也可以
 ~~~
 
 
-## 功能14：万年历-其他零散card（需要配合NR）
+## 功能18：万年历-其他零散card（需要配合NR）
 **引用示例**
 ~~~
 type: custom:xiaoshi-lunar
