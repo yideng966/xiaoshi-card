@@ -3996,7 +3996,7 @@ class XiaoshiStateGridChartDay extends LitElement {
                 fontSize: '12px',
                 fontWeight: 'bold'
               },
-              text: `${maxCost.toFixed(2)} 元`
+              text: `${maxCost.toFixed(2)}元`
             }
           }
         ] 
@@ -4520,7 +4520,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
                 fontSize: '12px',
                 fontWeight: 'bold'
               },
-              text: `${maxCost.toFixed(2)} 元`
+              text: `${maxCost.toFixed(2)}元`
             }
           }
         ]
