@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.5.8  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.5.9  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 import tinycolor from 'https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm';
 
@@ -3695,7 +3695,7 @@ class XiaoshiStateGridChartDay extends LitElement {
           "label1 label2"
           "chart chart";
         gap: 0px;
-        padding: 5px;
+        padding: 2px;
 				margin: 0px;
       }
       
@@ -3788,7 +3788,6 @@ class XiaoshiStateGridChartDay extends LitElement {
 	_renderChart() {
 		const container = this.renderRoot.querySelector('#chart-container');
 		if (!container) return;
-	
 		const data = this._processedData;
 		if (!data) {
 			if (this._chart) {
@@ -3798,15 +3797,16 @@ class XiaoshiStateGridChartDay extends LitElement {
 			return;
 		}
 		container.innerHTML = '';
-		// 如果图表已存在，则更新数据而不是重新创建
 		if (this._chart) {
 			this._chart.destroy();
 			this._chart = null;
 		}
-	
-		// 首次渲染
 		this._chart = new ApexCharts(container, this._getChartConfig(data));
-		this._chart.render();
+		this._chart.render().then(() => {
+			setTimeout(() => {
+				this._chart.updateOptions(this._getChartConfig(data));
+			}, 50);
+		});
 	}
 
   _evaluateTheme() {
@@ -3870,10 +3870,15 @@ class XiaoshiStateGridChartDay extends LitElement {
 
       chart: {
         type: 'line',
-        height: 'auto',
+        height: 235,
         foreColor: Color,
         toolbar: { show: false },
-				animations: {enabled: false}
+				animations: {
+					enabled: false,
+					dynamicAnimation: {
+						enabled: false
+					}
+				}
       },
 
       colors: [
@@ -3901,17 +3906,24 @@ class XiaoshiStateGridChartDay extends LitElement {
 						month: 'MM-dd',
 						year: 'MM-dd'
           },
+					style: {
+						fontSize: '10px',
+					},
+					hideOverlappingLabels: true
         },
 				tooltip: { 
 					enabled: false
-				}
+				} 
       },
 
-      yaxis: [
-        { 
-          min: 0
-        }
-      ],
+      yaxis: {
+        min: 0,
+				labels: {
+					formatter: function(val, index) {
+						return val.toFixed(0);
+					}
+				}
+			},
       
       grid: {
         show: true,
@@ -4118,7 +4130,7 @@ class XiaoshiStateGridChartDay extends LitElement {
   }
 
 	disconnectedCallback() {
-		super.disconnectedCallback(); // Don't forget to call super
+		super.disconnectedCallback();
 		if (this._chart) {
 			this._chart.destroy();
 			this._chart = null;
@@ -4295,7 +4307,6 @@ class XiaoshiStateGridChartMonth extends LitElement {
 	_renderChart() {
 		const container = this.renderRoot.querySelector('#chart-container');
 		if (!container) return;
-	
 		const data = this._processedData;
 		if (!data) {
 			if (this._chart) {
@@ -4304,16 +4315,17 @@ class XiaoshiStateGridChartMonth extends LitElement {
 			}
 			return;
 		}
-	
 		container.innerHTML = '';
-
 		if (this._chart) {
 			this._chart.destroy();
 			this._chart = null;
 		}
-
 		this._chart = new ApexCharts(container, this._getChartConfig(data));
-		this._chart.render();
+		this._chart.render().then(() => {
+			setTimeout(() => {
+				this._chart.updateOptions(this._getChartConfig(data));
+			}, 50);
+		});
 	}
 
   _evaluateTheme() {
@@ -4361,7 +4373,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
 					color: "#f8500080"
         },
         {
-          name: `月用电量`,
+          name: `本年电量`,
           data: data.electricity,
           type: 'column',
 					zIndex: 1,
@@ -4374,7 +4386,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
 					zIndex: 2
         },
         {
-          name: `月用电金额`,
+          name: `本年金额`,
           data: data.cost,
           type: 'line',
           color: colorCost,
@@ -4391,10 +4403,15 @@ class XiaoshiStateGridChartMonth extends LitElement {
 
       chart: {
         type: 'line',
-        height: 'auto',
+        height: 235,
         foreColor: Color,
         toolbar: { show: false },
-				animations: {enabled: false}
+				animations: {
+					enabled: false,
+					dynamicAnimation: {
+						enabled: false
+					}
+				}
       },
 
       colors: [
@@ -4421,7 +4438,6 @@ class XiaoshiStateGridChartMonth extends LitElement {
 						month: 'M月',
 						year: 'M月'
           },
-					minHeight: 40,
 					style: {
 						fontSize: '10px',
 					},
@@ -4432,11 +4448,14 @@ class XiaoshiStateGridChartMonth extends LitElement {
 				}
       },
 
-      yaxis: [
-        { 
-          min: 0
-        }
-      ],
+      yaxis: {
+        min: 0,
+				labels: {
+					formatter: function(val, index) {
+						return val.toFixed(0);
+					}
+				}
+			},
       
       grid: {
         show: true,
@@ -4641,7 +4660,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
   }
 
 	disconnectedCallback() {
-		super.disconnectedCallback(); // Don't forget to call super
+		super.disconnectedCallback(); 
 		if (this._chart) {
 			this._chart.destroy();
 			this._chart = null;
