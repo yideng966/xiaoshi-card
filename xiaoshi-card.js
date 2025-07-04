@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.5.9  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.6.0  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 import tinycolor from 'https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm';
 
@@ -2356,11 +2356,12 @@ class XiaoshiStateGridHassbox extends LitElement {
       
       .card-container {
         display: grid;
-        border-radius: var(--border-radius, 10px);
+        border-radius: 10px;
         padding: 0px;
         cursor: default;
         justify-items: center;
         align-items: center;
+				border: 0;
       } 
 
       .card-container.show-n {
@@ -2812,6 +2813,7 @@ class XiaoshiStateGridNodeRed extends LitElement {
       }
       
       .card-container {
+				border: 0;
         display: grid;
         border-radius: 10px;
         padding: 0px;
@@ -3234,6 +3236,7 @@ class XiaoshiStateGridCalendar extends LitElement {
       }
       
       .calendar-grid {
+				border: 0;
         border-radius: 10px;
         display: grid;
         grid-template-areas:
@@ -3687,6 +3690,7 @@ class XiaoshiStateGridChartDay extends LitElement {
       }
       
       .card {
+				border: 0;
         border-radius: 10px;
         display: grid;
         grid-template-rows: 20% 80%;
@@ -3805,7 +3809,7 @@ class XiaoshiStateGridChartDay extends LitElement {
 		this._chart.render().then(() => {
 			setTimeout(() => {
 				this._chart.updateOptions(this._getChartConfig(data));
-			}, 50);
+			}, 300);
 		});
 	}
 
@@ -4183,6 +4187,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
       }
       
       .card {
+				border: 0;
         border-radius: 10px;
         display: grid;
         grid-template-rows: 20% 80%;
@@ -4324,7 +4329,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
 		this._chart.render().then(() => {
 			setTimeout(() => {
 				this._chart.updateOptions(this._getChartConfig(data));
-			}, 50);
+			}, 300);
 		});
 	}
 
