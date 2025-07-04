@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.6.0  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.6.1 ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 import tinycolor from 'https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm';
 
@@ -3806,11 +3806,7 @@ class XiaoshiStateGridChartDay extends LitElement {
 			this._chart = null;
 		}
 		this._chart = new ApexCharts(container, this._getChartConfig(data));
-		this._chart.render().then(() => {
-			setTimeout(() => {
-				this._chart.updateOptions(this._getChartConfig(data));
-			}, 300);
-		});
+		this._chart.render();
 	}
 
   _evaluateTheme() {
@@ -4326,11 +4322,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
 			this._chart = null;
 		}
 		this._chart = new ApexCharts(container, this._getChartConfig(data));
-		this._chart.render().then(() => {
-			setTimeout(() => {
-				this._chart.updateOptions(this._getChartConfig(data));
-			}, 300);
-		});
+		this._chart.render();
 	}
 
   _evaluateTheme() {
