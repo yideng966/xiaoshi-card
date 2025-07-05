@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.6.1 ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.6.2 ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 import tinycolor from 'https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm';
 
@@ -3762,7 +3762,9 @@ class XiaoshiStateGridChartDay extends LitElement {
   }
 
   updated() {
-    this._renderChart();
+    if (this._chart) {
+      this._updateChartData(); // 后续只更新数据，禁止重绘
+    }
   }
 
   get _processedData() {
@@ -3874,7 +3876,7 @@ class XiaoshiStateGridChartDay extends LitElement {
         foreColor: Color,
         toolbar: { show: false },
 				animations: {
-					enabled: false,
+					enabled: true,
 					dynamicAnimation: {
 						enabled: false
 					}
@@ -4150,9 +4152,9 @@ class XiaoshiStateGridChartMonth extends LitElement {
       colorCost: { type: String, attribute: true },
       theme: { type: String },
       config: { type: Object }
-    }; 
-  } 
-
+    };  
+  }  
+ 
   setConfig(config) {
     this.config = config;
     if (config) {
@@ -4255,7 +4257,9 @@ class XiaoshiStateGridChartMonth extends LitElement {
   }
 
   updated() {
-    this._renderChart();
+    if (this._chart) {
+      this._updateChartData(); // 后续只更新数据，禁止重绘
+    }
   }
 
   get _processedData() {
@@ -4316,6 +4320,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
 			}
 			return;
 		}
+		
 		container.innerHTML = '';
 		if (this._chart) {
 			this._chart.destroy();
@@ -4404,8 +4409,8 @@ class XiaoshiStateGridChartMonth extends LitElement {
         foreColor: Color,
         toolbar: { show: false },
 				animations: {
-					enabled: false,
-					dynamicAnimation: {
+					enabled: true,
+					dynamicAnimation: { 
 						enabled: false
 					}
 				}
