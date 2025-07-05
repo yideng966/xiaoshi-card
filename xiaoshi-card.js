@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.6.2 ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.6.3 ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
 import tinycolor from 'https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm';
 
@@ -3673,7 +3673,7 @@ class XiaoshiStateGridChartDay extends LitElement {
   }
 
   constructor() {
-    super();
+    super(); 
     this.width = '380px';
     this.height = '300px';
     this.theme = 'on';
@@ -3758,12 +3758,6 @@ class XiaoshiStateGridChartDay extends LitElement {
         script.onload = resolve;
         document.head.appendChild(script);
       });
-    }
-  }
-
-  updated() {
-    if (this._chart) {
-      this._updateChartData(); // 后续只更新数据，禁止重绘
     }
   }
 
@@ -3956,12 +3950,12 @@ class XiaoshiStateGridChartDay extends LitElement {
               size: 0
             },
             label: {
-              borderColor: '#fff', 
+              borderColor: '#ffffff00', 
               offsetY: -5,
               offsetX: 0,
               style: {
-                color: '#fff',
-                background: colorNum,
+                color: Color,
+                background: '#ffffff00', 
                 fontSize: '12px',
                 fontWeight: 'bold'
               },
@@ -4001,12 +3995,12 @@ class XiaoshiStateGridChartDay extends LitElement {
               strokeColor: colorNum,
             },
             label: {
-              borderColor: '#fff', 
+              borderColor: '#ffffff00', 
               offsetY: -5,
               offsetX: 0, 
               style: {
-                color: '#fff',
-                background: colorCost,
+                color: Color,
+                background: '#ffffff00', 
                 fontSize: '12px',
                 fontWeight: 'bold'
               },
@@ -4256,12 +4250,6 @@ class XiaoshiStateGridChartMonth extends LitElement {
     }
   }
 
-  updated() {
-    if (this._chart) {
-      this._updateChartData(); // 后续只更新数据，禁止重绘
-    }
-  }
-
   get _processedData() {
 		const lastYear  = (new Date().getFullYear() - 1).toString();
 		const currentYear = new Date().getFullYear().toString();
@@ -4488,12 +4476,12 @@ class XiaoshiStateGridChartMonth extends LitElement {
               size: 0
             },
             label: {
-              borderColor: '#fff', 
+              borderColor: '#ffffff00', 
               offsetY: -5,
               offsetX: 0,
               style: {
-                color: '#fff',
-                background: colorNum,
+                color: Color,
+                background: '#ffffff00', 
                 fontSize: '12px',
                 fontWeight: 'bold'
               },
@@ -4516,12 +4504,12 @@ class XiaoshiStateGridChartMonth extends LitElement {
               offsetY: 0,
               offsetX: 0,
               style: {
-                color: '#fff',
+                color: Color,
                 fontSize: '12px',
                 fontWeight: 'bold'
               },
               text: ' '
-            }
+            } 
           },
           {
             x: maxCostPoint.x,
@@ -4532,12 +4520,12 @@ class XiaoshiStateGridChartMonth extends LitElement {
               strokeColor: colorNum,
             },
             label: {
-              borderColor: '#fff', 
+              borderColor: '#ffffff00', 
               offsetY: -5,
               offsetX: 0, 
               style: {
-                color: '#fff',
-                background: colorCost,
+                color: Color,
+                background: '#ffffff00', 
                 fontSize: '12px',
                 fontWeight: 'bold'
               },
@@ -4668,7 +4656,7 @@ class XiaoshiStateGridChartMonth extends LitElement {
 			this._chart = null;
 		}
 	}
-}
+} 
 customElements.define('xiaoshi-state-grid-chart-month', XiaoshiStateGridChartMonth);
 
 class XiaoshiStateGridPhone extends LitElement {
