@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.6.7 ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.6.8 ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 import tinycolor from "https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm";
 
@@ -2911,7 +2911,7 @@ class XiaoshiStateGridNodeRed extends LitElement {
   _getDefaultCardWidth(columnCount) {
     switch(columnCount) {
       case 6: return '60px';
-      case 5: return '75px';
+      case 5: return '70px';
       case 4: return '75px';
       case 3: return '75px';
       case 2: return '75px';
@@ -8587,7 +8587,7 @@ window.customCards.push(
     type: 'xiaoshi-video-card',
     name: '消逝卡片组 视频卡',
     description: '加载api视频背景'
-  },
+  },  
   {
     type: 'xiaoshi-image-card',
     name: '消逝卡片组 图片卡',
