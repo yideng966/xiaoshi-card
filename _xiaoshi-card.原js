@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.6.6 ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.6.7 ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 import tinycolor from "https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm";
 
@@ -2915,7 +2915,7 @@ class XiaoshiStateGridNodeRed extends LitElement {
       case 4: return '75px';
       case 3: return '75px';
       case 2: return '75px';
-      default: return '55px';
+      default: return '60px';
     }
   }
 
@@ -4703,7 +4703,6 @@ class XiaoshiStateGridPad extends LitElement {
       width: config?.width || '380px',
       height: config?.height || '300px',
 			showIcon: config.icon !=='none',
-      cardwidth: config?.cardwidth || '60px',
       cardheight: config?.cardheight || '35px',
 			color_num: config?.color_num || '#0fccc3',
 			color_cost: config?.color_cost || '#804aff',
