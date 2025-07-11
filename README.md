@@ -147,7 +147,11 @@ cardwidth: 70px             # 每个按钮宽度
 cardheight: 35px            # 每个按钮高度
 color_num: '#FF6347'        # 电量颜色，默认值：'#FF6347'
 color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
+t_num: none                 # 有此项时，不显示尖相关数据
+p_num: none                 # 有此项时，不显示峰相关数据
 n_num: none                 # 有此项时，不显示平相关数据
+v_num: none                 # 有此项时，不显示谷相关数据
+icon: none                  # 有此项时，不显示图标
 balance_name: '电费余额'     # 电费余额的名字
 ~~~
 
