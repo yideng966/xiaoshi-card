@@ -1,4 +1,4 @@
-console.info("%c 消逝集合卡 \n%c   v 2.6.4 ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.6.5 ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 import tinycolor from "https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm";
 
@@ -2691,20 +2691,24 @@ class XiaoshiStateGridNodeRed extends LitElement {
       _isRefreshing: { type: Boolean, state: true },
       colorNum: { type: String, attribute: true },
       colorCost: { type: String, attribute: true },
+      _layoutStyle: { type: String, state: true },
     };
   }
 
   setConfig(config) {
     this.config = {
       ...this.config,
-      ...config
+      ...config,
+			showIcon: config.icon !=='none'
     };
     this.border = this.config.border || '10px';
-    this.cardwidth = this.config.cardwidth || '70px';
     this.cardheight = this.config.cardheight || '35px';
     this.style.setProperty('--title-font-size', this.config.titleFontSize || '20px'); 
     if (config.color_num !== undefined) this.colorNum = config.color_num;
     if (config.color_cost !== undefined) this.colorCost = config.color_cost;
+    
+    // 根据显示的列数设置默认cardwidth
+    this._updateLayout();
   }
 
   constructor() {
@@ -2717,17 +2721,21 @@ class XiaoshiStateGridNodeRed extends LitElement {
       width: '380px',
       height: '300px',
       border: '10px',
-      cardwidth: '70px',
+      cardwidth: '', // 将在setConfig中根据列数设置
       cardheight: '35px',
       titleFontSize: '20px',
-      n_num: '', // 新增参数，默认显示平用电
-      balance_name: '电费余额' // 新增参数，默认显示"电费余额"
+      n_num: '', // 平用电列显示控制
+      t_num: '', // 尖用电列显示控制
+      p_num: '', // 峰用电列显示控制
+      v_num: '', // 谷用电列显示控制
+      balance_name: '电费余额'
     };
     this._data = {};
     this._interval = null;
     this._isRefreshing = false;
     this.colorNum = '#0fccc3';
     this.colorCost = '#804aff';
+    this._layoutStyle = '';
   }
 
   static get styles() {
@@ -2738,41 +2746,15 @@ class XiaoshiStateGridNodeRed extends LitElement {
       }
       
       .card-container {
-				border: 0;
+        border: 0;
         display: grid;
         border-radius: 10px;
         padding: 0px;
         cursor: default;
         justify-items: center;
         align-items: center;
-				gap: 0px;
-				margin: 0px;
-      }
-
-      .card-container.show-n {
-        grid-template-areas: 
-          "a 名称 名称 名称 名称 名称 b"   
-          "a 刷新时间 刷新时间 刷新时间 刷新时间 电费余额 b"   
-          "a 数据日期 数据日期 数据日期 数据日期 电费余额 b"   
-          "a 日总用电 日峰用电 日平用电 日谷用电 日用电费 b"      
-          "a 月总用电 月峰用电 月平用电 月谷用电 月用电费 b"     
-          "a 上月总用电 上月峰用电 上月平用电 上月谷用电 上月用电费 b"       
-          "a 年总用电 年峰用电 年平用电 年谷用电 年用电费 b";
-        grid-template-columns: 3px auto auto auto auto auto 3px;
-        grid-template-rows: auto auto auto auto auto auto auto;
-      }
-
-      .card-container.hide-n {
-        grid-template-areas: 
-          "a 名称 名称 名称 名称 b"   
-          "a 刷新时间 刷新时间 刷新时间 电费余额 b"   
-          "a 数据日期 数据日期 数据日期 电费余额 b"   
-          "a 日总用电 日峰用电 日谷用电 日用电费 b"      
-          "a 月总用电 月峰用电 月谷用电 月用电费 b"     
-          "a 上月总用电 上月峰用电 上月谷用电 上月用电费 b"       
-          "a 年总用电 年峰用电 年谷用电 年用电费 b";
-        grid-template-columns: 3px auto auto auto auto 3px;
-        grid-template-rows: auto auto auto auto auto auto auto;
+        gap: 0px;
+        margin: 0px;
       }
 
       .light-theme {
@@ -2786,7 +2768,7 @@ class XiaoshiStateGridNodeRed extends LitElement {
       }
       
       .title {
-        grid-area: 名称;
+        grid-area: title;
         font-size: var(--title-font-size);
         font-weight: bold;
         display: flex;
@@ -2796,8 +2778,8 @@ class XiaoshiStateGridNodeRed extends LitElement {
       }
       
       .refresh-time {
-        grid-area: 刷新时间;
-        font-size: 14px;
+        grid-area: refresh-time;
+        font-size: 13px;
         font-weight: bold;
         display: flex;
         align-items: flex-end;
@@ -2807,7 +2789,7 @@ class XiaoshiStateGridNodeRed extends LitElement {
       }
 
       .refresh-button {
-        margin-left: 10px;
+        margin-left: 7px;
         cursor: pointer;
         color: rgb(0,200,200);
         transition: transform 1s ease;
@@ -2823,23 +2805,23 @@ class XiaoshiStateGridNodeRed extends LitElement {
       }
 
       .data-date {
-        grid-area: 数据日期;
-        font-size: 14px;
+        grid-area: data-date;
+        font-size: 13px;
         font-weight: bold;
         display: flex;
-        align-items: flex-start;
+        align-items: flex-start; 
         justify-content: flex-start;
         padding-left: 5px;
         justify-self: start;
       }
 
       .balance {
-        grid-area: 电费余额;
+        grid-area: balance;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        width: var(--card-width, 70px);
+        width: var(--card-width, 55px);
       }
       
       .data-item {
@@ -2849,7 +2831,7 @@ class XiaoshiStateGridNodeRed extends LitElement {
         justify-content: center;
         border: 1px solid rgba(0,200,200,0.5);
         border-radius: 20px;
-        width: var(--card-width, 70px);
+        width: var(--card-width, 55px);
         height: var(--card-height, 35px);
       }
       
@@ -2870,9 +2852,9 @@ class XiaoshiStateGridNodeRed extends LitElement {
       .data-item-icon {
         width: 9px;
         color: rgb(0,200,200);
-        margin-right: 5px;
+        margin-right: 0px;
         flex-shrink: 0;
-        transform: scale(0.7);
+        transform: scale(0.6);
       }
       
       .data-item-text {
@@ -2886,25 +2868,25 @@ class XiaoshiStateGridNodeRed extends LitElement {
       }
       
       .data-item-value {
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
         text-align: center;
-        margin-top: -4px;
+        margin-top: -3px;
       }
       
       .data-item-name {
-        font-size: 9px;
+        font-size: 10px;
         font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
         text-align: center;
-        margin-top: 2px;
+        margin-top: 3px;
       }
       
       .warning {
@@ -2914,9 +2896,71 @@ class XiaoshiStateGridNodeRed extends LitElement {
     `;
   }
 
+  _getVisibleColumns() {
+    const columns = ['total'];
+    
+    if (this.config.t_num !== 'none') columns.push('t');
+    if (this.config.p_num !== 'none') columns.push('p');
+    if (this.config.n_num !== 'none') columns.push('n');
+    if (this.config.v_num !== 'none') columns.push('v');
+    
+    columns.push('cost');
+    return columns;
+  }
+
+  _getDefaultCardWidth(columnCount) {
+    switch(columnCount) {
+      case 6: return '60px';
+      case 5: return '70px';
+      case 4: return '75px';
+      case 3: return '75px';
+      case 2: return '75px';
+      default: return '55px';
+    }
+  }
+
+	_updateLayout() {
+		const visibleColumns = this._getVisibleColumns();
+		const columnCount = visibleColumns.length;
+		this.cardwidth = this.config.cardwidth || this._getDefaultCardWidth(columnCount);
+		
+		// 计算标题行和时间行需要占用的列数
+		const middleColumnsCount = columnCount - 2; // 减去总用电列和用电费列
+		
+		// 生成动态网格布局
+		let gridTemplateAreas = `
+			"a title ${Array(middleColumnsCount + 1 ).fill('title').join(' ')} b"   
+			"a refresh-time ${Array(middleColumnsCount).fill('refresh-time').join(' ')} balance b"   
+			"a data-date ${Array(middleColumnsCount).fill('data-date').join(' ')} balance b"`;
+		
+		// 添加数据行
+		const periods = ['daily', 'monthly', 'last-month', 'yearly'];
+		periods.forEach(period => {
+			let row = `"a ${period}-total`;
+			
+			if (visibleColumns.includes('t')) row += ` ${period}-t`;
+			if (visibleColumns.includes('p')) row += ` ${period}-p`;
+			if (visibleColumns.includes('n')) row += ` ${period}-n`;
+			if (visibleColumns.includes('v')) row += ` ${period}-v`;
+			
+			row += ` ${period}-cost b"`;
+			gridTemplateAreas += `\n${row}`;
+		});
+		
+		// 生成grid-template-columns
+		const gridTemplateColumns = `3px auto ${visibleColumns.map(() => 'auto').join(' ')} auto 3px`;
+		
+		this._layoutStyle = `
+			grid-template-areas: ${gridTemplateAreas};
+			grid-template-columns: ${gridTemplateColumns};
+			grid-template-rows: auto auto auto auto auto auto auto;
+		`;
+	} 
+
   updated(changedProperties) {
-    if (changedProperties.has('hass')) {
+    if (changedProperties.has('hass') || changedProperties.has('config')) {
       this._fetchData();
+      this._updateLayout();
     }
   }
 
@@ -2924,6 +2968,7 @@ class XiaoshiStateGridNodeRed extends LitElement {
     super.connectedCallback();
     this._fetchData();
     this._setupInterval();
+    this._updateLayout();
   }
 
   disconnectedCallback() {
@@ -2957,21 +3002,25 @@ class XiaoshiStateGridNodeRed extends LitElement {
         daily_lasted_date: dayData.day || 'N/A',
         balance: entity.state || 'N/A',
         dayEleNum: dayData.dayEleNum || '0',
+        daily_t_ele_num: dayData.dayTPq || '0',
         daily_p_ele_num: dayData.dayPPq || '0',
         daily_n_ele_num: dayData.dayNPq || '0',
         daily_v_ele_num: dayData.dayVPq || '0',
         daily_ele_cost: dayData.dayEleCost || '0',
         month_ele_num: monthData.monthEleNum || '0',
+        month_t_ele_num: monthData.monthTPq || '0',
         month_p_ele_num: monthData.monthPPq || '0',
         month_n_ele_num: monthData.monthNPq || '0',
         month_v_ele_num: monthData.monthVPq || '0',
         month_ele_cost: monthData.monthEleCost || '0',
         last_month_ele_num: last_monthData.monthEleNum || '0',
+        last_month_t_ele_num: last_monthData.monthTPq || '0',
         last_month_p_ele_num: last_monthData.monthPPq || '0',
         last_month_n_ele_num: last_monthData.monthNPq || '0',
         last_month_v_ele_num: last_monthData.monthVPq || '0',
         last_month_ele_cost: last_monthData.monthEleCost || '0',
         year_ele_num: yearData.yearEleNum || '0',
+        year_t_ele_num: yearData.yearTPq || '0',
         year_p_ele_num: yearData.yearPPq || '0',
         year_n_ele_num: yearData.yearNPq || '0',
         year_v_ele_num: yearData.yearVPq || '0',
@@ -3027,20 +3076,21 @@ class XiaoshiStateGridNodeRed extends LitElement {
     const theme = this._evaluateTheme();
     const themeClass = theme === 'on' ? 'light-theme' : 'dark-theme';
     const itemThemeClass = theme === 'on' ? 'light' : 'dark';
-    const showN = this.config.n_num !== 'none';
-    const layoutClass = showN ? 'show-n' : 'hide-n';
+    
+    const visibleColumns = this._getVisibleColumns();
+    const showT = visibleColumns.includes('t');
+    const showP = visibleColumns.includes('p');
+    const showN = visibleColumns.includes('n');
+    const showV = visibleColumns.includes('v');
     
     return html`
-      <div class="card-container ${themeClass} ${layoutClass}" \n
-           style="height: ${this.config.height}; width: ${this.config.width};--border-radius: ${this.border};--card-width: ${this.cardwidth};--card-height: ${this.cardheight}">
+      <div class="card-container ${themeClass}"\n
+           style="height: ${this.config.height}; width: ${this.config.width};--border-radius: ${this.border};--card-width: ${this.cardwidth};--card-height: ${this.cardheight};${this._layoutStyle}">
         <div class="title">${this.config.title || '电费信息'}</div>
         <div class="refresh-time">
           用电刷新时间：${this._data.refresh_time || 'N/A'}
           ${this.config.button ? html`
-          <ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" \n
-                   icon="mdi:refresh" \n
-                   @click=${this._handleRefresh} \n
-                   title="手动刷新数据"></ha-icon>
+          <ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}"\n icon="mdi:refresh"\n @click=${this._handleRefresh}\n title="手动刷新数据"></ha-icon>
           ` : ''}
         </div>
 
@@ -3051,57 +3101,59 @@ class XiaoshiStateGridNodeRed extends LitElement {
         <div class="balance">
           ${this._renderDataItem(this.config.balance_name || '电费余额', 'mdi:cash', this._formatBalance(this._data.balance), itemThemeClass, null, this.colorCost)}
         </div>
+        ${this._renderDataItem('日总用电', 'mdi:lightning-bolt', `${this._data.dayEleNum || '0'}°`, itemThemeClass, 'daily-total', this.colorNum)}
+        ${showT ? this._renderDataItem('日尖用电', 'mdi:lightning-bolt', `${this._data.daily_t_ele_num || '0'}°`, itemThemeClass, 'daily-t', this.colorNum) : ''}
+        ${showP ? this._renderDataItem('日峰用电', 'mdi:lightning-bolt', `${this._data.daily_p_ele_num || '0'}°`, itemThemeClass, 'daily-p', this.colorNum) : ''}
+        ${showN ? this._renderDataItem('日平用电', 'mdi:lightning-bolt', `${this._data.daily_n_ele_num || '0'}°`, itemThemeClass, 'daily-n', this.colorNum) : ''}
+        ${showV ? this._renderDataItem('日谷用电', 'mdi:lightning-bolt', `${this._data.daily_v_ele_num || '0'}°`, itemThemeClass, 'daily-v', this.colorNum) : ''}
+        ${this._renderDataItem('日用电费', 'mdi:cash', `${this._data.daily_ele_cost || '0'}元`, itemThemeClass, 'daily-cost', this.colorCost)}
         
-        ${this._renderDataItem('日总用电', 'mdi:lightning-bolt', `${this._data.dayEleNum || '0'}°`, itemThemeClass, '日总用电', this.colorNum)}
-        ${this._renderDataItem('日峰用电', 'mdi:lightning-bolt', `${this._data.daily_p_ele_num || '0'}°`, itemThemeClass, '日峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('日平用电', 'mdi:lightning-bolt', `${this._data.daily_n_ele_num || '0'}°`, itemThemeClass, '日平用电', this.colorNum) : ''}
-        ${this._renderDataItem('日谷用电', 'mdi:lightning-bolt', `${this._data.daily_v_ele_num || '0'}°`, itemThemeClass, '日谷用电', this.colorNum)}
-        ${this._renderDataItem('日用电费', 'mdi:cash', `${this._data.daily_ele_cost || '0'}元`, itemThemeClass, '日用电费', this.colorCost)}
-        
-        ${this._renderDataItem('月总用电', 'mdi:lightning-bolt', `${this._data.month_ele_num || '0'}°`, itemThemeClass, '月总用电', this.colorNum)}
-        ${this._renderDataItem('月峰用电', 'mdi:lightning-bolt', `${this._data.month_p_ele_num || '0'}°`, itemThemeClass, '月峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('月平用电', 'mdi:lightning-bolt', `${this._data.month_n_ele_num || '0'}°`, itemThemeClass, '月平用电', this.colorNum) : ''}
-        ${this._renderDataItem('月谷用电', 'mdi:lightning-bolt', `${this._data.month_v_ele_num || '0'}°`, itemThemeClass, '月谷用电', this.colorNum)}
-        ${this._renderDataItem('月用电费', 'mdi:cash', `${this._data.month_ele_cost || '0'}元`, itemThemeClass, '月用电费', this.colorCost)}
+        ${this._renderDataItem('月总用电', 'mdi:lightning-bolt', `${this._data.month_ele_num || '0'}°`, itemThemeClass, 'monthly-total', this.colorNum)}
+        ${showT ? this._renderDataItem('月尖用电', 'mdi:lightning-bolt', `${this._data.month_t_ele_num || '0'}°`, itemThemeClass, 'monthly-t', this.colorNum) : ''}
+        ${showP ? this._renderDataItem('月峰用电', 'mdi:lightning-bolt', `${this._data.month_p_ele_num || '0'}°`, itemThemeClass, 'monthly-p', this.colorNum) : ''}
+        ${showN ? this._renderDataItem('月平用电', 'mdi:lightning-bolt', `${this._data.month_n_ele_num || '0'}°`, itemThemeClass, 'monthly-n', this.colorNum) : ''}
+        ${showV ? this._renderDataItem('月谷用电', 'mdi:lightning-bolt', `${this._data.month_v_ele_num || '0'}°`, itemThemeClass, 'monthly-v', this.colorNum) : ''}
+        ${this._renderDataItem('月用电费', 'mdi:cash', `${this._data.month_ele_cost || '0'}元`, itemThemeClass, 'monthly-cost', this.colorCost)}
 
-        ${this._renderDataItem('上月总用电', 'mdi:lightning-bolt', `${this._data.last_month_ele_num || '0'}°`, itemThemeClass, '上月总用电', this.colorNum)}
-        ${this._renderDataItem('上月峰用电', 'mdi:lightning-bolt', `${this._data.last_month_p_ele_num || '0'}°`, itemThemeClass, '上月峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('上月平用电', 'mdi:lightning-bolt', `${this._data.last_month_n_ele_num || '0'}°`, itemThemeClass, '上月平用电', this.colorNum) : ''}
-        ${this._renderDataItem('上月谷用电', 'mdi:lightning-bolt', `${this._data.last_month_v_ele_num || '0'}°`, itemThemeClass, '上月谷用电', this.colorNum)}
-        ${this._renderDataItem('上月用电费', 'mdi:cash', `${this._data.last_month_ele_cost || '0'}元`, itemThemeClass, '上月用电费', this.colorCost)}
+        ${this._renderDataItem('上月总用电', 'mdi:lightning-bolt', `${this._data.last_month_ele_num || '0'}°`, itemThemeClass, 'last-month-total', this.colorNum)}
+        ${showT ? this._renderDataItem('上月尖用电', 'mdi:lightning-bolt', `${this._data.last_month_t_ele_num || '0'}°`, itemThemeClass, 'last-month-t', this.colorNum) : ''}
+        ${showP ? this._renderDataItem('上月峰用电', 'mdi:lightning-bolt', `${this._data.last_month_p_ele_num || '0'}°`, itemThemeClass, 'last-month-p', this.colorNum) : ''}
+        ${showN ? this._renderDataItem('上月平用电', 'mdi:lightning-bolt', `${this._data.last_month_n_ele_num || '0'}°`, itemThemeClass, 'last-month-n', this.colorNum) : ''}
+        ${showV ? this._renderDataItem('上月谷用电', 'mdi:lightning-bolt', `${this._data.last_month_v_ele_num || '0'}°`, itemThemeClass, 'last-month-v', this.colorNum) : ''}
+        ${this._renderDataItem('上月用电费', 'mdi:cash', `${this._data.last_month_ele_cost || '0'}元`, itemThemeClass, 'last-month-cost', this.colorCost)}
         
-        ${this._renderDataItem('年总用电', 'mdi:lightning-bolt', `${this._data.year_ele_num || '0'}°`, itemThemeClass, '年总用电', this.colorNum)}
-        ${this._renderDataItem('年峰用电', 'mdi:lightning-bolt', `${this._data.year_p_ele_num || '0'}°`, itemThemeClass, '年峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('年平用电', 'mdi:lightning-bolt', `${this._data.year_n_ele_num || '0'}°`, itemThemeClass, '年平用电', this.colorNum) : ''}
-        ${this._renderDataItem('年谷用电', 'mdi:lightning-bolt', `${this._data.year_v_ele_num || '0'}°`, itemThemeClass, '年谷用电', this.colorNum)}
-        ${this._renderDataItem('年用电费', 'mdi:cash', `${this._data.year_ele_cost || '0'}元`, itemThemeClass, '年用电费', this.colorCost)}
+        ${this._renderDataItem('年总用电', 'mdi:lightning-bolt', `${this._data.year_ele_num || '0'}°`, itemThemeClass, 'yearly-total', this.colorNum)}
+        ${showT ? this._renderDataItem('年尖用电', 'mdi:lightning-bolt', `${this._data.year_t_ele_num || '0'}°`, itemThemeClass, 'yearly-t', this.colorNum) : ''}
+        ${showP ? this._renderDataItem('年峰用电', 'mdi:lightning-bolt', `${this._data.year_p_ele_num || '0'}°`, itemThemeClass, 'yearly-p', this.colorNum) : ''}
+        ${showN ? this._renderDataItem('年平用电', 'mdi:lightning-bolt', `${this._data.year_n_ele_num || '0'}°`, itemThemeClass, 'yearly-n', this.colorNum) : ''}
+        ${showV ? this._renderDataItem('年谷用电', 'mdi:lightning-bolt', `${this._data.year_v_ele_num || '0'}°`, itemThemeClass, 'yearly-v', this.colorNum) : ''}
+        ${this._renderDataItem('年用电费', 'mdi:cash', `${this._data.year_ele_cost || '0'}元`, itemThemeClass, 'yearly-cost', this.colorCost)}
       </div>
     `;
   }
 
-  _renderDataItem(name, icon, value, themeClass, gridArea, color) {
-    return html`
-      <div class="data-item ${themeClass}"\n
-			style="${gridArea ? `grid-area: ${gridArea}` : ''}">
-        ${icon ? html`
-          <div class="data-item-content">
-            <ha-icon class="data-item-icon"\n
-						 .icon=${icon}\n
-						 style="color: ${color}"></ha-icon>
-            <div class="data-item-text">
-              <div class="data-item-name">${name}</div>
-              <div class="data-item-value"\nstyle="color: ${color}">${value}</div>
-            </div>
-          </div>
-        ` : html`
-          <div class="data-item-text">
-            <div class="data-item-name">${name}</div>
-            <div class="data-item-value"\nstyle="color: ${color}">${value}</div>
-          </div>
-        `}
-      </div>
-    `;
-  }
+	_renderDataItem(name, icon, value, themeClass, gridArea, color) {
+		return html`
+			<div class="data-item ${themeClass}"\n style="${gridArea ? `grid-area: ${gridArea}` : ''}">
+				${this.config.showIcon && icon !== 'none' ? html`
+					<div class="data-item-content">
+						<ha-icon class="data-item-icon"\n .icon=${icon}\n style="color: ${color}"></ha-icon>
+						<div class="data-item-text">
+							<div class="data-item-name">${name}</div>
+							<div class="data-item-value"\n style="color: ${color};">${value}</div>
+						</div>
+					</div>
+				` : html`
+					<div class="data-item-content">
+						<div class="data-item-text">
+							<div class="data-item-name">${name}</div>
+							<div class="data-item-value"\n style="color: ${color}">${value}</div>
+						</div>
+					</div>
+				`}
+			</div>
+		`;
+	}
 }
 customElements.define('xiaoshi-state-grid-nodered', XiaoshiStateGridNodeRed);
 
@@ -4560,12 +4612,12 @@ class XiaoshiStateGridPhone extends LitElement {
       theme: config?.theme || 'on',
       width: config?.width || '100%',
       height: config?.height || '300px',
-      cardwidth: config?.cardwidth || '70px',
+			showIcon: config.icon !=='none',
       cardheight: config?.cardheight || '35px',
 			color_num: config?.color_num || '#0fccc3',
 			color_cost: config?.color_cost || '#804aff',
       ...config // 保留其他可能传入的配置
-    };
+    }; 
   }
 
   static get styles() {
@@ -4597,6 +4649,7 @@ class XiaoshiStateGridPhone extends LitElement {
           .config=${this.config}\n
           .width=${this.config.width}\n
           .height=${bodyHeight}\n
+          .icon=${this.config.icon}\n
 					.colorNum=${config.color_num}\n
 					.colorCost=${config.color_cost}\n
 					.cardwidth=${config.cardwidth}\n
@@ -4649,7 +4702,8 @@ class XiaoshiStateGridPad extends LitElement {
       theme: config?.theme || 'on',
       width: config?.width || '380px',
       height: config?.height || '300px',
-      cardwidth: config?.cardwidth || '70px',
+			showIcon: config.icon !=='none',
+      cardwidth: config?.cardwidth || '60px',
       cardheight: config?.cardheight || '35px',
 			color_num: config?.color_num || '#0fccc3',
 			color_cost: config?.color_cost || '#804aff',
@@ -4698,6 +4752,7 @@ class XiaoshiStateGridPad extends LitElement {
 					<xiaoshi-state-grid-nodered\n
 						.hass=${this.hass}\n
 						.config=${config}\n
+						.icon=${this.config.icon}\n
 						.colorNum=${config.color_num}\n
 						.colorCost=${config.color_cost}\n
 						.cardwidth=${config.cardwidth}\n
