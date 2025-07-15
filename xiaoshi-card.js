@@ -1,5 +1,6 @@
-console.info("%c 消逝集合卡 \n%c   v 2.5.3  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
+console.info("%c 消逝集合卡 \n%c   v 2.5.8  ", "color: red; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray");
 import { LitElement, html, css } from 'https://unpkg.com/lit-element@2.4.0/lit-element.js?module';
+import tinycolor from 'https://cdn.jsdelivr.net/npm/tinycolor2@1.6.0/+esm';
 
 class XiaoshiLightCard extends LitElement {
   static properties = {
@@ -2328,6 +2329,857 @@ class XiaoshiSliderCard extends LitElement {
 }
 customElements.define('xiaoshi-slider-card', XiaoshiSliderCard);
 
+class XiaoshiStateGridHassbox extends LitElement {
+  static get properties() {
+    return {
+      hass: { type: Object },
+      width: { type: String, attribute: true },
+      height: { type: String, attribute: true },
+      config: { type: Object },
+      _data: { type: Object, state: true },
+      _price: { type: Number, state: true },
+			border: { type: String, attribute: 'border-radius' },
+			cardwidth: { type: String, attribute: 'card-width' },
+			cardheight: { type: String, attribute: 'card-height' },
+      colorNum: { type: String, attribute: true },
+      colorCost: { type: String, attribute: true },
+    };
+  }
+
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+        font-family: Arial, sans-serif;
+				--title-font-size: 20px;
+      }
+      
+      .card-container {
+        display: grid;
+        border-radius: var(--border-radius, 10px);
+        padding: 0px;
+        cursor: default;
+        justify-items: center;
+        align-items: center;
+      } 
+
+      .card-container.show-n {
+        grid-template-areas: 
+          "a 名称 名称 名称 名称 名称 b"   
+          "a 刷新时间 刷新时间 刷新时间 刷新时间 电费余额 b"   
+          "a 数据日期 数据日期 数据日期 数据日期 电费余额 b"   
+          "a 日总用电 日峰用电 日平用电 日谷用电 日用电费 b"      
+          "a 月总用电 月峰用电 月平用电 月谷用电 月用电费 b"     
+          "a 上月总用电 上月峰用电 上月平用电 上月谷用电 上月用电费 b"       
+          "a 年总用电 年峰用电 年平用电 年谷用电 年用电费 b";
+        grid-template-columns: 3px auto auto auto auto auto 3px;
+        grid-template-rows: auto auto auto auto auto auto auto;
+      }
+
+      .card-container.hide-n {
+        grid-template-areas: 
+          "a 名称 名称 名称 名称 b"   
+          "a 刷新时间 刷新时间 刷新时间 电费余额 b"   
+          "a 数据日期 数据日期 数据日期 电费余额 b"   
+          "a 日总用电 日峰用电 日谷用电 日用电费 b"      
+          "a 月总用电 月峰用电 月谷用电 月用电费 b"     
+          "a 上月总用电 上月峰用电 上月谷用电 上月用电费 b"       
+          "a 年总用电 年峰用电 年谷用电 年用电费 b";
+        grid-template-columns: 3px auto auto auto auto 3px;
+        grid-template-rows: auto auto auto auto auto auto auto;
+      }
+      
+      .light-theme {
+        background: rgb(255,255,255);
+        color: rgb(0,0,0);
+      }
+      
+      .dark-theme {
+        background: rgb(50,50,50);
+        color: rgb(255,255,255);
+      }
+      
+      .title {
+        grid-area: 名称;
+        font-size: var(--title-font-size);;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+      }
+      
+      .refresh-time {
+        grid-area: 刷新时间;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+				padding-left: 5px;
+				justify-self: start;
+      }
+      
+      .data-date {
+        grid-area: 数据日期;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+				padding-left: 5px;
+				justify-self: start;
+      }
+      
+      .balance {
+        grid-area: 电费余额;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: var(--card-width, 70px);
+      }
+      
+      .data-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(0,200,200,0.5);
+        border-radius: 20px;
+        width: var(--card-width, 70px);
+        height: var(--card-height, 35px);
+      }
+      
+      .data-item.light {
+        background: rgb(255,255,255);
+      }
+      
+      .data-item.dark {
+        background: rgb(50,50,50);
+      }
+      
+      .data-item-content {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+      
+      .data-item-icon {
+        width: 9px;
+        color: rgb(0,200,200);
+        margin-right: 5px;
+        flex-shrink: 0;
+        transform: scale(0.7);
+      }
+      
+      .data-item-text {
+        display: flex;
+        flex-direction: column;
+				align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        width: 100%;
+				text-align: center;
+      }
+      
+      .data-item-value {
+        font-size: 11px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+				text-align: center;
+        margin-top: -4px;
+      }
+      
+      .data-item-name {
+        font-size: 9px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+				text-align: center;
+      }
+      
+      .warning {
+        color: #FF2000;
+        font-weight: bold;
+      }
+    `;
+  }
+
+  constructor() {
+    super();
+    this.hass = null;
+    this.config = {
+      id: '',
+			title: '电费信息',
+      price: 0.5,
+      theme: 'on',
+      width: '380px',
+      height: '300px',
+			border: '10px',
+			cardwidth: '70px',
+			cardheight: '35px',
+			titleFontSize: '20px',
+      n_num: '', // 新增参数，默认显示平用电
+      balance_name: '电费余额' // 新增参数，默认显示"电费余额"
+    };
+    this._data = {};
+    this._price = 0.5;
+    this._interval = null;
+    this.colorNum = '#0fccc3';
+    this.colorCost = '#804aff';
+  }
+
+  setConfig(config) {
+    this.config = {
+      ...this.config,
+      ...config
+    };
+		this.border = this.config.border || '10px';
+		this.cardwidth = this.config.cardwidth || '70px';
+		this.cardheight = this.config.cardheight || '35px';
+		this.style.setProperty('--title-font-size', this.config.titleFontSize || '20px'); 
+    this._calculatePrice();
+    if (config.color_num !== undefined) this.colorNum = config.color_num;
+    if (config.color_cost !== undefined) this.colorCost = config.color_cost;
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('hass')) {
+      this._calculatePrice();
+      this._fetchData();
+    }
+  }
+
+	_calculatePrice() {
+		try {
+			if (!this.hass || !this.config) {
+				this._price = 0.5;
+				return;
+			}
+			if (typeof this.config.price === 'number') {
+				this._price = this.config.price;
+				return;
+			}
+			if (typeof this.config.price === 'string') {
+				const template = this.config.price.trim();
+				if (template.startsWith('[[[') && template.endsWith(']]]')) {
+					const jsCode = template.slice(3, -3).trim();
+					try {
+						const calculateFn = new Function('states', `
+							try {
+								${jsCode}
+							} catch (e) {
+								return 0.5;
+							}
+						`);
+						const result = calculateFn(this.hass.states);
+						this._price = Number(result) || 0.5;
+					} catch (e) {
+						this._price = 0.5;
+					}
+				} else {
+					this._price = Number(template) || 0.5;
+				}
+				return;
+			}
+			this._price = 0.5;
+		} catch (e) {
+			this._price = 0.5;
+		}
+	}
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._fetchData();
+    this._setupInterval();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this._interval) {
+      clearInterval(this._interval);
+    }
+  }
+
+  _setupInterval() {
+    this._interval = setInterval(() => {
+      this._fetchData();
+    }, 60000);
+  }
+
+  async _fetchData() {
+    if (!this.hass || !this.config.id) return;
+    
+    try {
+      const entities = [
+        'refresh_time', 'daily_lasted_date', 'balance',
+        'daily_ele_num', 'month_ele_num', 'year_ele_num',
+        'daily_p_ele_num', 'month_p_ele_num', 'year_p_ele_num',
+        'daily_n_ele_num', 'month_n_ele_num', 'year_n_ele_num',
+        'daily_v_ele_num', 'month_v_ele_num', 'year_v_ele_num',
+				'last_month_ele_cost', 'last_month_ele_num'
+      ];
+      
+      const data = {};
+      
+      for (const entity of entities) {
+        const fullEntity = `sensor.state_grid_${this.config.id}_${entity}`;
+        data[entity] = this.hass.states[fullEntity]?.state || 'N/A';
+      }
+      
+      this._data = data;
+    } catch (error) {
+      console.error('获取数据出错:', error);
+    }
+  }
+
+  _formatBalance(balance) {
+    return balance >= 20 ? 
+      `${balance}元` : 
+      html`<span class="warning">${balance}元</span>`;
+  }
+  
+  _formatCost(value) {
+    const num = parseFloat(value) || 0;
+    const rounded = Math.round(num * this._price * 10) / 10;
+    return `${rounded}元`;
+  }
+
+  _evaluateTheme() {
+    try {
+      if (!this.config || !this.config.theme) return 'on';
+      
+      if (typeof this.config.theme === 'function') {
+        return this.config.theme();
+      }
+      
+      if (typeof this.config.theme === 'string' && 
+          (this.config.theme.includes('return') || this.config.theme.includes('=>'))) {
+        return (new Function(`return ${this.config.theme}`))();
+      }
+      
+      return this.config.theme;
+    } catch(e) {
+      console.error('计算主题时出错:', e);
+      return 'on';
+    }
+  }
+
+  render() {
+    if (!this.config) return html``;
+    
+    const theme = this._evaluateTheme();
+    const themeClass = theme === 'on' ? 'light-theme' : 'dark-theme';
+    const itemThemeClass = theme === 'on' ? 'light' : 'dark';
+    const showN = this.config.n_num !== 'none'; // 判断是否显示平用电
+    const layoutClass = showN ? 'show-n' : 'hide-n'; // 根据是否显示平用电选择布局类
+    
+    return html`
+      <div class="card-container ${themeClass} ${layoutClass}" 
+			     style="height: ${this.config.height}; 
+					 width: ${this.config.width};
+					 --border-radius: ${this.border};
+					 --card-width: ${this.cardwidth};
+					 --card-height: ${this.cardheight}">
+        <div class="title">${this.config.title || '电费信息'}</div>
+        
+        <div class="refresh-time">
+          用电刷新时间: ${this._data.refresh_time || 'N/A'}
+        </div>
+        
+        <div class="data-date">
+          最新用电日期: ${this._data.daily_lasted_date || 'N/A'}
+        </div>
+        
+        <div class="balance">
+          ${this._renderDataItem(this.config.balance_name || '电费余额', 'mdi:cash', this._formatBalance(this._data.balance), itemThemeClass, null, this.colorCost)}
+        </div>
+        
+        ${this._renderDataItem('日总用电', 'mdi:lightning-bolt', `${this._data.daily_ele_num || '0'}°`, itemThemeClass, '日总用电', this.colorNum)}
+        ${this._renderDataItem('日峰用电', 'mdi:lightning-bolt', `${this._data.daily_p_ele_num || '0'}°`, itemThemeClass, '日峰用电', this.colorNum)}
+        ${showN ? this._renderDataItem('日平用电', 'mdi:lightning-bolt', `${this._data.daily_n_ele_num || '0'}°`, itemThemeClass, '日平用电', this.colorNum) : ''}
+        ${this._renderDataItem('日谷用电', 'mdi:lightning-bolt', `${this._data.daily_v_ele_num || '0'}°`, itemThemeClass, '日谷用电', this.colorNum)}
+        ${this._renderDataItem('日用电费', 'mdi:cash', this._formatCost(this._data.daily_ele_num), itemThemeClass, '日用电费', this.colorCost)}
+        
+        ${this._renderDataItem('月总用电', 'mdi:lightning-bolt', `${this._data.month_ele_num || '0'}°`, itemThemeClass, '月总用电', this.colorNum)}
+        ${this._renderDataItem('月峰用电', 'mdi:lightning-bolt', `${this._data.month_p_ele_num || '0'}°`, itemThemeClass, '月峰用电', this.colorNum)}
+        ${showN ? this._renderDataItem('月平用电', 'mdi:lightning-bolt', `${this._data.month_n_ele_num || '0'}°`, itemThemeClass, '月平用电', this.colorNum) : ''}
+        ${this._renderDataItem('月谷用电', 'mdi:lightning-bolt', `${this._data.month_v_ele_num || '0'}°`, itemThemeClass, '月谷用电', this.colorNum)}
+        ${this._renderDataItem('月用电费', 'mdi:cash', this._formatCost(this._data.month_ele_num), itemThemeClass, '月用电费', this.colorCost)}
+
+        ${this._renderDataItem('上月总用电', 'mdi:lightning-bolt', `${this._data.last_month_ele_num || '0'}°`, itemThemeClass, '上月总用电', this.colorNum)}
+        ${this._renderDataItem('上月峰用电', 'mdi:lightning-bolt', `${this._data.last_month_p_ele_num || '0'}°`, itemThemeClass, '上月峰用电', this.colorNum)}
+        ${showN ? this._renderDataItem('上月平用电', 'mdi:lightning-bolt', `${this._data.last_month_n_ele_num || '0'}°`, itemThemeClass, '上月平用电', this.colorNum) : ''}
+        ${this._renderDataItem('上月谷用电', 'mdi:lightning-bolt', `${this._data.last_month_v_ele_num || '0'}°`, itemThemeClass, '上月谷用电', this.colorNum)}
+        ${this._renderDataItem('上月用电费', 'mdi:cash', `${this._data.last_month_ele_cost || '0'}元`, itemThemeClass, '上月用电费', this.colorCost)}
+        
+        ${this._renderDataItem('年总用电', 'mdi:lightning-bolt', `${this._data.year_ele_num || '0'}°`, itemThemeClass, '年总用电', this.colorNum)}
+        ${this._renderDataItem('年峰用电', 'mdi:lightning-bolt', `${this._data.year_p_ele_num || '0'}°`, itemThemeClass, '年峰用电', this.colorNum)}
+        ${showN ? this._renderDataItem('年平用电', 'mdi:lightning-bolt', `${this._data.year_n_ele_num || '0'}°`, itemThemeClass, '年平用电', this.colorNum) : ''}
+        ${this._renderDataItem('年谷用电', 'mdi:lightning-bolt', `${this._data.year_v_ele_num || '0'}°`, itemThemeClass, '年谷用电', this.colorNum)}
+        ${this._renderDataItem('年用电费', 'mdi:cash',this._formatCost(this._data.year_ele_num), itemThemeClass, '年用电费', this.colorCost)}
+      </div>
+    `;
+  }
+
+  _renderDataItem(name, icon, value, themeClass, gridArea, color) {
+    return html`
+      <div class="data-item ${themeClass}" style="${gridArea ? `grid-area: ${gridArea}` : ''}">
+        ${icon ? html`
+          <div class="data-item-content">
+            <ha-icon class="data-item-icon" .icon=${icon} style="color: ${color}"></ha-icon>
+            <div class="data-item-text">
+              <div class="data-item-name">${name}</div>
+              <div class="data-item-value" style="color: ${color}">${value}</div>
+            </div>
+          </div>
+        ` : html`
+          <div class="data-item-text">
+            <div class="data-item-name">${name}</div>
+            <div class="data-item-value" style="color: ${color}">${value}</div>
+          </div>
+        `}
+      </div>
+    `;
+  }
+}
+customElements.define('xiaoshi-state-grid-hassbox', XiaoshiStateGridHassbox);
+
+class XiaoshiStateGridNodeRed extends LitElement {
+  static get properties() {
+    return {
+      hass: { type: Object },
+      width: { type: String, attribute: true },
+      height: { type: String, attribute: true },
+      config: { type: Object },
+      _data: { type: Object, state: true },
+      border: { type: String, attribute: 'border-radius' },
+      cardwidth: { type: String, attribute: 'card-width' },
+      cardheight: { type: String, attribute: 'card-height' },
+      _isRefreshing: { type: Boolean, state: true },
+      colorNum: { type: String, attribute: true },
+      colorCost: { type: String, attribute: true },
+    };
+  }
+
+  setConfig(config) {
+    this.config = {
+      ...this.config,
+      ...config
+    };
+    this.border = this.config.border || '10px';
+    this.cardwidth = this.config.cardwidth || '70px';
+    this.cardheight = this.config.cardheight || '35px';
+    this.style.setProperty('--title-font-size', this.config.titleFontSize || '20px'); 
+    if (config.color_num !== undefined) this.colorNum = config.color_num;
+    if (config.color_cost !== undefined) this.colorCost = config.color_cost;
+  }
+
+  constructor() {
+    super();
+    this.hass = null;
+    this.config = {
+      entity: 'sensor.state_grid',
+      title: '电费信息',
+      theme: 'on',
+      width: '380px',
+      height: '300px',
+      border: '10px',
+      cardwidth: '70px',
+      cardheight: '35px',
+      titleFontSize: '20px',
+      n_num: '', // 新增参数，默认显示平用电
+      balance_name: '电费余额' // 新增参数，默认显示"电费余额"
+    };
+    this._data = {};
+    this._interval = null;
+    this._isRefreshing = false;
+    this.colorNum = '#0fccc3';
+    this.colorCost = '#804aff';
+  }
+
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+        --title-font-size: 20px;
+      }
+      
+      .card-container {
+        display: grid;
+        border-radius: 10px;
+        padding: 0px;
+        cursor: default;
+        justify-items: center;
+        align-items: center;
+				gap: 0px;
+				margin: 0px;
+      }
+
+      .card-container.show-n {
+        grid-template-areas: 
+          "a 名称 名称 名称 名称 名称 b"   
+          "a 刷新时间 刷新时间 刷新时间 刷新时间 电费余额 b"   
+          "a 数据日期 数据日期 数据日期 数据日期 电费余额 b"   
+          "a 日总用电 日峰用电 日平用电 日谷用电 日用电费 b"      
+          "a 月总用电 月峰用电 月平用电 月谷用电 月用电费 b"     
+          "a 上月总用电 上月峰用电 上月平用电 上月谷用电 上月用电费 b"       
+          "a 年总用电 年峰用电 年平用电 年谷用电 年用电费 b";
+        grid-template-columns: 3px auto auto auto auto auto 3px;
+        grid-template-rows: auto auto auto auto auto auto auto;
+      }
+
+      .card-container.hide-n {
+        grid-template-areas: 
+          "a 名称 名称 名称 名称 b"   
+          "a 刷新时间 刷新时间 刷新时间 电费余额 b"   
+          "a 数据日期 数据日期 数据日期 电费余额 b"   
+          "a 日总用电 日峰用电 日谷用电 日用电费 b"      
+          "a 月总用电 月峰用电 月谷用电 月用电费 b"     
+          "a 上月总用电 上月峰用电 上月谷用电 上月用电费 b"       
+          "a 年总用电 年峰用电 年谷用电 年用电费 b";
+        grid-template-columns: 3px auto auto auto auto 3px;
+        grid-template-rows: auto auto auto auto auto auto auto;
+      }
+
+      .light-theme {
+        background: rgb(255,255,255);
+        color: rgb(0,0,0);
+      }
+      
+      .dark-theme {
+        background: rgb(50,50,50);
+        color: rgb(255,255,255);
+      }
+      
+      .title {
+        grid-area: 名称;
+        font-size: var(--title-font-size);
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+      }
+      
+      .refresh-time {
+        grid-area: 刷新时间;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+        padding-left: 5px;
+        justify-self: start;
+      }
+
+      .refresh-button {
+        margin-left: 10px;
+        cursor: pointer;
+        color: rgb(0,200,200);
+        transition: transform 1s ease;
+      }
+
+      .refresh-button.rotating {
+        transform: rotate(360deg);
+      }
+
+      @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      .data-date {
+        grid-area: 数据日期;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding-left: 5px;
+        justify-self: start;
+      }
+
+      .balance {
+        grid-area: 电费余额;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: var(--card-width, 70px);
+      }
+      
+      .data-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(0,200,200,0.5);
+        border-radius: 20px;
+        width: var(--card-width, 70px);
+        height: var(--card-height, 35px);
+      }
+      
+      .data-item.light {
+        background: rgb(255,255,255);
+      }
+      
+      .data-item.dark {
+        background: rgb(50,50,50);
+      }
+      
+      .data-item-content {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+      
+      .data-item-icon {
+        width: 9px;
+        color: rgb(0,200,200);
+        margin-right: 5px;
+        flex-shrink: 0;
+        transform: scale(0.7);
+      }
+      
+      .data-item-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        width: 100%;
+        text-align: center;
+      }
+      
+      .data-item-value {
+        font-size: 11px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        text-align: center;
+        margin-top: -4px;
+      }
+      
+      .data-item-name {
+        font-size: 9px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        text-align: center;
+        margin-top: 2px;
+      }
+      
+      .warning {
+        color: #FF2000;
+        font-weight: bold;
+      }
+    `;
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('hass')) {
+      this._fetchData();
+    }
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._fetchData();
+    this._setupInterval();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this._interval) {
+      clearInterval(this._interval);
+    }
+  }
+
+  _setupInterval() {
+    this._interval = setInterval(() => {
+      this._fetchData();
+    }, 60000);
+  }
+
+  async _fetchData() {
+    if (!this.hass || !this.config.entity) return;
+    
+    try {
+      const entity = this.hass.states[this.config.entity];
+      if (!entity) return;
+      
+      const attributes = entity.attributes || {};
+      const dayData = attributes.daylist?.[0] || {};
+      const monthData = attributes.monthlist?.[0] || {};
+      const last_monthData = attributes.monthlist?.[1] || {};
+      const yearData = attributes.yearlist?.[0] || {};
+      
+      this._data = {
+        refresh_time: attributes.date || 'N/A',
+        daily_lasted_date: dayData.day || 'N/A',
+        balance: entity.state || 'N/A',
+        dayEleNum: dayData.dayEleNum || '0',
+        daily_p_ele_num: dayData.dayPPq || '0',
+        daily_n_ele_num: dayData.dayNPq || '0',
+        daily_v_ele_num: dayData.dayVPq || '0',
+        daily_ele_cost: dayData.dayEleCost || '0',
+        month_ele_num: monthData.monthEleNum || '0',
+        month_p_ele_num: monthData.monthPPq || '0',
+        month_n_ele_num: monthData.monthNPq || '0',
+        month_v_ele_num: monthData.monthVPq || '0',
+        month_ele_cost: monthData.monthEleCost || '0',
+        last_month_ele_num: last_monthData.monthEleNum || '0',
+        last_month_p_ele_num: last_monthData.monthPPq || '0',
+        last_month_n_ele_num: last_monthData.monthNPq || '0',
+        last_month_v_ele_num: last_monthData.monthVPq || '0',
+        last_month_ele_cost: last_monthData.monthEleCost || '0',
+        year_ele_num: yearData.yearEleNum || '0',
+        year_p_ele_num: yearData.yearPPq || '0',
+        year_n_ele_num: yearData.yearNPq || '0',
+        year_v_ele_num: yearData.yearVPq || '0',
+        year_ele_cost: yearData.yearEleCost || '0'
+      };
+    } catch (error) {
+      console.error('获取数据出错:', error);
+    } finally {
+      this._isRefreshing = false;
+    }
+  }
+
+  _handleRefresh() {
+    if (this._isRefreshing || !this.config.button || 
+        !this.hass.states[this.config.button]) return;
+    this._isRefreshing = true;
+    
+    setTimeout(() => {
+      this._isRefreshing = false;
+      this.hass.callService('button', 'press', {entity_id: this.config.button});
+    }, 1000);
+  }
+
+  _formatBalance(balance) {
+    return balance >= 20 ? 
+      `${balance}元` : 
+      html`<span class="warning">${balance}元</span>`;
+  }
+
+  _evaluateTheme() {
+    try {
+      if (!this.config || !this.config.theme) return 'on';
+      
+      if (typeof this.config.theme === 'function') {
+        return this.config.theme();
+      }
+      
+      if (typeof this.config.theme === 'string' && 
+          (this.config.theme.includes('return') || this.config.theme.includes('=>'))) {
+        return (new Function(`return ${this.config.theme}`))();
+      }
+      
+      return this.config.theme;
+    } catch(e) {
+      console.error('计算主题时出错:', e);
+      return 'on';
+    }
+  }
+
+  render() {
+    if (!this.config) return html``;
+    
+    const theme = this._evaluateTheme();
+    const themeClass = theme === 'on' ? 'light-theme' : 'dark-theme';
+    const itemThemeClass = theme === 'on' ? 'light' : 'dark';
+    const showN = this.config.n_num !== 'none'; // 判断是否显示平用电
+    const layoutClass = showN ? 'show-n' : 'hide-n'; // 根据是否显示平用电选择布局类
+    
+    return html`
+      <div class="card-container ${themeClass} ${layoutClass}" 
+           style="height: ${this.config.height}; 
+           width: ${this.config.width};
+           --border-radius: ${this.border};
+           --card-width: ${this.cardwidth};
+           --card-height: ${this.cardheight}">
+        <div class="title">${this.config.title || '电费信息'}</div>
+        
+        <div class="refresh-time">
+          用电刷新时间: ${this._data.refresh_time || 'N/A'}
+          ${this.config.button ? html`
+          <ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
+                   icon="mdi:refresh" 
+                   @click=${this._handleRefresh} 
+                   title="手动刷新数据"></ha-icon>
+          ` : ''}
+        </div>
+
+        <div class="data-date">
+          最新用电日期: ${this._data.daily_lasted_date || 'N/A'}
+        </div>
+
+        <div class="balance">
+          ${this._renderDataItem(this.config.balance_name || '电费余额', 'mdi:cash', this._formatBalance(this._data.balance), itemThemeClass, null, this.colorCost)}
+        </div>
+        
+        ${this._renderDataItem('日总用电', 'mdi:lightning-bolt', `${this._data.dayEleNum || '0'}°`, itemThemeClass, '日总用电', this.colorNum)}
+        ${this._renderDataItem('日峰用电', 'mdi:lightning-bolt', `${this._data.daily_p_ele_num || '0'}°`, itemThemeClass, '日峰用电', this.colorNum)}
+        ${showN ? this._renderDataItem('日平用电', 'mdi:lightning-bolt', `${this._data.daily_n_ele_num || '0'}°`, itemThemeClass, '日平用电', this.colorNum) : ''}
+        ${this._renderDataItem('日谷用电', 'mdi:lightning-bolt', `${this._data.daily_v_ele_num || '0'}°`, itemThemeClass, '日谷用电', this.colorNum)}
+        ${this._renderDataItem('日用电费', 'mdi:cash', `${this._data.daily_ele_cost || '0'}元`, itemThemeClass, '日用电费', this.colorCost)}
+        
+        ${this._renderDataItem('月总用电', 'mdi:lightning-bolt', `${this._data.month_ele_num || '0'}°`, itemThemeClass, '月总用电', this.colorNum)}
+        ${this._renderDataItem('月峰用电', 'mdi:lightning-bolt', `${this._data.month_p_ele_num || '0'}°`, itemThemeClass, '月峰用电', this.colorNum)}
+        ${showN ? this._renderDataItem('月平用电', 'mdi:lightning-bolt', `${this._data.month_n_ele_num || '0'}°`, itemThemeClass, '月平用电', this.colorNum) : ''}
+        ${this._renderDataItem('月谷用电', 'mdi:lightning-bolt', `${this._data.month_v_ele_num || '0'}°`, itemThemeClass, '月谷用电', this.colorNum)}
+        ${this._renderDataItem('月用电费', 'mdi:cash', `${this._data.month_ele_cost || '0'}元`, itemThemeClass, '月用电费', this.colorCost)}
+
+        ${this._renderDataItem('上月总用电', 'mdi:lightning-bolt', `${this._data.last_month_ele_num || '0'}°`, itemThemeClass, '上月总用电', this.colorNum)}
+        ${this._renderDataItem('上月峰用电', 'mdi:lightning-bolt', `${this._data.last_month_p_ele_num || '0'}°`, itemThemeClass, '上月峰用电', this.colorNum)}
+        ${showN ? this._renderDataItem('上月平用电', 'mdi:lightning-bolt', `${this._data.last_month_n_ele_num || '0'}°`, itemThemeClass, '上月平用电', this.colorNum) : ''}
+        ${this._renderDataItem('上月谷用电', 'mdi:lightning-bolt', `${this._data.last_month_v_ele_num || '0'}°`, itemThemeClass, '上月谷用电', this.colorNum)}
+        ${this._renderDataItem('上月用电费', 'mdi:cash', `${this._data.last_month_ele_cost || '0'}元`, itemThemeClass, '上月用电费', this.colorCost)}
+        
+        ${this._renderDataItem('年总用电', 'mdi:lightning-bolt', `${this._data.year_ele_num || '0'}°`, itemThemeClass, '年总用电', this.colorNum)}
+        ${this._renderDataItem('年峰用电', 'mdi:lightning-bolt', `${this._data.year_p_ele_num || '0'}°`, itemThemeClass, '年峰用电', this.colorNum)}
+        ${showN ? this._renderDataItem('年平用电', 'mdi:lightning-bolt', `${this._data.year_n_ele_num || '0'}°`, itemThemeClass, '年平用电', this.colorNum) : ''}
+        ${this._renderDataItem('年谷用电', 'mdi:lightning-bolt', `${this._data.year_v_ele_num || '0'}°`, itemThemeClass, '年谷用电', this.colorNum)}
+        ${this._renderDataItem('年用电费', 'mdi:cash', `${this._data.year_ele_cost || '0'}元`, itemThemeClass, '年用电费', this.colorCost)}
+      </div>
+    `;
+  }
+
+  _renderDataItem(name, icon, value, themeClass, gridArea, color) {
+    return html`
+      <div class="data-item ${themeClass}" style="${gridArea ? `grid-area: ${gridArea}` : ''}">
+        ${icon ? html`
+          <div class="data-item-content">
+            <ha-icon class="data-item-icon" .icon=${icon} style="color: ${color}"></ha-icon>
+            <div class="data-item-text">
+              <div class="data-item-name">${name}</div>
+              <div class="data-item-value" style="color: ${color}">${value}</div>
+            </div>
+          </div>
+        ` : html`
+          <div class="data-item-text">
+            <div class="data-item-name">${name}</div>
+            <div class="data-item-value" style="color: ${color}">${value}</div>
+          </div>
+        `}
+      </div>
+    `;
+  }
+}
+customElements.define('xiaoshi-state-grid-nodered', XiaoshiStateGridNodeRed);
+
 class XiaoshiStateGridCalendar extends LitElement {
   static get properties() {
     return {
@@ -2364,8 +3216,8 @@ class XiaoshiStateGridCalendar extends LitElement {
     const today = new Date();
     this.year = today.getFullYear();
     this.month = today.getMonth() + 1;
-    this.width = '330px';
-    this.height = '380px';
+    this.width = '380px';
+    this.height = '300px';
     this.theme = 'on';
     this.entity = 'sensor.state_grid';
     this.dayData = [];
@@ -2396,7 +3248,8 @@ class XiaoshiStateGridCalendar extends LitElement {
         grid-template-columns: repeat(7, 1fr);
         grid-template-rows: 1fr 0.6fr 1fr 1fr 1fr 1fr 1fr 1fr;
         gap: 0px;
-        padding: 2px;
+        padding: 0px;
+				margin: 0px;
       }
 
       .celltotal {
@@ -2408,6 +3261,7 @@ class XiaoshiStateGridCalendar extends LitElement {
         cursor: default;
         font-size: 15px;
         font-weight: 600;
+				white-space: nowrap;
       }
 
       .cell {
@@ -2789,751 +3643,678 @@ class XiaoshiStateGridCalendar extends LitElement {
 }
 customElements.define('xiaoshi-state-grid-calendar', XiaoshiStateGridCalendar);
 
-class XiaoshiStateGridNodeRed extends LitElement {
+class XiaoshiStateGridChartDay extends LitElement {
   static get properties() {
     return {
       hass: { type: Object },
-      config: { type: Object },
-      _data: { type: Object, state: true },
-      border: { type: String, attribute: 'border-radius' },
-      cardwidth: { type: String, attribute: 'card-width' },
-      cardheight: { type: String, attribute: 'card-height' },
-      _isRefreshing: { type: Boolean, state: true },
+      entity: { type: String },
+      width: { type: String, attribute: true },
+      height: { type: String, attribute: true },
       colorNum: { type: String, attribute: true },
       colorCost: { type: String, attribute: true },
+      theme: { type: String },
+      config: { type: Object }
     };
+  } 
+
+  setConfig(config) {
+    this.config = config;
+    if (config) {
+      if (config.width !== undefined) this.width = config.width;
+      if (config.height !== undefined) this.height = config.height;
+      if (config.entity !== undefined) this.entity = config.entity;
+      if (config.color_num !== undefined) this.colorNum = config.color_num;
+      if (config.color_cost !== undefined) this.colorCost = config.color_cost;
+      this.requestUpdate();
+    }
+  }
+
+  constructor() {
+    super();
+    this.width = '380px';
+    this.height = '300px';
+    this.theme = 'on';
+    this.entity = 'sensor.state_grid';
+    this.colorNum = '#0fccc3';
+    this.colorCost = '#804aff';
+		this.config = {};
   }
 
   static get styles() {
     return css`
       :host {
         display: block;
-        font-family: Arial, sans-serif;
-        --title-font-size: 20px;
       }
       
-      .card-container {
+      .card {
+        border-radius: 10px;
         display: grid;
-        border-radius: var(--border-radius, 10px);
-        padding: 2px 2px 2px 2px;
-        cursor: default;
-        justify-items: center;
-        align-items: center;
-      }
-
-      .card-container.show-n {
+        grid-template-rows: 20% 80%;
+        grid-template-columns: 1fr 1fr;
         grid-template-areas: 
-          "名称 名称 名称 名称 名称"   
-          "刷新时间 刷新时间 刷新时间 刷新时间 电费余额"   
-          "数据日期 数据日期 数据日期 数据日期 电费余额"   
-          "日总用电 日峰用电 日平用电 日谷用电 日用电费"      
-          "月总用电 月峰用电 月平用电 月谷用电 月用电费"     
-          "上月总用电 上月峰用电 上月平用电 上月谷用电 上月用电费"       
-          "年总用电 年峰用电 年平用电 年谷用电 年用电费";
-        grid-template-columns: auto auto auto auto auto;
-        grid-template-rows: auto auto auto auto auto auto auto;
-      }
-
-      .card-container.hide-n {
-        grid-template-areas: 
-          "名称 名称 名称 名称"   
-          "刷新时间 刷新时间 刷新时间 电费余额"   
-          "数据日期 数据日期 数据日期 电费余额"   
-          "日总用电 日峰用电 日谷用电 日用电费"      
-          "月总用电 月峰用电 月谷用电 月用电费"     
-          "上月总用电 上月峰用电 上月谷用电 上月用电费"       
-          "年总用电 年峰用电 年谷用电 年用电费";
-        grid-template-columns: auto auto auto auto;
-        grid-template-rows: auto auto auto auto auto auto auto;
-      }
-
-      .light-theme {
-        background: rgb(255,255,255);
-        color: rgb(0,0,0);
+          "label1 label2"
+          "chart chart";
+        gap: 0px;
+        padding: 5px;
+				margin: 0px;
       }
       
-      .dark-theme {
-        background: rgb(50,50,50);
-        color: rgb(255,255,255);
+      .label {
+        padding: 5px;
+      }
+      
+      .label1 {
+        grid-area: label1;
+        text-align: left;
+      }
+      
+      .label2 {
+        grid-area: label2;
+        text-align: right;
+      } 
+      
+      .value {
+        font-size: 25px;
+        font-weight: bold;
+        line-height: 1.2;
+        padding: 5px 5px 0 5px;
+      }
+      
+      .unit {
+        font-size: 15px;
       }
       
       .title {
-        grid-area: 名称;
-        font-size: var(--title-font-size);
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
+        font-size: 13px;
+        padding: 0 5px 0 5px;
       }
       
-      .refresh-time {
-        grid-area: 刷新时间;
-        font-size: 14px;
-        font-weight: bold;
-        display: flex;
-        align-items: flex-end;
-        justify-content: flex-start;
-        padding-left: 5px;
-        justify-self: start;
-      }
-
-      .refresh-button {
-        margin-left: 10px;
-        cursor: pointer;
-        color: rgb(0,200,200);
-        transition: transform 1s ease;
-      }
-
-      .refresh-button.rotating {
-        transform: rotate(360deg);
-      }
-
-      @keyframes rotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-
-      .data-date {
-        grid-area: 数据日期;
-        font-size: 14px;
-        font-weight: bold;
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
-        padding-left: 5px;
-        justify-self: start;
-      }
-
-      .balance {
-        grid-area: 电费余额;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: var(--card-width, 70px);
-      }
-      
-      .data-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(0,200,200,0.5);
-        border-radius: 20px;
-        width: var(--card-width, 70px);
-        height: var(--card-height, 35px);
-      }
-      
-      .data-item.light {
-        background: rgb(255,255,255);
-      }
-      
-      .data-item.dark {
-        background: rgb(50,50,50);
-      }
-      
-      .data-item-content {
-        display: flex;
-        align-items: center;
+      #chart-container {
+        grid-area: chart;
+        height: 100%;
         width: 100%;
       }
       
-      .data-item-icon {
-        width: 9px;
-        color: rgb(0,200,200);
-        margin-right: 5px;
-        flex-shrink: 0;
-        transform: scale(0.7);
-      }
-      
-      .data-item-text {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        width: 100%;
-        text-align: center;
-      }
-      
-      .data-item-value {
-        font-size: 11px;
-        font-weight: 500;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 100%;
-        text-align: center;
-        margin-top: -4px;
-      }
-      
-      .data-item-name {
-        font-size: 9px;
-        font-weight: 500;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 100%;
-        text-align: center;
-        margin-top: 2px;
-      }
-      
-      .warning {
-        color: #FF2000;
-        font-weight: bold;
+      .apexcharts-legend {
+        padding: 0px;
       }
     `;
   }
 
-  constructor() {
-    super();
-    this.hass = null;
-    this.config = {
-      entity: 'sensor.state_grid',
-      title: '电费信息',
-      theme: 'on',
-      height: '330px',
-      width: '380px',
-      border: '10px',
-      cardwidth: '70px',
-      cardheight: '35px',
-      titleFontSize: '20px',
-      n_num: '', // 新增参数，默认显示平用电
-      balance_name: '电费余额' // 新增参数，默认显示"电费余额"
-    };
-    this._data = {};
-    this._interval = null;
-    this._isRefreshing = false;
-    this.colorNum = '#0fccc3';
-    this.colorCost = '#804aff';
+  async firstUpdated() { 
+    await this._loadApexCharts();
+    this._renderChart();
   }
 
-  setConfig(config) {
-    this.config = {
-      ...this.config,
-      ...config
-    };
-    this.border = this.config.border || '10px';
-    this.cardwidth = this.config.cardwidth || '70px';
-    this.cardheight = this.config.cardheight || '35px';
-    this.style.setProperty('--title-font-size', this.config.titleFontSize || '20px'); 
-    if (config.color_num !== undefined) this.colorNum = config.color_num;
-    if (config.color_cost !== undefined) this.colorCost = config.color_cost;
-  }
-
-  updated(changedProperties) {
-    if (changedProperties.has('hass')) {
-      this._fetchData();
+  async _loadApexCharts() {
+    if (!window.ApexCharts) {
+      await new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/apexcharts';
+        script.onload = resolve;
+        document.head.appendChild(script);
+      });
     }
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-    this._fetchData();
-    this._setupInterval();
+  updated() {
+    this._renderChart();
   }
 
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    if (this._interval) {
-      clearInterval(this._interval);
-    }
-  }
+  get _processedData() {
+    const entity = this.hass.states[this.entity];
+    if (!entity?.attributes?.daylist) return null; 
 
-  _setupInterval() {
-    this._interval = setInterval(() => {
-      this._fetchData();
-    }, 60000);
-  }
+    const daylist = entity.attributes.daylist.slice(0, 30);
+    const currentDay = daylist[0] || {};
 
-  async _fetchData() {
-    if (!this.hass || !this.config.entity) return;
-    
-    try {
-      const entity = this.hass.states[this.config.entity];
-      if (!entity) return;
-      
-      const attributes = entity.attributes || {};
-      const dayData = attributes.daylist?.[0] || {};
-      const monthData = attributes.monthlist?.[0] || {};
-      const last_monthData = attributes.monthlist?.[1] || {};
-      const yearData = attributes.yearlist?.[0] || {};
-      
-      this._data = {
-        refresh_time: attributes.date || 'N/A',
-        daily_lasted_date: dayData.day || 'N/A',
-        balance: entity.state || 'N/A',
-        dayEleNum: dayData.dayEleNum || '0',
-        daily_p_ele_num: dayData.dayPPq || '0',
-        daily_n_ele_num: dayData.dayNPq || '0',
-        daily_v_ele_num: dayData.dayVPq || '0',
-        daily_ele_cost: dayData.dayEleCost || '0',
-        month_ele_num: monthData.monthEleNum || '0',
-        month_p_ele_num: monthData.monthPPq || '0',
-        month_n_ele_num: monthData.monthNPq || '0',
-        month_v_ele_num: monthData.monthVPq || '0',
-        month_ele_cost: monthData.monthEleCost || '0',
-        last_month_ele_num: last_monthData.monthEleNum || '0',
-        last_month_p_ele_num: last_monthData.monthPPq || '0',
-        last_month_n_ele_num: last_monthData.monthNPq || '0',
-        last_month_v_ele_num: last_monthData.monthVPq || '0',
-        last_month_ele_cost: last_monthData.monthEleCost || '0',
-        year_ele_num: yearData.yearEleNum || '0',
-        year_p_ele_num: yearData.yearPPq || '0',
-        year_n_ele_num: yearData.yearNPq || '0',
-        year_v_ele_num: yearData.yearVPq || '0',
-        year_ele_cost: yearData.yearEleCost || '0'
-      };
-    } catch (error) {
-      console.error('获取数据出错:', error);
-    } finally {
-      this._isRefreshing = false;
-    }
-  }
-
-  _handleRefresh() {
-    if (this._isRefreshing || !this.config.button || 
-        !this.hass.states[this.config.button]) return;
-    this._isRefreshing = true;
-    
-    setTimeout(() => {
-      this._isRefreshing = false;
-      this.hass.callService('button', 'press', {entity_id: this.config.button});
-    }, 1000);
-  }
-
-  _formatBalance(balance) {
-    return balance >= 20 ? 
-      `${balance}元` : 
-      html`<span class="warning">${balance}元</span>`;
-  }
-
-  _evaluateTheme() {
-    try {
-      if (!this.config || !this.config.theme) return 'on';
-      
-      if (typeof this.config.theme === 'function') {
-        return this.config.theme();
-      }
-      
-      if (typeof this.config.theme === 'string' && 
-          (this.config.theme.includes('return') || this.config.theme.includes('=>'))) {
-        return (new Function(`return ${this.config.theme}`))();
-      }
-      
-      return this.config.theme;
-    } catch(e) {
-      console.error('计算主题时出错:', e);
-      return 'on';
-    }
-  }
-
-  render() {
-    if (!this.config) return html``;
-    
-    const theme = this._evaluateTheme();
-    const themeClass = theme === 'on' ? 'light-theme' : 'dark-theme';
-    const itemThemeClass = theme === 'on' ? 'light' : 'dark';
-    const showN = this.config.n_num !== 'none'; // 判断是否显示平用电
-    const layoutClass = showN ? 'show-n' : 'hide-n'; // 根据是否显示平用电选择布局类
-    
-    return html`
-      <div class="card-container ${themeClass} ${layoutClass}" 
-           style="height: ${this.config.height}; 
-           width: ${this.config.width};
-           --border-radius: ${this.border};
-           --card-width: ${this.cardwidth};
-           --card-height: ${this.cardheight}">
-        <div class="title">${this.config.title || '电费信息'}</div>
-        
-        <div class="refresh-time">
-          用电刷新时间: ${this._data.refresh_time || 'N/A'}
-          ${this.config.button ? html`
-          <ha-icon class="refresh-button ${this._isRefreshing ? 'rotating' : ''}" 
-                   icon="mdi:refresh" 
-                   @click=${this._handleRefresh} 
-                   title="手动刷新数据"></ha-icon>
-          ` : ''}
-        </div>
-
-        <div class="data-date">
-          最新用电日期: ${this._data.daily_lasted_date || 'N/A'}
-        </div>
-
-        <div class="balance">
-          ${this._renderDataItem(this.config.balance_name || '电费余额', 'mdi:cash', this._formatBalance(this._data.balance), itemThemeClass, null, this.colorCost)}
-        </div>
-        
-        ${this._renderDataItem('日总用电', 'mdi:lightning-bolt', `${this._data.dayEleNum || '0'}°`, itemThemeClass, '日总用电', this.colorNum)}
-        ${this._renderDataItem('日峰用电', 'mdi:lightning-bolt', `${this._data.daily_p_ele_num || '0'}°`, itemThemeClass, '日峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('日平用电', 'mdi:lightning-bolt', `${this._data.daily_n_ele_num || '0'}°`, itemThemeClass, '日平用电', this.colorNum) : ''}
-        ${this._renderDataItem('日谷用电', 'mdi:lightning-bolt', `${this._data.daily_v_ele_num || '0'}°`, itemThemeClass, '日谷用电', this.colorNum)}
-        ${this._renderDataItem('日用电费', 'mdi:cash', `${this._data.daily_ele_cost || '0'}元`, itemThemeClass, '日用电费', this.colorCost)}
-        
-        ${this._renderDataItem('月总用电', 'mdi:lightning-bolt', `${this._data.month_ele_num || '0'}°`, itemThemeClass, '月总用电', this.colorNum)}
-        ${this._renderDataItem('月峰用电', 'mdi:lightning-bolt', `${this._data.month_p_ele_num || '0'}°`, itemThemeClass, '月峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('月平用电', 'mdi:lightning-bolt', `${this._data.month_n_ele_num || '0'}°`, itemThemeClass, '月平用电', this.colorNum) : ''}
-        ${this._renderDataItem('月谷用电', 'mdi:lightning-bolt', `${this._data.month_v_ele_num || '0'}°`, itemThemeClass, '月谷用电', this.colorNum)}
-        ${this._renderDataItem('月用电费', 'mdi:cash', `${this._data.month_ele_cost || '0'}元`, itemThemeClass, '月用电费', this.colorCost)}
-
-        ${this._renderDataItem('上月总用电', 'mdi:lightning-bolt', `${this._data.last_month_ele_num || '0'}°`, itemThemeClass, '上月总用电', this.colorNum)}
-        ${this._renderDataItem('上月峰用电', 'mdi:lightning-bolt', `${this._data.last_month_p_ele_num || '0'}°`, itemThemeClass, '上月峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('上月平用电', 'mdi:lightning-bolt', `${this._data.last_month_n_ele_num || '0'}°`, itemThemeClass, '上月平用电', this.colorNum) : ''}
-        ${this._renderDataItem('上月谷用电', 'mdi:lightning-bolt', `${this._data.last_month_v_ele_num || '0'}°`, itemThemeClass, '上月谷用电', this.colorNum)}
-        ${this._renderDataItem('上月用电费', 'mdi:cash', `${this._data.last_month_ele_cost || '0'}元`, itemThemeClass, '上月用电费', this.colorCost)}
-        
-        ${this._renderDataItem('年总用电', 'mdi:lightning-bolt', `${this._data.year_ele_num || '0'}°`, itemThemeClass, '年总用电', this.colorNum)}
-        ${this._renderDataItem('年峰用电', 'mdi:lightning-bolt', `${this._data.year_p_ele_num || '0'}°`, itemThemeClass, '年峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('年平用电', 'mdi:lightning-bolt', `${this._data.year_n_ele_num || '0'}°`, itemThemeClass, '年平用电', this.colorNum) : ''}
-        ${this._renderDataItem('年谷用电', 'mdi:lightning-bolt', `${this._data.year_v_ele_num || '0'}°`, itemThemeClass, '年谷用电', this.colorNum)}
-        ${this._renderDataItem('年用电费', 'mdi:cash', `${this._data.year_ele_cost || '0'}元`, itemThemeClass, '年用电费', this.colorCost)}
-      </div>
-    `;
-  }
-
-  _renderDataItem(name, icon, value, themeClass, gridArea, color) {
-    return html`
-      <div class="data-item ${themeClass}" style="${gridArea ? `grid-area: ${gridArea}` : ''}">
-        ${icon ? html`
-          <div class="data-item-content">
-            <ha-icon class="data-item-icon" .icon=${icon} style="color: ${color}"></ha-icon>
-            <div class="data-item-text">
-              <div class="data-item-name">${name}</div>
-              <div class="data-item-value" style="color: ${color}">${value}</div>
-            </div>
-          </div>
-        ` : html`
-          <div class="data-item-text">
-            <div class="data-item-name">${name}</div>
-            <div class="data-item-value" style="color: ${color}">${value}</div>
-          </div>
-        `}
-      </div>
-    `;
-  }
-}
-customElements.define('xiaoshi-state-grid-nodered', XiaoshiStateGridNodeRed);
-
-class XiaoshiStateGridHassbox extends LitElement {
-  static get properties() {
     return {
-      hass: { type: Object },
-      config: { type: Object },
-      _data: { type: Object, state: true },
-      _price: { type: Number, state: true },
-			border: { type: String, attribute: 'border-radius' },
-			cardwidth: { type: String, attribute: 'card-width' },
-			cardheight: { type: String, attribute: 'card-height' },
-      colorNum: { type: String, attribute: true },
-      colorCost: { type: String, attribute: true },
+      electricity: daylist.map(item => ({
+        x: new Date(item.day.split(' ')[0]).getTime(),
+        y: Number(item.dayEleNum) || 0
+      })),
+      cost: daylist.map(item => ({
+        x: new Date(item.day.split(' ')[0]).getTime(),
+        y: Number(item.dayEleCost) || 0
+      })),
+      current: {
+        ele: currentDay.dayEleNum || 0,
+        cost: currentDay.dayEleCost || 0,
+        days: daylist.length
+      }
     };
   }
 
-  static get styles() {
-    return css`
-      :host {
-        display: block;
-        font-family: Arial, sans-serif;
-				--title-font-size: 20px;
-      }
-      
-      .card-container {
-        display: grid;
-        border-radius: var(--border-radius, 10px);
-        padding: 2px 2px 2px 2px;
-        cursor: default;
-        justify-items: center;
-        align-items: center;
-      }
-
-      .card-container.show-n {
-        grid-template-areas: 
-          "名称 名称 名称 名称 名称"   
-          "刷新时间 刷新时间 刷新时间 刷新时间 电费余额"   
-          "数据日期 数据日期 数据日期 数据日期 电费余额"   
-          "日总用电 日峰用电 日平用电 日谷用电 日用电费"      
-          "月总用电 月峰用电 月平用电 月谷用电 月用电费"     
-          "上月总用电 上月峰用电 上月平用电 上月谷用电 上月用电费"       
-          "年总用电 年峰用电 年平用电 年谷用电 年用电费";
-        grid-template-columns: auto auto auto auto auto;
-        grid-template-rows: auto auto auto auto auto auto auto;
-      }
-
-      .card-container.hide-n {
-        grid-template-areas: 
-          "名称 名称 名称 名称"   
-          "刷新时间 刷新时间 刷新时间 电费余额"   
-          "数据日期 数据日期 数据日期 电费余额"   
-          "日总用电 日峰用电 日谷用电 日用电费"      
-          "月总用电 月峰用电 月谷用电 月用电费"     
-          "上月总用电 上月峰用电 上月谷用电 上月用电费"       
-          "年总用电 年峰用电 年谷用电 年用电费";
-        grid-template-columns: auto auto auto auto;
-        grid-template-rows: auto auto auto auto auto auto auto;
-      }
-      
-      .light-theme {
-        background: rgb(255,255,255);
-        color: rgb(0,0,0);
-      }
-      
-      .dark-theme {
-        background: rgb(50,50,50);
-        color: rgb(255,255,255);
-      }
-      
-      .title {
-        grid-area: 名称;
-        font-size: var(--title-font-size);;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-      }
-      
-      .refresh-time {
-        grid-area: 刷新时间;
-        font-size: 14px;
-        font-weight: bold;
-        display: flex;
-        align-items: flex-end;
-        justify-content: flex-start;
-				padding-left: 5px;
-				justify-self: start;
-      }
-      
-      .data-date {
-        grid-area: 数据日期;
-        font-size: 14px;
-        font-weight: bold;
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
-				padding-left: 5px;
-				justify-self: start;
-      }
-      
-      .balance {
-        grid-area: 电费余额;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: var(--card-width, 70px);
-      }
-      
-      .data-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(0,200,200,0.5);
-        border-radius: 20px;
-        width: var(--card-width, 70px);
-        height: var(--card-height, 35px);
-      }
-      
-      .data-item.light {
-        background: rgb(255,255,255);
-      }
-      
-      .data-item.dark {
-        background: rgb(50,50,50);
-      }
-      
-      .data-item-content {
-        display: flex;
-        align-items: center;
-        width: 100%;
-      }
-      
-      .data-item-icon {
-        width: 9px;
-        color: rgb(0,200,200);
-        margin-right: 5px;
-        flex-shrink: 0;
-        transform: scale(0.7);
-      }
-      
-      .data-item-text {
-        display: flex;
-        flex-direction: column;
-				align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        width: 100%;
-				text-align: center;
-      }
-      
-      .data-item-value {
-        font-size: 11px;
-        font-weight: 500;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 100%;
-				text-align: center;
-        margin-top: -4px;
-      }
-      
-      .data-item-name {
-        font-size: 9px;
-        font-weight: 500;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 100%;
-				text-align: center;
-      }
-      
-      .warning {
-        color: #FF2000;
-        font-weight: bold;
-      }
-    `;
-  }
-
-  constructor() {
-    super();
-    this.hass = null;
-    this.config = {
-      id: '',
-			title: '电费信息',
-      price: 0.5,
-      theme: 'on',
-      height: '330px',
-      width: '380px',
-			border: '10px',
-			cardwidth: '70px',
-			cardheight: '35px',
-			titleFontSize: '20px',
-      n_num: '', // 新增参数，默认显示平用电
-      balance_name: '电费余额' // 新增参数，默认显示"电费余额"
-    };
-    this._data = {};
-    this._price = 0.5;
-    this._interval = null;
-    this.colorNum = '#0fccc3';
-    this.colorCost = '#804aff';
-  }
-
-  setConfig(config) {
-    this.config = {
-      ...this.config,
-      ...config
-    };
-		this.border = this.config.border || '10px';
-		this.cardwidth = this.config.cardwidth || '70px';
-		this.cardheight = this.config.cardheight || '35px';
-		this.style.setProperty('--title-font-size', this.config.titleFontSize || '20px'); 
-    this._calculatePrice();
-    if (config.color_num !== undefined) this.colorNum = config.color_num;
-    if (config.color_cost !== undefined) this.colorCost = config.color_cost;
-  }
-
-  updated(changedProperties) {
-    if (changedProperties.has('hass')) {
-      this._calculatePrice();
-      this._fetchData();
-    }
-  }
-
-	_calculatePrice() {
-		try {
-			if (!this.hass || !this.config) {
-				this._price = 0.5;
-				return;
+	_renderChart() {
+		const container = this.renderRoot.querySelector('#chart-container');
+		if (!container) return;
+	
+		const data = this._processedData;
+		if (!data) {
+			if (this._chart) {
+				this._chart.destroy();
+				this._chart = null;
 			}
-			if (typeof this.config.price === 'number') {
-				this._price = this.config.price;
-				return;
-			}
-			if (typeof this.config.price === 'string') {
-				const template = this.config.price.trim();
-				if (template.startsWith('[[[') && template.endsWith(']]]')) {
-					const jsCode = template.slice(3, -3).trim();
-					try {
-						const calculateFn = new Function('states', `
-							try {
-								${jsCode}
-							} catch (e) {
-								return 0.5;
-							}
-						`);
-						const result = calculateFn(this.hass.states);
-						this._price = Number(result) || 0.5;
-					} catch (e) {
-						this._price = 0.5;
-					}
-				} else {
-					this._price = Number(template) || 0.5;
-				}
-				return;
-			}
-			this._price = 0.5;
-		} catch (e) {
-			this._price = 0.5;
+			return;
 		}
+		container.innerHTML = '';
+		// 如果图表已存在，则更新数据而不是重新创建
+		if (this._chart) {
+			this._chart.destroy();
+			this._chart = null;
+		}
+	
+		// 首次渲染
+		this._chart = new ApexCharts(container, this._getChartConfig(data));
+		this._chart.render();
 	}
 
-  connectedCallback() {
-    super.connectedCallback();
-    this._fetchData();
-    this._setupInterval();
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    if (this._interval) {
-      clearInterval(this._interval);
-    }
-  }
-
-  _setupInterval() {
-    this._interval = setInterval(() => {
-      this._fetchData();
-    }, 60000);
-  }
-
-  async _fetchData() {
-    if (!this.hass || !this.config.id) return;
-    
+  _evaluateTheme() {
     try {
-      const entities = [
-        'refresh_time', 'daily_lasted_date', 'balance',
-        'daily_ele_num', 'month_ele_num', 'year_ele_num',
-        'daily_p_ele_num', 'month_p_ele_num', 'year_p_ele_num',
-        'daily_n_ele_num', 'month_n_ele_num', 'year_n_ele_num',
-        'daily_v_ele_num', 'month_v_ele_num', 'year_v_ele_num',
-				'last_month_ele_cost', 'last_month_ele_num'
-      ];
+      if (!this.config || !this.config.theme) return 'on';
       
-      const data = {};
-      
-      for (const entity of entities) {
-        const fullEntity = `sensor.state_grid_${this.config.id}_${entity}`;
-        data[entity] = this.hass.states[fullEntity]?.state || 'N/A';
+      if (typeof this.config.theme === 'function') {
+        return this.config.theme();
       }
       
-      this._data = data;
-    } catch (error) {
-      console.error('获取数据出错:', error);
+      if (typeof this.config.theme === 'string' && 
+          (this.config.theme.includes('return') || this.config.theme.includes('=>'))) {
+        return (new Function(`return ${this.config.theme}`))();
+      }
+      
+      return this.config.theme;
+    } catch(e) {
+      console.error('计算主题时出错:', e);
+      return 'on';
     }
   }
 
-  _formatBalance(balance) {
-    return balance >= 20 ? 
-      `${balance}元` : 
-      html`<span class="warning">${balance}元</span>`;
+  _getChartConfig(data) {
+    const theme = this._evaluateTheme();
+    const Color = theme === 'on' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)';
+		const BgColor = theme === 'on' ? 'rgb(255, 255, 255)' : 'rgb(50, 50, 50)';
+    const maxElectricity = Math.max(...data.electricity.map(item => item.y));
+    const minElectricity  = Math.min(...data.electricity.map(item => item.y));
+    const maxCost = Math.max(...data.cost.map(item => item.y));
+    const maxElectricityPoint  = data.electricity.find(item => item.y === maxElectricity);
+    const maxCostPoint  = data.cost.find(item => item.y === maxCost);
+
+    const colorCost = this.colorCost;
+    const colorNum = this.colorNum;
+    const colorMax = tinycolor(colorNum).spin(20).toHexString();
+    const colorMin = tinycolor(colorNum).spin(-20).toHexString();
+
+    return {
+      series: [
+        {
+          name: `日用电量`,
+          data: data.electricity,
+          type: 'column',
+					zIndex: 0
+        },
+        {
+          name: `日用电金额`,
+          data: data.cost,
+          type: 'line',
+          color: colorCost,
+					zIndex: 1
+        }
+      ],      
+
+      markers: {
+        size: 3,
+        strokeWidth: 1,
+        colors: colorCost,
+        strokeColors: "#fff"
+      },
+
+      chart: {
+        type: 'line',
+        height: 'auto',
+        foreColor: Color,
+        toolbar: { show: false },
+				animations: {enabled: false}
+      },
+
+      colors: [
+        function({value}) {
+          if (value < (3 * minElectricity + maxElectricity) / 4) {
+            return colorMin;
+          }
+          if (value < (minElectricity + 3 * maxElectricity) / 4) {
+            return colorNum;
+          } 
+          else {
+            return colorMax;
+          }
+        }, 
+        colorCost
+      ],
+
+      stroke: { width: [0, 2], curve: 'smooth' },
+
+      xaxis: {
+        type: 'datetime',
+        labels: {
+          datetimeFormatter: {
+            day: 'MM-dd',
+						month: 'MM-dd',
+						year: 'MM-dd'
+          },
+        },
+				tooltip: { 
+					enabled: false
+				}
+      },
+
+      yaxis: [
+        { 
+          min: 0
+        }
+      ],
+      
+      grid: {
+        show: true,
+        position: 'back',
+        xaxis: {
+            lines: {
+                show: false
+            }
+        },   
+        yaxis: {
+            lines: {
+                show: false
+            }
+        },  
+        row: {
+            colors: [Color, 'transparent'], 
+            opacity: 0.1
+        },
+      },
+
+      annotations: {
+        points: [
+          {
+            x: maxElectricityPoint.x,
+            y: maxElectricityPoint.y,
+            seriesIndex: 0,
+            marker: {
+              size: 0
+            },
+            label: {
+              borderColor: '#fff', 
+              offsetY: -5,
+              offsetX: 0,
+              style: {
+                color: '#fff',
+                background: colorNum,
+                fontSize: '12px',
+                fontWeight: 'bold'
+              },
+              text: `${maxElectricity.toFixed(2)}度`
+            }
+          },
+          {
+            x: maxElectricityPoint.x,
+            y: maxElectricityPoint.y,
+            seriesIndex: 0,
+            marker: {
+              size: 4,
+              offsetX: 0, 
+              fillColor: '#fff',
+              strokeColor: colorNum,
+              strokeWidth: 1,
+              shape: "circle",
+            },
+            label: {
+              borderColor: '#fff', 
+              offsetY: 0,
+              offsetX: 0,
+              style: {
+                color: '#fff',
+                fontSize: '12px',
+                fontWeight: 'bold'
+              },
+              text: ' '
+            }
+          },
+          {
+            x: maxCostPoint.x,
+            y: maxCostPoint.y,
+            seriesIndex: 1,
+            marker: {
+              size: 0,
+              strokeColor: colorNum,
+            },
+            label: {
+              borderColor: '#fff', 
+              offsetY: -5,
+              offsetX: 0, 
+              style: {
+                color: '#fff',
+                background: colorCost,
+                fontSize: '12px',
+                fontWeight: 'bold'
+              },
+              text: `${maxCost.toFixed(2)}元`
+            }
+          }
+        ] 
+      },
+
+			tooltip: {
+				shared: true,  // 关键设置 - 允许显示所有系列数据
+				intersect: false,  // 不需要精确悬停在数据点上
+				custom: function({ series, seriesIndex, dataPointIndex, w }) {
+					// 获取当前数据点的所有系列值
+					const firstDate0 = new Date(w.globals.labels[0]); // 初始日期
+					const firstDate = new Date(firstDate0); // 创建副本，避免修改原对象
+					firstDate.setDate(firstDate.getDate() + 29); // 减去30天
+
+					const currentDate = new Date(firstDate);  
+					currentDate.setDate(firstDate.getDate() - dataPointIndex); // 按索引递增天数
+					
+					const formattedDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+					
+					// 定义系列名称和单位
+					const seriesInfo = [
+						{ name: '日电量', unit: '度', color: this.colorNum },
+						{ name: '日电费', unit: '元', color: this.colorCost }
+					];
+					
+					let tooltipHTML = `
+						<div style="
+							background: ${BgColor};
+							color: ${Color};
+							padding: 8px;
+							border-radius: 4px;
+							border: 1px solid ${Color};
+						">
+							<div style="
+								font-weight: bold; 
+								font-size: 12px;
+								color: ${Color};	
+								border-bottom: 1px dashed #999;
+							">
+								${formattedDate}
+							</div>
+					`;
+					
+					series.forEach((_, idx) => {
+						const value = series[idx][dataPointIndex];
+						if (value !== null && value !== undefined) {
+							tooltipHTML += `
+								<div style="
+									display: flex;
+									align-items: center;
+									margin: 0;
+									font-size: 12px;
+									border-bottom: 1px dashed #999;
+								">
+									<span style="
+										display: inline-block;
+										width: 8px;
+										height: 8px;
+										background: ${seriesInfo[idx].color};
+										border-radius: 50%;
+										margin-right: 5px;
+									"></span>
+									<span style="color: ${seriesInfo[idx].color}">
+										${seriesInfo[idx].name}: 
+										<strong>${value.toFixed(2)} ${seriesInfo[idx].unit}</strong>
+									</span>
+								</div>
+							`;
+						}
+					});
+					
+					tooltipHTML += `</div>`;
+					return tooltipHTML;
+				}.bind(this)
+			},
+
+      legend: {
+        position: 'bottom',
+        formatter: function(seriesName) {
+          return seriesName;
+        },
+        markers: {
+          width: 10,
+          height: 10,
+          radius: 5
+        },
+        itemMargin: {
+          horizontal: 10
+        }
+      }
+    };
   }
-  
-  _formatCost(value) {
-    const num = parseFloat(value) || 0;
-    const rounded = Math.round(num * this._price * 10) / 10;
-    return `${rounded}元`;
+
+  render() {
+    const data = this._processedData;
+    const theme = this._evaluateTheme();
+    const backgColor = theme === 'on' ? 'rgb(255, 255, 255)' : 'rgb(50, 50, 50)';
+    const textColor = theme === 'on' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)';
+
+    return html`
+      <ha-card class="card" style="
+        width: ${this.width};
+        height: ${this.height};
+        background: ${backgColor};
+      ">
+        <div class="label label1">
+          <div class="value" style="color: ${this.colorNum}">${data ? data.current.ele.toFixed(2) : '0.00'}<span class="unit" style="color: ${textColor}">度</span></div>
+          <div class="title" style="color: ${textColor}">日用电量</div>
+        </div>
+        
+        <div class="label label2">
+          <div class="value" style="color: ${this.colorCost}">${data ? data.current.cost.toFixed(2) : '0.00'}<span class="unit" style="color: ${textColor}">元</span></div>
+          <div class="title" style="color: ${textColor}">日用电金额</div>
+        </div>
+        
+        <div id="chart-container"></div>
+      </ha-card>
+    `;
   }
+
+	disconnectedCallback() {
+		super.disconnectedCallback(); // Don't forget to call super
+		if (this._chart) {
+			this._chart.destroy();
+			this._chart = null;
+		}
+	}
+}
+customElements.define('xiaoshi-state-grid-chart-day', XiaoshiStateGridChartDay);
+
+class XiaoshiStateGridChartMonth extends LitElement {
+  static get properties() { 
+    return {
+      hass: { type: Object },
+      entity: { type: String },
+      width: { type: String, attribute: true },
+      height: { type: String, attribute: true },
+      colorNum: { type: String, attribute: true },
+      colorCost: { type: String, attribute: true },
+      theme: { type: String },
+      config: { type: Object }
+    }; 
+  } 
+
+  setConfig(config) {
+    this.config = config;
+    if (config) {
+      if (config.width !== undefined) this.width = config.width;
+      if (config.height !== undefined) this.height = config.height;
+      if (config.entity !== undefined) this.entity = config.entity;
+      if (config.color_num !== undefined) this.colorNum = config.color_num;
+      if (config.color_cost !== undefined) this.colorCost = config.color_cost;
+      this.requestUpdate();
+    }
+  }
+
+  constructor() {
+    super();
+    this.width = '380px';
+    this.height = '300px';
+    this.theme = 'on';
+    this.entity = 'sensor.state_grid';
+    this.colorNum = '#0fccc3';
+    this.colorCost = '#804aff'; 
+		this.config = {};
+  }
+
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+      }
+      
+      .card {
+        border-radius: 10px;
+        display: grid;
+        grid-template-rows: 20% 80%;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: 
+          "label1 label2"
+          "chart chart";
+        gap: 0px;
+        padding: 2px;
+				margin: 0px;
+      }
+      
+      .label {
+        padding: 5px;
+      }
+      
+      .label1 {
+        grid-area: label1;
+        text-align: left;
+      }
+      
+      .label2 {
+        grid-area: label2;
+        text-align: right;
+      }
+      
+      .value {
+        font-size: 25px;
+        font-weight: bold;
+        line-height: 1.2;
+        padding: 5px 5px 0 5px;
+      }
+      
+      .unit {
+        font-size: 15px;
+      }
+      
+      .title {
+        font-size: 13px;
+        padding: 0 5px 0 5px;
+      }
+      
+      #chart-container {
+        grid-area: chart;
+        height: 100%;
+        width: 100%;
+      }
+      
+      .apexcharts-legend {
+        padding: 0px;
+      }
+    `;
+  }
+ 
+  async firstUpdated() { 
+    await this._loadApexCharts();
+    this._renderChart();
+  }
+
+  async _loadApexCharts() {
+    if (!window.ApexCharts) {
+      await new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/apexcharts';
+        script.onload = resolve;
+        document.head.appendChild(script);
+      });
+    }
+  }
+
+  updated() {
+    this._renderChart();
+  }
+
+  get _processedData() {
+		const lastYear  = (new Date().getFullYear() - 1).toString();
+		const currentYear = new Date().getFullYear().toString();
+    const entity = this.hass.states[this.entity];
+    if (!entity?.attributes?.monthlist) return null;
+    const lastYearBills = entity.attributes.monthlist.filter(item => 
+			item.month.startsWith(lastYear )
+		);
+		const thisYearBills = entity.attributes.monthlist.filter(item => 
+			item.month.startsWith(currentYear)
+		);
+		const lastmonthlist = [...lastYearBills ].slice(0, 12).reverse();
+		const monthlist = [...thisYearBills].slice(0, 12).reverse();
+
+    const lastmonthlistDay = [...lastYearBills ][0];
+		const monthlistDay = [...thisYearBills][0];
+
+    return {
+      electricity: monthlist.map(item => ({
+        x: new Date(item.month.substr(0,7)+'-01').getTime(),
+        y: Number(item.monthEleNum) || 0
+      })),
+      cost: monthlist.map(item => ({
+        x: new Date(item.month.substr(0,7)+'-01').getTime(),
+        y: Number(item.monthEleCost) || 0
+      })),
+      current: {
+        ele: monthlistDay.monthEleNum || 0,
+        cost: monthlistDay.monthEleCost || 0,
+        days: monthlist.length
+      },
+			lastelectricity: lastmonthlist.map(item => ({
+        x: new Date(`${currentYear}-${item.month.split("-")[1]}-01`).getTime(),
+        y: Number(item.monthEleNum) || 0
+      })),
+      lastcost: lastmonthlist.map(item => ({
+        x: new Date(`${currentYear}-${item.month.split("-")[1]}-01`).getTime(),
+        y: Number(item.monthEleCost) || 0
+      })),
+      lastcurrent: {
+        ele: lastmonthlistDay.monthEleNum || 0,
+        cost: lastmonthlistDay.monthEleCost || 0,
+        days: lastmonthlist.length
+      }
+    };
+  }
+
+	_renderChart() {
+		const container = this.renderRoot.querySelector('#chart-container');
+		if (!container) return;
+	
+		const data = this._processedData;
+		if (!data) {
+			if (this._chart) {
+				this._chart.destroy();
+				this._chart = null;
+			}
+			return;
+		}
+	
+		container.innerHTML = '';
+
+		if (this._chart) {
+			this._chart.destroy();
+			this._chart = null;
+		}
+
+		this._chart = new ApexCharts(container, this._getChartConfig(data));
+		this._chart.render();
+	}
 
   _evaluateTheme() {
     try {
@@ -3555,85 +4336,513 @@ class XiaoshiStateGridHassbox extends LitElement {
     }
   }
 
-  render() {
-    if (!this.config) return html``;
-    
+  _getChartConfig(data) {
     const theme = this._evaluateTheme();
-    const themeClass = theme === 'on' ? 'light-theme' : 'dark-theme';
-    const itemThemeClass = theme === 'on' ? 'light' : 'dark';
-    const showN = this.config.n_num !== 'none'; // 判断是否显示平用电
-    const layoutClass = showN ? 'show-n' : 'hide-n'; // 根据是否显示平用电选择布局类
-    
-    return html`
-      <div class="card-container ${themeClass} ${layoutClass}" 
-			     style="height: ${this.config.height}; 
-					 width: ${this.config.width};
-					 --border-radius: ${this.border};
-					 --card-width: ${this.cardwidth};
-					 --card-height: ${this.cardheight}">
-        <div class="title">${this.config.title || '电费信息'}</div>
-        
-        <div class="refresh-time">
-          用电刷新时间: ${this._data.refresh_time || 'N/A'}
-        </div>
-        
-        <div class="data-date">
-          最新用电日期: ${this._data.daily_lasted_date || 'N/A'}
-        </div>
-        
-        <div class="balance">
-          ${this._renderDataItem(this.config.balance_name || '电费余额', 'mdi:cash', this._formatBalance(this._data.balance), itemThemeClass, null, this.colorCost)}
-        </div>
-        
-        ${this._renderDataItem('日总用电', 'mdi:lightning-bolt', `${this._data.daily_ele_num || '0'}°`, itemThemeClass, '日总用电', this.colorNum)}
-        ${this._renderDataItem('日峰用电', 'mdi:lightning-bolt', `${this._data.daily_p_ele_num || '0'}°`, itemThemeClass, '日峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('日平用电', 'mdi:lightning-bolt', `${this._data.daily_n_ele_num || '0'}°`, itemThemeClass, '日平用电', this.colorNum) : ''}
-        ${this._renderDataItem('日谷用电', 'mdi:lightning-bolt', `${this._data.daily_v_ele_num || '0'}°`, itemThemeClass, '日谷用电', this.colorNum)}
-        ${this._renderDataItem('日用电费', 'mdi:cash', this._formatCost(this._data.daily_ele_num), itemThemeClass, '日用电费', this.colorCost)}
-        
-        ${this._renderDataItem('月总用电', 'mdi:lightning-bolt', `${this._data.month_ele_num || '0'}°`, itemThemeClass, '月总用电', this.colorNum)}
-        ${this._renderDataItem('月峰用电', 'mdi:lightning-bolt', `${this._data.month_p_ele_num || '0'}°`, itemThemeClass, '月峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('月平用电', 'mdi:lightning-bolt', `${this._data.month_n_ele_num || '0'}°`, itemThemeClass, '月平用电', this.colorNum) : ''}
-        ${this._renderDataItem('月谷用电', 'mdi:lightning-bolt', `${this._data.month_v_ele_num || '0'}°`, itemThemeClass, '月谷用电', this.colorNum)}
-        ${this._renderDataItem('月用电费', 'mdi:cash', this._formatCost(this._data.month_ele_num), itemThemeClass, '月用电费', this.colorCost)}
+    const Color = theme === 'on' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)';
+    const BgColor = theme === 'on' ? 'rgb(255, 255, 255)' : 'rgb(50, 50, 50)';
+    const maxElectricity = Math.max(...data.electricity.map(item => item.y));
+    const minElectricity  = Math.min(...data.electricity.map(item => item.y));
+    const maxCost = Math.max(...data.cost.map(item => item.y));
+    const maxElectricityPoint  = data.electricity.find(item => item.y === maxElectricity);
+    const maxCostPoint  = data.cost.find(item => item.y === maxCost);
 
-        ${this._renderDataItem('上月总用电', 'mdi:lightning-bolt', `${this._data.last_month_ele_num || '0'}°`, itemThemeClass, '上月总用电', this.colorNum)}
-        ${this._renderDataItem('上月峰用电', 'mdi:lightning-bolt', `${this._data.last_month_p_ele_num || '0'}°`, itemThemeClass, '上月峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('上月平用电', 'mdi:lightning-bolt', `${this._data.last_month_n_ele_num || '0'}°`, itemThemeClass, '上月平用电', this.colorNum) : ''}
-        ${this._renderDataItem('上月谷用电', 'mdi:lightning-bolt', `${this._data.last_month_v_ele_num || '0'}°`, itemThemeClass, '上月谷用电', this.colorNum)}
-        ${this._renderDataItem('上月用电费', 'mdi:cash', `${this._data.last_month_ele_cost || '0'}元`, itemThemeClass, '上月用电费', this.colorCost)}
+    const colorCost = this.colorCost;
+    const colorNum = this.colorNum;
+    const colorMax = tinycolor(colorNum).spin(20).toHexString();
+    const colorMin = tinycolor(colorNum).spin(-20).toHexString();
+
+    return {
+      series: [
+        {
+          name: `上年电量`,
+          data: data.lastelectricity,
+          type: 'column',
+					zIndex: 0,
+					color: "#f8500080"
+        },
+        {
+          name: `月用电量`,
+          data: data.electricity,
+          type: 'column',
+					zIndex: 1,
+        },
+        {
+          name: `上年金额`,
+          data: data.lastcost,
+          type: 'line',
+          color: "#f30660",
+					zIndex: 2
+        },
+        {
+          name: `月用电金额`,
+          data: data.cost,
+          type: 'line',
+          color: colorCost,
+					zIndex: 3
+        }
+      ],      
+
+      markers: {
+        size: 3,
+        strokeWidth: 1,
+        colors: ["#f30660",colorCost],
+        strokeColors: "#fff"
+      },
+
+      chart: {
+        type: 'line',
+        height: 'auto',
+        foreColor: Color,
+        toolbar: { show: false },
+				animations: {enabled: false}
+      },
+
+      colors: [
+        function({value}) {
+          if (value < (3 * minElectricity + maxElectricity) / 4) {
+            return colorMin;
+          }
+          if (value < (minElectricity + 3 * maxElectricity) / 4) {
+            return colorNum;
+          } 
+          else {
+            return colorMax;
+          }
+        }
+      ],
+
+      stroke: { width: [0,0,2,2], curve: 'smooth' },
+
+      xaxis: {
+        type: 'datetime',
+        labels: {
+          datetimeFormatter: {
+						day: 'M月',
+						month: 'M月',
+						year: 'M月'
+          },
+					minHeight: 40,
+					style: {
+						fontSize: '10px',
+					},
+					hideOverlappingLabels: false
+        },
+				tooltip: { 
+					enabled: false
+				}
+      },
+
+      yaxis: [
+        { 
+          min: 0
+        }
+      ],
+      
+      grid: {
+        show: true,
+        position: 'back',
+        xaxis: {
+            lines: {
+                show: false
+            }
+        },   
+        yaxis: {
+            lines: {
+                show: false
+            }
+        },  
+        row: {
+            colors: [Color, 'transparent'], 
+            opacity: 0.1
+        },
+      },
+
+      annotations: {
+        points: [
+          {
+            x: maxElectricityPoint.x,
+            y: maxElectricityPoint.y,
+            seriesIndex: 1,
+            marker: {
+              size: 0
+            },
+            label: {
+              borderColor: '#fff', 
+              offsetY: -5,
+              offsetX: 0,
+              style: {
+                color: '#fff',
+                background: colorNum,
+                fontSize: '12px',
+                fontWeight: 'bold'
+              },
+              text: `${maxElectricity.toFixed(2)}度`
+            }
+          },
+          {
+            x: maxElectricityPoint.x,
+            y: maxElectricityPoint.y,
+            seriesIndex: 1,
+            marker: {
+              size: 4,
+              offsetX: 0, 
+              fillColor: '#fff',
+              strokeColor: colorNum,
+              strokeWidth: 1,
+              shape: "circle",
+            },
+            label: {
+              offsetY: 0,
+              offsetX: 0,
+              style: {
+                color: '#fff',
+                fontSize: '12px',
+                fontWeight: 'bold'
+              },
+              text: ' '
+            }
+          },
+          {
+            x: maxCostPoint.x,
+            y: maxCostPoint.y,
+            seriesIndex: 3,
+            marker: {
+              size: 0,
+              strokeColor: colorNum,
+            },
+            label: {
+              borderColor: '#fff', 
+              offsetY: -5,
+              offsetX: 0, 
+              style: {
+                color: '#fff',
+                background: colorCost,
+                fontSize: '12px',
+                fontWeight: 'bold'
+              },
+              text: `${maxCost.toFixed(2)}元`
+            }
+          }
+        ]
+      },
+
+			tooltip: {
+				shared: true,  // 关键设置 - 允许显示所有系列数据
+				intersect: false,  // 不需要精确悬停在数据点上
+				custom: function({ series, seriesIndex, dataPointIndex, w }) {
+					// 获取当前数据点的所有系列值
+					const date = new Date(w.globals.labels[0]); // 取第一个日期（如 2025-1-1）
+					const formattedDate = new Date(date);
+					formattedDate.setMonth(date.getMonth() + dataPointIndex); // 按索引递增月份
+					
+					const displayDate = `${formattedDate.getFullYear()}-${String(formattedDate.getMonth() + 1).padStart(2, '0')}`;
+					
+					// 定义系列名称和单位
+					const seriesInfo = [
+						{ name: '上年电量', unit: '度', color: "#f85000" },
+						{ name: '本年电量', unit: '度', color: this.colorNum },
+						{ name: '上年电费', unit: '元', color: "#f30660" },
+						{ name: '本年电费', unit: '元', color: this.colorCost }
+					];
+					
+					let tooltipHTML = `
+						<div style="
+							background: ${BgColor};
+							color: ${Color};
+							padding: 8px;
+							border-radius: 4px;
+							border: 1px solid ${Color};
+						">
+							<div style="
+								font-weight: bold; 
+								font-size: 12px;
+								color: ${Color};	
+								border-bottom: 1px dashed #999;
+							">
+								${displayDate }
+							</div>
+					`;
+					
+					series.forEach((_, idx) => {
+						const value = series[idx][dataPointIndex];
+						if (value !== null && value !== undefined) {
+							tooltipHTML += `
+								<div style="
+									display: flex; 
+									align-items: center;
+									margin: 0;
+									font-size: 12px;
+									border-bottom: 1px dashed #999;
+								">
+									<span style="
+										display: inline-block;
+										width: 8px;
+										height: 8px;
+										background: ${seriesInfo[idx].color};
+										border-radius: 50%;
+										margin-right: 5px;
+									"></span>
+									<span style="color: ${seriesInfo[idx].color}">
+										${seriesInfo[idx].name}: 
+										<strong>${value.toFixed(2)} ${seriesInfo[idx].unit}</strong>
+									</span>
+								</div>
+							`;
+						}
+					});
+					
+					tooltipHTML += `</div>`;
+					return tooltipHTML;
+				}.bind(this)
+			},
+
+      legend: {
+        position: 'bottom',
+        formatter: function(seriesName) {
+          return seriesName;
+        },
+        markers: {
+          width: 10,
+          height: 10,
+          radius: 5
+        },
+        itemMargin: {
+          horizontal: 10
+        }
+      }
+    };
+  }
+
+  render() {
+    const data = this._processedData;
+    const theme = this._evaluateTheme();
+    const backgColor = theme === 'on' ? 'rgb(255, 255, 255)' : 'rgb(50, 50, 50)';
+    const textColor = theme === 'on' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)';
+
+    return html`
+      <ha-card class="card" style="
+        width: ${this.width};
+        height: ${this.height};
+        background: ${backgColor};
+      ">
+        <div class="label label1">
+          <div class="value" style="color: ${this.colorNum}">${data ? data.current.ele.toFixed(2) : '0.00'}<span class="unit" style="color: ${textColor}">度</span></div>
+          <div class="title" style="color: ${textColor}">月用电量</div>
+        </div>
         
-        ${this._renderDataItem('年总用电', 'mdi:lightning-bolt', `${this._data.year_ele_num || '0'}°`, itemThemeClass, '年总用电', this.colorNum)}
-        ${this._renderDataItem('年峰用电', 'mdi:lightning-bolt', `${this._data.year_p_ele_num || '0'}°`, itemThemeClass, '年峰用电', this.colorNum)}
-        ${showN ? this._renderDataItem('年平用电', 'mdi:lightning-bolt', `${this._data.year_n_ele_num || '0'}°`, itemThemeClass, '年平用电', this.colorNum) : ''}
-        ${this._renderDataItem('年谷用电', 'mdi:lightning-bolt', `${this._data.year_v_ele_num || '0'}°`, itemThemeClass, '年谷用电', this.colorNum)}
-        ${this._renderDataItem('年用电费', 'mdi:cash',this._formatCost(this._data.year_ele_num), itemThemeClass, '年用电费', this.colorCost)}
-      </div>
+        <div class="label label2">
+          <div class="value" style="color: ${this.colorCost}">${data ? data.current.cost.toFixed(2) : '0.00'}<span class="unit" style="color: ${textColor}">元</span></div>
+          <div class="title" style="color: ${textColor}">月用电金额</div>
+        </div>
+        
+        <div id="chart-container"></div>
+      </ha-card>
     `;
   }
 
-  _renderDataItem(name, icon, value, themeClass, gridArea, color) {
+	disconnectedCallback() {
+		super.disconnectedCallback(); // Don't forget to call super
+		if (this._chart) {
+			this._chart.destroy();
+			this._chart = null;
+		}
+	}
+}
+customElements.define('xiaoshi-state-grid-chart-month', XiaoshiStateGridChartMonth);
+
+class XiaoshiStateGridPhone extends LitElement {
+  static get properties() {
+    return {
+      hass: { type: Object },
+      config: { type: Object },
+      selectedDate: { type: String },
+      todayDate: { type: String }
+    };
+  }
+
+  setConfig(config) {
+    // 创建一个新的配置对象而不是直接修改传入的config
+    this.config = {
+      entity: config?.entity || 'sensor.state_grid',
+      theme: config?.theme || 'on',
+      width: config?.width || '100%',
+      height: config?.height || '300px',
+      cardwidth: config?.cardwidth || '70px',
+      cardheight: config?.cardheight || '35px',
+			color_num: config?.color_num || '#0fccc3',
+			color_cost: config?.color_cost || '#804aff',
+      ...config // 保留其他可能传入的配置
+    };
+  }
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+      }
+      .card-container {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+    `;
+  }
+
+  render() {
+    if (!this.hass) {
+      return html`<div>Loading...</div>`;
+    }
+    const config = {
+      ...this.config
+    };
+
+    const bodyHeight =  this.config.height;
     return html`
-      <div class="data-item ${themeClass}" style="${gridArea ? `grid-area: ${gridArea}` : ''}">
-        ${icon ? html`
-          <div class="data-item-content">
-            <ha-icon class="data-item-icon" .icon=${icon} style="color: ${color}"></ha-icon>
-            <div class="data-item-text">
-              <div class="data-item-name">${name}</div>
-              <div class="data-item-value" style="color: ${color}">${value}</div>
-            </div>
-          </div>
-        ` : html`
-          <div class="data-item-text">
-            <div class="data-item-name">${name}</div>
-            <div class="data-item-value" style="color: ${color}">${value}</div>
-          </div>
-        `}
+      <div class="card-container" style="width: ${this.config.width};">
+        <xiaoshi-state-grid-nodered
+          .hass=${this.hass}
+          .config=${this.config}
+          .width=${this.config.width}
+          .height=${bodyHeight}
+					.colorNum=${config.color_num}
+					.colorCost=${config.color_cost}
+					.cardwidth=${config.cardwidth}
+					.cardheight=${config.cardheight}>
+        </xiaoshi-state-grid-nodered>
+        
+        <xiaoshi-state-grid-calendar
+          .hass=${this.hass}
+          .config=${this.config}
+          .width=${this.config.width}
+          .height=${bodyHeight}
+					.colorNum=${config.color_num}
+					.colorCost=${config.color_cost}>
+        </xiaoshi-state-grid-calendar>
+        
+        <xiaoshi-state-grid-chart-day
+          .hass=${this.hass}
+          .config=${this.config}
+          .width=${this.config.width}
+          .height=${bodyHeight}
+					.colorNum=${config.color_num}
+					.colorCost=${config.color_cost}>
+        </xiaoshi-state-grid-chart-day>
+        
+        <xiaoshi-state-grid-chart-month
+          .hass=${this.hass}
+          .config=${this.config}
+          .width=${this.config.width}
+          .height=${bodyHeight}
+					.colorNum=${config.color_num}
+					.colorCost=${config.color_cost}>
+        </xiaoshi-state-grid-chart-month>
       </div>
     `;
   }
 }
-customElements.define('xiaoshi-state-grid-hassbox', XiaoshiStateGridHassbox);
+customElements.define('xiaoshi-state-grid-phone', XiaoshiStateGridPhone);
+
+class XiaoshiStateGridPad extends LitElement {
+  static get properties() {
+    return {
+      hass: { type: Object },
+      config: { type: Object },
+    };
+  }
+
+  setConfig(config) {
+    this.config = {
+      entity: config?.entity || 'sensor.state_grid',
+      theme: config?.theme || 'on',
+      width: config?.width || '380px',
+      height: config?.height || '300px',
+      cardwidth: config?.cardwidth || '70px',
+      cardheight: config?.cardheight || '35px',
+			color_num: config?.color_num || '#0fccc3',
+			color_cost: config?.color_cost || '#804aff',
+      ...config
+    };
+  }
+ 
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+      } 
+      .grid-container {
+        display: grid;
+        grid-template-areas: 
+          "a b"
+          "c d";
+        grid-template-columns: 380px 380px;
+        grid-template-rows: 300px 300px;
+        width: 770px;
+        height: 610px;
+        gap: 5px;
+      } 
+      .grid-item {
+        display: flex;
+        position: relative;
+      }
+      .a { grid-area: a; width:380px; height: 300px; }
+      .b { grid-area: b; width:380px; height: 300px; }
+      .c { grid-area: c; width:380px; height: 300px; }
+      .d { grid-area: d; width:380px; height: 300px; }
+    `;
+  }
+
+  render() {
+    if (!this.hass) {
+      return html`<div>Loading...</div>`;
+    }
+    const config = {
+      ...this.config
+    };
+		
+    return html`
+      <div class="grid-container">
+        <div class="grid-item a">
+					<xiaoshi-state-grid-nodered
+						.hass=${this.hass}
+						.config=${config}
+						.colorNum=${config.color_num}
+						.colorCost=${config.color_cost}
+						.cardwidth=${config.cardwidth}
+						.cardheight=${config.cardheight}>
+					</xiaoshi-state-grid-nodered>
+        </div>
+
+        <div class="grid-item b">
+					<xiaoshi-state-grid-calendar
+						.hass=${this.hass}
+						.config=${config}
+						.colorNum=${config.color_num}
+						.colorCost=${config.color_cost}>
+					</xiaoshi-state-grid-calendar>
+        </div>
+
+        <div class="grid-item c">
+					<xiaoshi-state-grid-chart-day
+						.hass=${this.hass}
+						.config=${config}
+						.colorNum=${config.color_num}
+						.colorCost=${config.color_cost}>
+					</xiaoshi-state-grid-chart-day>
+        </div>
+
+        <div class="grid-item d">
+					<xiaoshi-state-grid-chart-month
+						.hass=${this.hass}
+						.config=${config}
+						.colorNum=${config.color_num}
+						.colorCost=${config.color_cost}>
+					</xiaoshi-state-grid-chart-month>
+        </div>
+      
+      </div>
+    `;
+  }
+}
+customElements.define('xiaoshi-state-grid-pad', XiaoshiStateGridPad);
 
 class XiaoshiLunar extends LitElement {
   static get properties() {
@@ -4138,11 +5347,17 @@ class XiaoshiLunar extends LitElement {
     
     // 特殊节日名称处理
     if (festival === '全国中小学生安全教育日') {
-      return '安全教育日';
+      return '安全教育';
     } else if (festival === '全民国防教育日') {
-      return '国防教育日';
+      return '国防教育';
     } else if (festival === '消费者权益日') {
       return '消费者日';
+    } else if (festival === '世界住房日') {
+      return '世界住房';
+    } else if (festival === '万圣节前夜') {
+      return '万圣前夜';
+    } else if (festival === '全国助残日') {
+      return '全国助残';
     }
     
     return festival;
@@ -4878,7 +6093,7 @@ class XiaoshiLunarBody2 extends LitElement {
         word-wrap: break-word;
         display: flex;
         align-items: center;
-				line-height: 13px;
+				line-height: 12px;
       }
     `;
   }
@@ -7401,6 +8616,421 @@ class XiaoshiLunarPad extends LitElement {
 }
 customElements.define('xiaoshi-lunar-pad', XiaoshiLunarPad);
 
+// PVE 系统监控卡片
+class XiaoshiPveCard extends LitElement {
+  static get properties() {
+    return {
+      hass: { type: Object },
+      config: { type: Object },
+      _showContainers: { type: Boolean, state: true }
+    };
+  }
+
+  constructor() {
+    super();
+    this._showContainers = false;
+  }
+
+  setConfig(config) {
+    if (!config) {
+      throw new Error('Invalid configuration');
+    }
+    if (!config.entities) {
+      throw new Error('必须配置 entities');
+    }
+
+    this.config = {
+      title: config.title || 'PVE 系统监控',
+      theme: config.theme || 'auto',
+      width: config.width || '380px',
+      height: config.height || '400px',
+      show_containers: config.show_containers || false,
+      entities: config.entities
+    };
+    this._showContainers = this.config.show_containers;
+    this.requestUpdate();
+  }
+
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+      }
+
+      .pve-card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+        font-family: var(--paper-font-body1_-_font-family);
+      }
+
+      .card-content {
+        padding: 16px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        border-bottom: 1px solid var(--divider-color, #e0e0e0);
+        padding-bottom: 12px;
+      }
+
+      .header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      .uptime {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        opacity: 0.7;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .circular-progress {
+        display: flex;
+        justify-content: center;
+      }
+
+      .progress-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .progress-inner {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--card-background-color, #ffffff);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .progress-value {
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 1;
+      }
+
+      .progress-label {
+        font-size: 10px;
+        opacity: 0.7;
+        margin-top: 2px;
+      }
+
+      .virtualization-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: var(--secondary-background-color, #f5f5f5);
+        border-radius: 8px;
+        margin-bottom: 16px;
+      }
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+      }
+
+      .toggle-btn {
+        background: none;
+        border: 1px solid var(--divider-color, #e0e0e0);
+        border-radius: 6px;
+        padding: 4px 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: inherit;
+      }
+
+      .toggle-btn:hover {
+        background: var(--secondary-background-color, #f5f5f5);
+      }
+
+      .details {
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+
+      .details.collapsed {
+        max-height: 0;
+      }
+
+      .details.expanded {
+        max-height: 500px;
+      }
+
+      .section {
+        margin-bottom: 16px;
+      }
+
+      .section h3 {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .disk-list, .zfs-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .disk-item, .zfs-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        background: var(--secondary-background-color, #f5f5f5);
+        border-radius: 6px;
+        font-size: 12px;
+      }
+
+      .disk-name, .zfs-name {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .disk-temp {
+        font-weight: bold;
+        color: var(--primary-color, #1976d2);
+      }
+
+      .zfs-progress {
+        flex: 1;
+        height: 4px;
+        background: var(--divider-color, #e0e0e0);
+        border-radius: 2px;
+        overflow: hidden;
+        margin: 0 8px;
+      }
+
+      .zfs-bar {
+        height: 100%;
+        transition: width 0.3s ease;
+      }
+
+      .zfs-value {
+        font-weight: bold;
+        min-width: 40px;
+        text-align: right;
+      }
+
+      ha-icon {
+        --mdc-icon-size: 16px;
+      }
+    `;
+  }
+
+  _evaluateTheme() {
+    if (this.config.theme === 'auto') {
+      return this.hass?.themes?.darkMode ? 'off' : 'on';
+    }
+    return this.config.theme;
+  }
+
+  _getProgressColor(value) {
+    if (value <= 30) return '#4CAF50'; // 绿色
+    if (value <= 70) return '#FF9800'; // 橙色
+    return '#F44336'; // 红色
+  }
+
+  _formatUptime(lastBoot) {
+    if (!lastBoot) return 'N/A';
+    const bootTime = new Date(lastBoot);
+    const now = new Date();
+    const diffMs = now - bootTime;
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    return `${days}天 ${hours}小时`;
+  }
+
+  _renderCircularProgress(value, label, unit = '%') {
+    const percentage = Math.min(100, Math.max(0, parseFloat(value) || 0));
+    const color = this._getProgressColor(percentage);
+    const isDark = this._evaluateTheme() === 'off';
+
+    return html`
+      <div class="circular-progress">
+        <div class="progress-circle" style="
+          background: conic-gradient(
+            ${color} 0% ${percentage}%,
+            ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} ${percentage}% 100%
+          );
+        ">
+          <div class="progress-inner">
+            <div class="progress-value">${percentage.toFixed(1)}${unit}</div>
+            <div class="progress-label">${label}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  _renderDiskTemperature(entity) {
+    if (!this.hass.states[entity]) return html``;
+
+    const state = this.hass.states[entity];
+    const temp = parseFloat(state.state) || 0;
+    const name = state.attributes.friendly_name || entity;
+    const diskName = name.replace('Disk pve: ', '').replace(' Temperature', '');
+
+    return html`
+      <div class="disk-item">
+        <ha-icon icon="mdi:harddisk"></ha-icon>
+        <span class="disk-name">${diskName}</span>
+        <span class="disk-temp">${temp}°C</span>
+      </div>
+    `;
+  }
+
+  _renderZfsPool(entity) {
+    if (!this.hass.states[entity]) return html``;
+
+    const state = this.hass.states[entity];
+    const usage = parseFloat(state.state) || 0;
+    const name = state.attributes.friendly_name || entity;
+    const poolName = name.replace('ZFS pve: ZFS Pool ', '').replace(' Used percentage', '');
+
+    return html`
+      <div class="zfs-item">
+        <ha-icon icon="mdi:nas"></ha-icon>
+        <span class="zfs-name">${poolName}</span>
+        <div class="zfs-progress">
+          <div class="zfs-bar" style="width: ${usage}%; background-color: ${this._getProgressColor(usage)};"></div>
+        </div>
+        <span class="zfs-value">${usage.toFixed(1)}%</span>
+      </div>
+    `;
+  }
+
+  _toggleContainers() {
+    this._showContainers = !this._showContainers;
+    this.requestUpdate();
+  }
+
+  render() {
+    if (!this.hass) {
+      return html`<div>Loading...</div>`;
+    }
+
+    const isDark = this._evaluateTheme() === 'off';
+    const bgColor = isDark ? '#1f1f1f' : '#ffffff';
+    const textColor = isDark ? '#ffffff' : '#333333';
+    const borderColor = isDark ? '#333333' : '#e0e0e0';
+
+    // 获取实体状态
+    const uptimeEntity = this.hass.states[this.config.entities.uptime];
+    const cpuEntity = this.hass.states[this.config.entities.cpu_usage];
+    const memoryEntity = this.hass.states[this.config.entities.memory_usage];
+    const diskEntity = this.hass.states[this.config.entities.disk_usage];
+    const containersEntity = this.hass.states[this.config.entities.containers_count];
+    const vmsEntity = this.hass.states[this.config.entities.vms_count];
+
+    return html`
+      <div class="pve-card" style="
+        width: ${this.config.width};
+        height: ${this.config.height};
+        background: ${bgColor};
+        color: ${textColor};
+        border: 1px solid ${borderColor};
+      ">
+        <div class="card-content">
+          <!-- 标题栏 -->
+          <div class="header">
+            <h2>${this.config.title}</h2>
+            <div class="uptime">
+              <ha-icon icon="mdi:clock-outline"></ha-icon>
+              运行时间: ${this._formatUptime(uptimeEntity?.state)}
+            </div>
+          </div>
+
+          <!-- 系统监控圆形进度条 -->
+          <div class="metrics-grid">
+            ${this._renderCircularProgress(cpuEntity?.state, 'CPU')}
+            ${this._renderCircularProgress(memoryEntity?.state, '内存')}
+            ${this._renderCircularProgress(diskEntity?.state, '磁盘')}
+          </div>
+
+          <!-- 虚拟化统计 -->
+          <div class="virtualization-stats">
+            <div class="stat-item">
+              <ha-icon icon="mdi:server"></ha-icon>
+              <span>虚拟机: ${vmsEntity?.state || 0}</span>
+            </div>
+            <div class="stat-item">
+              <ha-icon icon="mdi:cube-outline"></ha-icon>
+              <span>容器: ${containersEntity?.state || 0}</span>
+            </div>
+            <button class="toggle-btn" @click=${this._toggleContainers}>
+              <ha-icon icon="${this._showContainers ? 'mdi:chevron-up' : 'mdi:chevron-down'}"></ha-icon>
+              详情
+            </button>
+          </div>
+
+          <!-- 可折叠的详细信息 -->
+          <div class="details ${this._showContainers ? 'expanded' : 'collapsed'}">
+            <!-- 硬盘温度 -->
+            ${this.config.entities.disks && this.config.entities.disks.length > 0 ? html`
+            <div class="section">
+              <h3><ha-icon icon="mdi:thermometer"></ha-icon> 硬盘温度</h3>
+              <div class="disk-list">
+                ${this.config.entities.disks.map(entity => this._renderDiskTemperature(entity))}
+              </div>
+            </div>
+            ` : ''}
+
+            <!-- ZFS 存储池 -->
+            ${this.config.entities.zfs_pools && this.config.entities.zfs_pools.length > 0 ? html`
+            <div class="section">
+              <h3><ha-icon icon="mdi:database"></ha-icon> 存储池</h3>
+              <div class="zfs-list">
+                ${this.config.entities.zfs_pools.map(entity => this._renderZfsPool(entity))}
+              </div>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  getCardSize() {
+    return 3;
+  }
+}
+
+customElements.define('xiaoshi-pve-card', XiaoshiPveCard);
+
 window.customCards = window.customCards || [];
 window.customCards.push(
   {
@@ -7444,18 +9074,13 @@ window.customCards.push(
     description: '进度条'
   },
   {
-    type: 'xiaoshi-state-grid-calendar',
-    name: '消逝卡片组 国网卡片-日历',
+    type: 'xiaoshi-state-grid-phone',
+    name: '消逝卡片组 国网卡片-日历手机端',
     description: '国网信息卡'
   },
   {
-    type: 'xiaoshi-state-grid-nodered',
-    name: '消逝卡片组 国网卡片-NR整合数据',
-    description: '国网信息卡'
-  },
-  {
-    type: 'xiaoshi-state-grid-hassbox',
-    name: '消逝卡片组 国网卡片-hassbox集成数据',
+    type: 'xiaoshi-state-grid-pad',
+    name: '消逝卡片组 国网卡片-日历平板端',
     description: '国网信息卡'
   },
   {
@@ -7472,5 +9097,10 @@ window.customCards.push(
     type: 'xiaoshi-lunar-pad',
     name: '消逝卡片组 万年历平板端',
     description: '万年历平板端'
+  },
+  {
+    type: 'xiaoshi-pve-card',
+    name: '消逝卡片组 PVE监控卡',
+    description: 'PVE系统监控卡片'
   },
 );
