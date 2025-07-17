@@ -62,7 +62,7 @@ export class XiaoshiGridCard extends LitElement {
             filter = this._calculateTemperatureFilter(value);
           } else if (this.config.mode === '湿度') {
             filter = this._calculateHumidityFilter(value);
-          }
+          };
           let size = Number(grid[2].slice(0, grid[2].length-1));
           let fsize ="11px";
           if (size<25 )  fsize ="10px";
@@ -85,11 +85,11 @@ export class XiaoshiGridCard extends LitElement {
       if (this.config.display === undefined) return false;
       if (typeof this.config.display === 'boolean') {
         return this.config.display;
-      }
+      };
       if (typeof this.config.display === 'function') {
         const result = this.config.display();
         return result === true || result === "true"; // 同时接受 true 和 "true"
-      }
+      };
       if (typeof this.config.display === 'string') {
         const displayStr = this.config.display.trim();
         if (displayStr.startsWith('[[[') && displayStr.endsWith(']]]')) {
@@ -103,7 +103,7 @@ export class XiaoshiGridCard extends LitElement {
         }
         const result = (new Function(`return ${displayStr}`))();
         return result === true || result === "true";
-      }
+      };
       return false;
     } catch(e) {
       console.error('显示出错:', e);
@@ -119,7 +119,7 @@ export class XiaoshiGridCard extends LitElement {
       deg = (25 - temp) * 120 / (max - 25);
     } else {
       deg = (25 - temp) * 100 / (25 - min);
-    }
+    };
     return `hue-rotate(${deg}deg)`;
   }
    
@@ -131,7 +131,7 @@ export class XiaoshiGridCard extends LitElement {
       deg = (50 - hum) * 100 / (50 - max);
     } else {
       deg = (50 - hum) * 120 / (min - 50);
-    }
+    };
     return `hue-rotate(${deg}deg)`;
   }
 
