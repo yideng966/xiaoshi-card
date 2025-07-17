@@ -7,6 +7,7 @@ export class XiaoshiGridCard extends LitElement {
       config: Object,
     };
   }
+
   static get styles() {
     return css`
       .container {
@@ -26,6 +27,7 @@ export class XiaoshiGridCard extends LitElement {
       }
     `;
   }
+
   setConfig(config) {
     if (!config.entities) {
       throw new Error('You need to define entities');
@@ -43,6 +45,7 @@ export class XiaoshiGridCard extends LitElement {
       })),
     };
   }
+
   render() {
 		if(this._display()) return;
 		return html`
@@ -77,6 +80,7 @@ export class XiaoshiGridCard extends LitElement {
 			</div> 
 		`;
 	}
+
 	_display() {
 		try {
 			if (this.config.display === undefined) return false;
@@ -107,6 +111,7 @@ export class XiaoshiGridCard extends LitElement {
 			return false;
 		}
 	}
+
 	_calculateTemperatureFilter(temp) {
 		temp = parseFloat(temp);
 		const { min, max } = this.config;
@@ -120,6 +125,7 @@ export class XiaoshiGridCard extends LitElement {
 		
 		return `hue-rotate(${deg}deg)`;
 	}
+	 
 	_calculateHumidityFilter(hum) {
 		hum = parseFloat(hum);
 		const { min, max } = this.config;
@@ -133,6 +139,7 @@ export class XiaoshiGridCard extends LitElement {
 		
 		return `hue-rotate(${deg}deg)`;
 	}
+
   getCardSize() {
     return 1;
   }
