@@ -3,16 +3,16 @@ console.info("%c 消逝集合卡 \n%c   v 2.6.9 ", "color: red; font-weight: bol
 import { cardConfigs } from './xiaoshi-config.js';
 
 const loadCards  = async () => {
-    await import('./cards/xiaoshi-light-card.js');
-    await import('./cards/xiaoshi-switch-card.js');
-    await import('./cards/xiaoshi-image-card.js');
-    await import('./cards/xiaoshi-video-card.js');
-    await import('./cards/xiaoshi-slider-card.js');
-    await import('./cards/xiaoshi-text-card.js');
-    await import('./cards/xiaoshi-time-card.js');
-    await import('./cards/xiaoshi-grid-card.js');
-    await import('./cards/xiaoshi-lunar-card.js');
-    await import('./cards/xiaoshi-stategrid-card.js');
+    await import('./xiaoshi-light-card.js');
+    await import('./xiaoshi-switch-card.js');
+    await import('./xiaoshi-image-card.js');
+    await import('./xiaoshi-video-card.js');
+    await import('./xiaoshi-slider-card.js');
+    await import('./xiaoshi-text-card.js');
+    await import('./xiaoshi-time-card.js');
+    await import('./xiaoshi-grid-card.js');
+    await import('./xiaoshi-lunar-card.js');
+    await import('./xiaoshi-stategrid-card.js');
     
     window.customCards = window.customCards || [];
     window.customCards.push(...cardConfigs);
