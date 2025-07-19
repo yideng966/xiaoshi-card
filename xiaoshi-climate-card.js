@@ -780,16 +780,22 @@ export class XiaoshiClimateCard extends LitElement {
 					'⬆️': 'mdi:arrow-up',
 					'➡️': 'mdi:arrow-right',
 					'⬇️': 'mdi:arrow-down',
+					'↖️': 'mdi:arrow-top-left',
+					'↗️': 'mdi:arrow-top-right',
+					'↘️': 'mdi:arrow-bottom-right',
+					'↙️': 'mdi:arrow-bottom-left',
+					'↔️': 'mdi:arrow-left-right',
+					'↕️': 'mdi:arrow-up-down',
 					'←': 'mdi:arrow-left',
 					'↑': 'mdi:arrow-up',
 					'→': 'mdi:arrow-right',
 					'↓': 'mdi:arrow-down',
-					'↔': 'mdi:arrow-left-right',
-					'↕': 'mdi:arrow-up-down',
 					'↖': 'mdi:arrow-top-left',
 					'↗': 'mdi:arrow-top-right',
 					'↘': 'mdi:arrow-bottom-right',
-					'↙': 'mdi:arrow-bottom-left'
+					'↙': 'mdi:arrow-bottom-left',
+					'↔': 'mdi:arrow-left-right',
+					'↕': 'mdi:arrow-up-down'
       };
       return swingIcons[mode] || '';
   }
@@ -908,9 +914,8 @@ export class XiaoshiClimateCard extends LitElement {
 
   _translateSwingMode(mode) {
 		const arrowSymbols = new Set([
-			'🔄', '⬅️', '⬆️', '➡️', '⬇️',
-			'←', '↑', '→', '↓', '↔', '↕',
-			'↖', '↗', '↘', '↙'
+			'🔄', '⬅️', '⬆️', '➡️', '⬇️','↔️','↕️','↖️', '↗️', '↘️', '↙️',
+			'←', '↑', '→', '↓', '↔', '↕','↖', '↗', '↘', '↙'
 		]);
 		if (arrowSymbols.has(mode)) return '';
 
