@@ -275,3 +275,19 @@ type: xiaoshi-lunar-right4
 type: xiaoshi-lunar-right5
 type: xiaoshi-lunar-right6
 ~~~
+
+## 功能19：空调卡片
+**引用示例**
+~~~
+type: custom:xiaoshi-climate-card
+entity: climate.kongtiao_keting
+timer: timer.ke_ting_kong_diao_ding_shi_qi   ## 辅助元素：定时器实体
+width: 100%                                  ## 卡片宽度，可省略，默认100%
+buttons:                                     ## 附加按钮：辅热、节能、干燥、睡眠、提示音、指示灯等，没有可省略
+  - switch.kongtiao_dryer_keting             ## 没有可省略
+  - switch.kongtiao_eco_keting               ## 没有可省略
+  - switch.kongtiao_heater_keting            ## 没有可省略
+  - switch.kongtiao_sleep_keting             ## 没有可省略
+  - switch.kongtiao_alarm_keting             ## 没有可省略
+  - light.kongtiao_light_keting              ## 没有可省略
+~~~
