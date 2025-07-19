@@ -60,7 +60,7 @@ export class XiaoshiClimateCard extends LitElement {
               grid-area: name;
               display: flex;
               align-items: center;
-              font-size: 18px;
+              font-size: 16px;
               font-weight: bold;
               overflow: hidden;
               text-overflow: ellipsis;
@@ -97,6 +97,8 @@ export class XiaoshiClimateCard extends LitElement {
               color: var(--button);;
               width: 24px;
               height: 24px;
+							border-radius: 5px;
+							cursor: default;
           }
 
           .temp-display {
@@ -126,6 +128,8 @@ export class XiaoshiClimateCard extends LitElement {
               justify-content: flex-end;
               width: 100%;
               height: 35px;
+							border-radius: 5px;
+							cursor: default;
           }
           
           .power-icon {
@@ -212,6 +216,7 @@ export class XiaoshiClimateCard extends LitElement {
               min-width: 0;
               overflow: hidden;
               padding: 0 2px;
+							cursor: default;
           }
           
           .timer-display {
@@ -245,12 +250,14 @@ export class XiaoshiClimateCard extends LitElement {
               cursor: pointer;
               min-width: 0;
               overflow: visible;
+							cursor: default;
           }
           
           .extra-button-icon {
               --mdc-icon-size: 27px;
               height: 23px;
               margin-top: -3px;
+							cursor: default;
           }
           
           .extra-button-text {
@@ -262,6 +269,7 @@ export class XiaoshiClimateCard extends LitElement {
               height: auto;
               margin-top: -3px;
               line-height: normal;
+							cursor: default;
           }
           
           .mode-button {
@@ -277,6 +285,7 @@ export class XiaoshiClimateCard extends LitElement {
               flex: 1;
               min-width: 0;
               position: relative;
+							cursor: default;
           }
 
           .icon {
@@ -584,13 +593,13 @@ export class XiaoshiClimateCard extends LitElement {
             +
         </button>
         <button class="timer-button" @click=${() => this._setTimer(60 * 60)}>
-            1小时
+            1h
         </button>
         <button class="timer-button" @click=${() => this._setTimer(3 * 60 * 60)}>
-            3小时
+            3h
         </button>
         <button class="timer-button" @click=${() => this._setTimer(8 * 60 * 60)}>
-            8小时
+            8h
         </button>
     `;
 }
@@ -914,6 +923,7 @@ export class XiaoshiClimateCard extends LitElement {
           this._callService('climate', 'turn_off', {
               entity_id: this.config.entity
           });
+        this._cancelTimer();
       }
   }
 
