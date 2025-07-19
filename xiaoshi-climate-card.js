@@ -25,6 +25,7 @@ export class XiaoshiClimateCard extends LitElement {
               border-radius: 12px;
               overflow: hidden;
               box-sizing: border-box;
+							margin-bottom: 8px;
           }
           
           .content-container {
@@ -618,7 +619,7 @@ export class XiaoshiClimateCard extends LitElement {
           if (currentMinutes > 30) return '30分';
           if (currentMinutes > 10) return '10分';
           return '取消';
-      } else { // 增加
+      } else {
           if (currentSeconds === 0) return '10分';
           if (currentMinutes < 30) return '10分';
           if (currentMinutes < 180) return '30分';
@@ -665,19 +666,13 @@ export class XiaoshiClimateCard extends LitElement {
 
   _setTimer(totalSeconds) {
       if (!this.config.timer) return;
-      
-      // 计算新的结束时间
       const now = new Date();
       const finishesAt = new Date(now.getTime() + totalSeconds * 1000);
-      
-      // 如果定时器已经在运行，先取消
       if (this.hass.states[this.config.timer].state === 'active') {
           this._callService('timer', 'cancel', {
               entity_id: this.config.timer
           });
       }
-      
-      // 启动新的定时器
       this._callService('timer', 'start', {
           entity_id: this.config.timer,
           duration: this._formatSeconds(totalSeconds)
