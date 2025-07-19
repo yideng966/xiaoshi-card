@@ -326,7 +326,7 @@ export class XiaoshiClimateCard extends LitElement {
               display: flex;
               align-items: center;
               justify-content: center;
-              gap: 4px;
+              gap: 5px;
               width: 100%;
           }
           
