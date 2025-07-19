@@ -385,6 +385,9 @@ export class XiaoshiClimateCard extends LitElement {
       }
 
       const attrs = entity.attributes;
+			const current_temperature = typeof attrs.current_temperature === 'number' ? `室温: ${attrs.current_temperature}°C` : '';
+			const temperature =  typeof attrs.temperature === 'number'  ? `${attrs.temperature.toFixed(1)}°C`  : '';
+
       const state = entity.state;
       const isOn = state !== 'off';
       
@@ -401,8 +404,6 @@ export class XiaoshiClimateCard extends LitElement {
       else if (state === 'fan' || state === 'fan_only') statusColor = 'rgb(0,188,213)';
       else if (state === 'auto') statusColor = 'rgb(200,188,213)';
       else if (state === 'off') statusColor = 'rgb(250,250,250)';
-
-
 
       const stateTranslations = {
           'cool': '制冷',
@@ -453,12 +454,12 @@ export class XiaoshiClimateCard extends LitElement {
                               <button class="temp-adjust-button" @click=${() => this._adjustTemperature('down')}>
                                       <ha-icon icon="mdi:chevron-left"></ha-icon>
                               </button>
-                              <div class="temp-display">${attrs.temperature}°C</div>
+                              <div class="temp-display">${temperature}</div>
                               <button class="temp-adjust-button" @click=${() => this._adjustTemperature('up')}>
                                       <ha-icon icon="mdi:chevron-right"></ha-icon>
                               </button>
                       </div>
-                        室温: ${attrs.current_temperature}°C
+                        ${current_temperature}
               </div>
                       <div class="power-area">
                               <button class="power-button" @click=${this._togglePower}>
@@ -773,7 +774,22 @@ export class XiaoshiClimateCard extends LitElement {
           'off': 'mdi:arrow-oscillating-off',
           'vertical': 'mdi:arrow-up-down',
           'horizontal': 'mdi:arrow-left-right',
-          'both': 'mdi:arrow-all'
+          'both': 'mdi:arrow-all',
+					'🔄': 'mdi:autorenew',
+					'⬅️': 'mdi:arrow-left',
+					'⬆️': 'mdi:arrow-up',
+					'➡️': 'mdi:arrow-right',
+					'⬇️': 'mdi:arrow-down',
+					'←': 'mdi:arrow-left',
+					'↑': 'mdi:arrow-up',
+					'→': 'mdi:arrow-right',
+					'↓': 'mdi:arrow-down',
+					'↔': 'mdi:arrow-left-right',
+					'↕': 'mdi:arrow-up-down',
+					'↖': 'mdi:arrow-top-left',
+					'↗': 'mdi:arrow-top-right',
+					'↘': 'mdi:arrow-bottom-right',
+					'↙': 'mdi:arrow-bottom-left'
       };
       return swingIcons[mode] || '';
   }
@@ -891,13 +907,20 @@ export class XiaoshiClimateCard extends LitElement {
   }
 
   _translateSwingMode(mode) {
-      const translations = {
-          'off': '\u00A0\u00A0关闭',
-          'vertical': '\u00A0\u00A0垂直',
-          'horizontal': '\u00A0\u00A0水平',
-          'both': '\u00A0\u00A0立体'
-      };
-      return translations[mode] || mode;
+		const arrowSymbols = new Set([
+			'🔄', '⬅️', '⬆️', '➡️', '⬇️',
+			'←', '↑', '→', '↓', '↔', '↕',
+			'↖', '↗', '↘', '↙'
+		]);
+		if (arrowSymbols.has(mode)) return '';
+
+		const translations = {
+				'off': '\u00A0\u00A0关闭',
+				'vertical': '\u00A0\u00A0垂直',
+				'horizontal': '\u00A0\u00A0水平',
+				'both': '\u00A0\u00A0立体',
+		};
+		return translations[mode] || mode;
   }
   _turnOffClimate() {
     if (!this.config.entity) return;
@@ -938,7 +961,7 @@ export class XiaoshiClimateCard extends LitElement {
   _setSwingMode(mode) {
       this._callService('climate', 'set_swing_mode', {
           entity_id: this.config.entity,
-          swing_mode: mode 
+          swing_mode: mode
       });
   }
 
