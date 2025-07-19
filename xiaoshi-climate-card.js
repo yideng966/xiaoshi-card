@@ -440,7 +440,7 @@ export class XiaoshiClimateCard extends LitElement {
     const width = canvas.width = container.offsetWidth;
     const height = canvas.height = container.offsetHeight * 0.4; // 增大波浪高度
     
-    this._wavePhase += 0.04; // 调整波浪速度
+    this._wavePhase += 0.02; // 调整波浪速度
 
     // 清除画布
     ctx.clearRect(0, 0, width, height);
