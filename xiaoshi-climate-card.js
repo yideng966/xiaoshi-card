@@ -44,19 +44,38 @@ export class XiaoshiClimateCard extends LitElement {
               grid-template-columns: 25% 60% 13%;
               grid-template-rows: auto auto auto auto auto auto 4px;
           }
-          
-          .active-gradient {
-              position: absolute;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background: linear-gradient(90deg, var(--active-color), transparent);
-              opacity: 0.6;
-              pointer-events: none;
-              z-index: 0;
-          }
-          
+
+					.active-gradient {
+						position: absolute;
+						top: 0;
+						left: 0;
+						width: 100%;
+						height: 100%;
+						background: linear-gradient(90deg, var(--active-color), transparent 50%);
+						opacity: 0.5;
+						z-index: 0;
+					}
+
+					.wave-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+					}
+					
+					.wave-canvas {
+							position: absolute;
+							bottom: 0;
+							left: 0;
+							width: 100%;
+							height: 40%;
+							z-index: 0;
+					}
+
           .name-area {
               grid-area: name;
               display: flex;
@@ -354,7 +373,10 @@ export class XiaoshiClimateCard extends LitElement {
       this.buttons = [];
       this.theme = 'on';
       this.width = '100%';
-      this._timerInterval = null;  // 初始化定时器
+      this._timerInterval = null;
+			this._waveAnimationFrame = null;
+			this._wavePhase = 0;
+			this._waveHeightRatio = 0.3; 
   }
 
   _evaluateTheme() {
@@ -374,66 +396,166 @@ export class XiaoshiClimateCard extends LitElement {
       }
   }
 
+	updated(changedProperties) {
+    if (changedProperties.has('hass') || changedProperties.has('config')) {
+        const entity = this.hass?.states[this.config?.entity];
+        const isOn = entity?.state !== 'off';
+        
+        if (isOn) {
+            this._startWaveAnimation();
+        } else {
+            this._stopWaveAnimation();
+        }
+    }
+	}
+
+	_startWaveAnimation() {
+			if (!this._waveAnimationFrame) {
+					this._animateWave();
+			}
+	}
+
+	_stopWaveAnimation() {
+			if (this._waveAnimationFrame) {
+					cancelAnimationFrame(this._waveAnimationFrame);
+					this._waveAnimationFrame = null;
+			}
+	}
+
+	_animateWave() {
+    const container = this.shadowRoot?.querySelector('.wave-container');
+    if (!container) {
+        this._waveAnimationFrame = requestAnimationFrame(() => this._animateWave());
+        return;
+    }
+
+    let canvas = container.querySelector('canvas');
+    if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.className = 'wave-canvas';
+        container.appendChild(canvas);
+    }
+
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width = container.offsetWidth;
+    const height = canvas.height = container.offsetHeight * 0.4; // 增大波浪高度
+    
+    this._wavePhase += 0.04; // 调整波浪速度
+
+    // 清除画布
+    ctx.clearRect(0, 0, width, height);
+
+    // 创建更复杂的波浪形状
+    const drawWave = (offset, heightRatio, color) => {
+        ctx.beginPath();
+        ctx.moveTo(0, height);
+        
+        // 多层波浪叠加
+        for (let x = 0; x <= width; x++) {
+            const y = (
+                Math.sin(x * 0.01 + this._wavePhase + offset) * 15 + 
+                Math.sin(x * 0.02 + this._wavePhase * 1.3 + offset) * 8 +
+                Math.sin(x * 0.005 + this._wavePhase * 0.7 + offset) * 5
+            ) * heightRatio + (height - 30);
+            
+            ctx.lineTo(x, y);
+        }
+        
+        ctx.lineTo(width, height);
+        ctx.lineTo(0, height);
+        
+        // 创建垂直渐变
+        const gradient = ctx.createLinearGradient(0, height - 50, 0, height);
+        gradient.addColorStop(1, color);
+        gradient.addColorStop(0, color);
+        
+        ctx.fillStyle = gradient;
+        ctx.fill();
+    };
+
+    // 绘制主波浪（使用空调状态颜色）
+		const entity = this.hass.states[this.config.entity];
+		const state = entity.state;
+		
+		// 使用 let 替代 const，允许重新赋值
+		let mainColor = '#2196f3'; // 默认颜色（cool的蓝色）
+		
+		// 根据状态设置颜色
+		if (state === 'cool') mainColor = '#2196f3'; 
+		else if (state === 'heat') mainColor = '#fe6f21';
+		else if (state === 'dry') mainColor = '#ff9700'; 
+		else if (state === 'fan') mainColor = '#00bcd5'; 
+		else if (state === 'fan_only') mainColor = '#00bcd5';
+		else if (state === 'auto') mainColor = '#c8bcd5';
+		else if (state === 'off') mainColor = '#aaaaaa';
+    drawWave(0, 1, `${mainColor}40`); 
+    // 绘制次级波浪（半透明）
+    drawWave(Math.PI/2, 0.8, `${mainColor}30`);
+    // 绘制第三层波浪（更透明）
+    drawWave(Math.PI, 0.6, `${mainColor}20`);
+    this._waveAnimationFrame = requestAnimationFrame(() => this._animateWave());
+}
+
   render() {
-      if (!this.hass || !this.config.entity) {
-          return html``;
-      }
+		if (!this.hass || !this.config.entity) {
+				return html``;
+		}
 
-      const entity = this.hass.states[this.config.entity];
-      if (!entity) {
-          return html`<div>实体未找到: ${this.config.entity}</div>`;
-      }
+		const entity = this.hass.states[this.config.entity];
+		if (!entity) {
+				return html`<div>实体未找到: ${this.config.entity}</div>`;
+		}
 
-      const attrs = entity.attributes;
-			const current_temperature = typeof attrs.current_temperature === 'number' ? `室温: ${attrs.current_temperature}°C` : '';
-			const temperature =  typeof attrs.temperature === 'number'  ? `${attrs.temperature.toFixed(1)}°C`  : '';
+		const attrs = entity.attributes;
+		const current_temperature = typeof attrs.current_temperature === 'number' ? `室温: ${attrs.current_temperature}°C` : '';
+		const temperature =  typeof attrs.temperature === 'number'  ? `${attrs.temperature.toFixed(1)}°C`  : '';
 
-      const state = entity.state;
-      const isOn = state !== 'off';
-      
-      const theme = this._evaluateTheme();
-      const fgColor = theme === 'on' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)';
-      const bgColor = theme === 'on' ? 'rgb(255, 255, 255)' : 'rgb(50, 50, 50)';
-      const buttonBg = theme === 'on' ? 'rgb(50,50,50)' : 'rgb(120,120,120)';
-      const buttonFg = 'rgb(250,250,250)';
+		const state = entity.state;
+		const isOn = state !== 'off';
+		
+		const theme = this._evaluateTheme();
+		const fgColor = theme === 'on' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)';
+		const bgColor = theme === 'on' ? 'rgb(255, 255, 255)' : 'rgb(50, 50, 50)';
+		const buttonBg = theme === 'on' ? 'rgb(50,50,50)' : 'rgb(120,120,120)';
+		const buttonFg = 'rgb(250,250,250)';
 
-      let statusColor = 'rgb(250,250,250)';
-      if (state === 'cool') statusColor = 'rgb(33,150,243)';
-      else if (state === 'heat') statusColor = 'rgb(254,111,33)';
-      else if (state === 'dry') statusColor = 'rgb(255,151,0)';
-      else if (state === 'fan' || state === 'fan_only') statusColor = 'rgb(0,188,213)';
-      else if (state === 'auto') statusColor = 'rgb(200,188,213)';
-      else if (state === 'off') statusColor = 'rgb(250,250,250)';
+		let statusColor = 'rgb(250,250,250)';
+		if (state === 'cool') statusColor = 'rgb(33,150,243)';
+		else if (state === 'heat') statusColor = 'rgb(254,111,33)';
+		else if (state === 'dry') statusColor = 'rgb(255,151,0)';
+		else if (state === 'fan' || state === 'fan_only') statusColor = 'rgb(0,188,213)';
+		else if (state === 'auto') statusColor = 'rgb(200,188,213)';
+		else if (state === 'off') statusColor = 'rgb(250,250,250)';
 
-      const stateTranslations = {
-          'cool': '制冷',
-          'heat': '制热',
-          'dry': '除湿',
-          'fan': '吹风',
-          'fan_only': '吹风',
-          'auto': '自动',
-          'off': '关闭',
-					'unknown': '未知',
-					'undefined': '离线'
-      };
-      const translatedState = stateTranslations[state] || state;
+		const stateTranslations = {
+				'cool': '制冷',
+				'heat': '制热',
+				'dry': '除湿',
+				'fan': '吹风',
+				'fan_only': '吹风',
+				'auto': '自动',
+				'off': '关闭',
+				'unknown': '未知',
+				'undefined': '离线'
+		};
+		const translatedState = stateTranslations[state] || state;
 
-      const hasFanModes = attrs.fan_modes && attrs.fan_modes.length > 0;
-      const hasSwingModes = attrs.swing_modes && attrs.swing_modes.length > 0;
-      const hasTimer = this.config.timer;
-      const timerEntity = hasTimer ? this.hass.states[this.config.timer] : null;
-      const hasExtra = this.buttons && this.buttons.length > 0;
-      
-      const gridTemplateRows = [
-          'auto',
-          'auto',
-          hasFanModes ? 'auto' : '0',
-          hasSwingModes ? 'auto' : '0',
-          hasTimer ? 'auto' : '0',
-          hasExtra ? 'auto' : '0'
-      ].join(' ');
+		const hasFanModes = attrs.fan_modes && attrs.fan_modes.length > 0;
+		const hasSwingModes = attrs.swing_modes && attrs.swing_modes.length > 0;
+		const hasTimer = this.config.timer;
+		const timerEntity = hasTimer ? this.hass.states[this.config.timer] : null;
+		const hasExtra = this.buttons && this.buttons.length > 0;
+		
+		const gridTemplateRows = [
+				'auto',
+				'auto',
+				hasFanModes ? 'auto' : '0',
+				hasSwingModes ? 'auto' : '0',
+				hasTimer ? 'auto' : '0',
+				hasExtra ? 'auto' : '0'
+		].join(' ');
 
-      return html`
+    return html`
       <div class="card"
                style="
                     width: ${this.width};
@@ -444,7 +566,7 @@ export class XiaoshiClimateCard extends LitElement {
                     --active-color: ${statusColor};
                     grid-template-rows: ${gridTemplateRows}">
                                                               
-              ${isOn ? html`<div class="active-gradient"></div>` : ''}
+              ${isOn ? html`<div class="active-gradient"></div><div class="wave-container"></div>` : ''}
               
               <div class="content-container">
                       <div class="name-area">${attrs.friendly_name}</div>
@@ -508,19 +630,18 @@ export class XiaoshiClimateCard extends LitElement {
                   ${this._renderExtraButtons()}
               </div>
           ` : ''}
-      </div>
-  </div>
-  `;
+				</div>
+			</div>
+		`;
   }
+
   connectedCallback() {
       super.connectedCallback();
-      // 组件挂载时启动定时器
       this._startTimerRefresh();
   }
 
   disconnectedCallback() {
       super.disconnectedCallback();
-      // 组件卸载时清除定时器
       this._stopTimerRefresh();
   }
 
