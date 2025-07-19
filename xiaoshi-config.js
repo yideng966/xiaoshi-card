@@ -1,5 +1,10 @@
 export const cardConfigs = [
   {
+    type: 'xiaoshi-climate-card',
+    name: '消逝卡片组 空调卡',
+    description: '加载空调'
+  },
+  {
     type: 'xiaoshi-light-card',
     name: '消逝卡片组 灯光卡',
     description: '加载灯光'
