@@ -326,7 +326,6 @@ export class XiaoshiClimateCard extends LitElement {
               display: flex;
               align-items: center;
               justify-content: center;
-              gap: 5px;
               width: 100%;
           }
           
@@ -898,10 +897,10 @@ export class XiaoshiClimateCard extends LitElement {
 
   _translateSwingMode(mode) {
       const translations = {
-          'off': '关闭',
-          'vertical': '垂直',
-          'horizontal': '水平',
-          'both': '立体'
+          'off': '\u00A0\u00A0关闭',
+          'vertical': '\u00A0\u00A0垂直',
+          'horizontal': '\u00A0\u00A0水平',
+          'both': '\u00A0\u00A0立体'
       };
       return translations[mode] || mode;
   }
