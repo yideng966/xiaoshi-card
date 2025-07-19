@@ -402,7 +402,9 @@ export class XiaoshiClimateCard extends LitElement {
           'fan': '吹风',
           'fan_only': '吹风',
           'auto': '自动',
-          'off': '关闭'
+          'off': '关闭',
+					'unknown': '未知',
+					'undefined': '离线'
       };
       const translatedState = stateTranslations[state] || state;
 
@@ -875,9 +877,13 @@ export class XiaoshiClimateCard extends LitElement {
       if (mode.includes('五') || mode.includes('5')) return '5';
       if (mode.includes('六') || mode.includes('6')) return '6';
       if (mode.includes('七') || mode.includes('7')) return '7';
+      if (mode.includes('silent') || mode.includes('静')) return '静';
       if (mode.includes('low') || mode.includes('低')) return '低';
+      if (mode.includes('稍弱')) return '弱';
+      if (mode.includes('稍强')) return '强';
       if (mode.includes('medium') || mode.includes('中')) return '中';
       if (mode.includes('high') || mode.includes('高')) return '高';
+      if (mode.includes('full') || mode.includes('全')) return '全';
       return mode;
   }
 
