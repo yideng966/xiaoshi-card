@@ -938,7 +938,7 @@ export class XiaoshiClimateCard extends LitElement {
   _setSwingMode(mode) {
       this._callService('climate', 'set_swing_mode', {
           entity_id: this.config.entity,
-          swing_mode: mode
+          swing_mode: mode 
       });
   }
 
