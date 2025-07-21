@@ -8,13 +8,15 @@ export class XiaoshiClimateCard extends LitElement {
           config: { type: Object },
           buttons: { type: Array },
           theme: { type: String },
-          _timerInterval: { state: true }  // 添加定时器状态
+          _timerInterval: { state: true },
+					auto_show: { type: Boolean }
       };
   }
   
   setConfig(config) {
       this.config = config;
       this.buttons = config.buttons || [];
+			this.auto_show = config.auto_show || false;
       if (config.width !== undefined) this.width = config.width;
   }
   
@@ -25,7 +27,6 @@ export class XiaoshiClimateCard extends LitElement {
               border-radius: 12px;
               overflow: hidden;
               box-sizing: border-box;
-							margin-bottom: 8px;
           }
           
           .content-container {
@@ -177,12 +178,18 @@ export class XiaoshiClimateCard extends LitElement {
           .fan-icon {
               --mdc-icon-size: 50px;
               margin-top: -3px;
+							transition: transform 0.3s ease; /* 添加平滑过渡 */
           }
           
-          .active-icon {
-              animation: spin 2s linear infinite;
-              color: var(--active-color);
-          }
+					.active-icon, .active-fan-icon {
+						animation: spin var(--fan-speed, 2s) linear infinite;
+						color: var(--active-color);
+					}
+
+          @keyframes spin {
+						from { transform: rotate(0deg); }
+						to { transform: rotate(360deg); }
+					}
 
           .modes-area, .fan-area, .swing-area, .timer-area, .extra-area {
               display: flex;
@@ -311,11 +318,7 @@ export class XiaoshiClimateCard extends LitElement {
           .icon {
               --mdc-icon-size: 16px;
           }
-          
-          @keyframes spin {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-          }
+
           
           .fan-button {
               position: relative;
@@ -505,14 +508,18 @@ export class XiaoshiClimateCard extends LitElement {
 		if (!entity) {
 				return html`<div>实体未找到: ${this.config.entity}</div>`;
 		}
+		const state = entity.state;
+		const isOn = state !== 'off';
+    let marginBottom = '8px';
+    if (this.auto_show && !isOn) {
+			marginBottom = '0px';
+			return html``;
+		}
 
 		const attrs = entity.attributes;
 		const current_temperature = typeof attrs.current_temperature === 'number' ? `室温: ${attrs.current_temperature}°C` : '';
 		const temperature =  typeof attrs.temperature === 'number'  ? `${attrs.temperature.toFixed(1)}°C`  : '';
 
-		const state = entity.state;
-		const isOn = state !== 'off';
-		
 		const theme = this._evaluateTheme();
 		const fgColor = theme === 'on' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)';
 		const bgColor = theme === 'on' ? 'rgb(255, 255, 255)' : 'rgb(50, 50, 50)';
@@ -555,9 +562,26 @@ export class XiaoshiClimateCard extends LitElement {
 				hasExtra ? 'auto' : '0'
 		].join(' ');
 
-    return html`
+    // 计算风扇速度
+    const fanModes = attrs.fan_modes || [];
+    const modeCount = fanModes.length;
+    const currentFanMode = attrs.fan_mode;
+    let fanSpeed = '2s'; // 默认值
+    
+    if (modeCount > 0 && currentFanMode) {
+        const minSpeed = 2;
+        const maxSpeed = 0.5;
+        const speedStep = modeCount > 1 ? (minSpeed - maxSpeed) / (modeCount - 1) : 0;
+        const currentIndex = fanModes.indexOf(currentFanMode);
+        if (currentIndex >= 0) {
+            fanSpeed = (minSpeed - (currentIndex * speedStep)).toFixed(1) + 's';
+        }
+    }
+		
+    return html` 
       <div class="card"
                style="
+							 			margin-bottom: ${marginBottom};
                     width: ${this.width};
                     background: ${bgColor}; 
                     color: ${fgColor}; 
@@ -596,9 +620,9 @@ export class XiaoshiClimateCard extends LitElement {
                       <div class="icon-area">
                               <div class="fan-icon-container">
                                       <ha-icon 
-                                              class="fan-icon ${isOn ? 'active-icon' : ''}" 
+                                              class="fan-icon ${isOn ? 'active-fan-icon' : ''}" 
                                               icon="${isOn ? 'mdi:fan' : 'mdi:fan-off'}"
-                                              style="color: ${isOn ? statusColor : ''}"
+                                              style="color: ${isOn ? statusColor : ''}; ${isOn ? `--fan-speed: ${fanSpeed}` : ''}"
                                       ></ha-icon>
                               </div>
                       </div>
@@ -608,9 +632,9 @@ export class XiaoshiClimateCard extends LitElement {
           </div>
           
           ${hasFanModes ? html`
-              <div class="fan-area">
-                  ${this._renderFanButtons(attrs.fan_modes, attrs.fan_mode)}
-              </div>
+							<div class="fan-area">
+									${this._renderFanButtons(attrs.fan_modes, attrs.fan_mode)}
+							</div>
           ` : ''}
           
           ${hasSwingModes ? html`
@@ -637,7 +661,9 @@ export class XiaoshiClimateCard extends LitElement {
 
   connectedCallback() {
       super.connectedCallback();
-      this._startTimerRefresh();
+			if (!this.auto_show || this.isOn) {
+        this._startTimerRefresh();
+    }
   }
 
   disconnectedCallback() {
@@ -949,37 +975,40 @@ export class XiaoshiClimateCard extends LitElement {
       });
   }
 
-  _renderFanButtons(fanModes, currentFanMode) {
-      if (!fanModes) return html``;
-      
-      return fanModes.map(mode => {
-          const isActive = mode === currentFanMode;
-          const activeColor = isActive ? 'var(--active-color)' : '';
-          
-          return html`
-              <button 
-                  class="mode-button ${isActive ? 'active-mode' : ''}" 
-                  @click=${() => this._setFanMode(mode)}
-                  style="color: ${activeColor}"
-              >
-                  <div class="fan-button">
-                      <ha-icon 
-                          class="icon" 
-                          icon="mdi:fan" 
-                          style="color: ${activeColor}; position: relative;"
-                      ></ha-icon>
-                      <span 
-                          class="fan-text" 
-                          style="color: ${isActive ? activeColor : 'var(--button-fg)'};"
-                      >
-                          ${this._translateFanMode(mode)}
-                      </span>
-                  </div>
-              </button>
-          `;
-      });
-  }
-
+	_renderFanButtons(fanModes, currentFanMode) {
+    if (!fanModes || fanModes.length === 0) return html``;
+    
+    const entity = this.hass.states[this.config.entity];
+    const isOn = entity?.state !== 'off';
+    
+    // 计算速度范围 (2s到0.5s)
+    const modeCount = fanModes.length;
+    const minSpeed = 2;   // 最慢速度(秒)
+    const maxSpeed = 0.5; // 最快速度(秒)
+    const speedStep = modeCount > 1 ? (minSpeed - maxSpeed) / (modeCount - 1) : 0;
+    
+    return fanModes.map((mode, index) => {
+        const isActive = mode === currentFanMode && isOn; // 只有开启状态下才视为active
+        const speed = (minSpeed - (index * speedStep)).toFixed(1) + 's';
+        
+        return html`
+            <button 
+                class="mode-button ${isActive ? 'active-mode' : ''}" 
+                @click=${() => this._setFanMode(mode)}
+                style="${isActive ? `--fan-speed: ${speed};` : ''} color: ${isActive ? 'var(--active-color)' : ''}"
+            >
+                <div class="fan-button">
+                    <ha-icon 
+                        class="icon ${isActive ? 'active-icon' : ''}" 
+                        icon="mdi:fan" 
+                        style="color: ${isActive ? 'var(--active-color)' : ''}"
+                    ></ha-icon>
+                    <span class="fan-text">${this._translateFanMode(mode)}</span>
+                </div>
+            </button>
+        `;
+    });
+	}
   _renderSwingButtons(swingModes, currentSwingMode) {
       if (!swingModes) return html``;
       
