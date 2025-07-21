@@ -282,6 +282,8 @@ type: xiaoshi-lunar-right6
 type: custom:xiaoshi-climate-card
 entity: climate.kongtiao_keting
 timer: timer.ke_ting_kong_diao_ding_shi_qi   ## 辅助元素：定时器实体
+theme: on                                    ## 可选on、off、或者函数返回值如'[[[ return theme() ]]]'
+auto_show: true                              ## 当有此选项时，空调关闭时，卡片隐藏
 width: 100%                                  ## 卡片宽度，可省略，默认100%
 buttons:                                     ## 附加按钮：辅热、节能、干燥、睡眠、提示音、指示灯等，没有可省略
   - switch.kongtiao_dryer_keting             ## 没有可省略
