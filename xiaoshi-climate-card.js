@@ -157,7 +157,11 @@ export class XiaoshiClimateCard extends LitElement {
               --mdc-icon-size: 30px;
               transition: all 0.3s ease;
           }
-          
+
+          .icon {
+						--mdc-icon-size: 16px;
+					}
+
           .icon-area {
               grid-area: icon;
               display: flex;
@@ -167,23 +171,23 @@ export class XiaoshiClimateCard extends LitElement {
               height: 100%;
           }
 
-          .fan-icon-container {
-              flex: 1;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              width: 100%;
-          }
-          
-          .fan-icon {
-              --mdc-icon-size: 50px;
-              margin-top: -3px;
-							transition: transform 0.3s ease; /* 添加平滑过渡 */
-          }
-          
-					.active-icon, .active-fan-icon {
-						animation: spin var(--fan-speed, 2s) linear infinite;
-						color: var(--active-color);
+					.main-icon-container {
+						flex: 1;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width: 100%;
+					}
+					
+					.main-icon {
+							--mdc-icon-size: 50px;
+							margin-top: -3px;
+							transition: transform 0.3s ease;
+					}
+
+					.active-main-icon {
+							animation: spin var(--fan-speed, 2s) linear infinite;
+							color: var(--active-color);
 					}
 
           @keyframes spin {
@@ -315,11 +319,6 @@ export class XiaoshiClimateCard extends LitElement {
 							cursor: default;
           }
 
-          .icon {
-              --mdc-icon-size: 16px;
-          }
-
-          
           .fan-button {
               position: relative;
               width: 100%;
@@ -328,7 +327,22 @@ export class XiaoshiClimateCard extends LitElement {
               align-items: center;
               justify-content: center;
           }
-          
+
+					.fan-button-icon {
+						--mdc-icon-size: 16px;
+						width: 16px;
+						height: 16px;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						transform-origin: center;
+					}
+
+					.active-fan-button-icon {
+						animation: spin var(--fan-speed, 2s) linear infinite;
+						color: var(--active-color);
+					}
+
           .fan-text {
               position: absolute;
               font-size: 8px;
@@ -618,9 +632,9 @@ export class XiaoshiClimateCard extends LitElement {
                       </div>
                       
                       <div class="icon-area">
-                              <div class="fan-icon-container">
+                              <div class="main-icon-container">
                                       <ha-icon 
-                                              class="fan-icon ${isOn ? 'active-fan-icon' : ''}" 
+                                              class="main-icon ${isOn ? 'active-main-icon' : ''}" 
                                               icon="${isOn ? 'mdi:fan' : 'mdi:fan-off'}"
                                               style="color: ${isOn ? statusColor : ''}; ${isOn ? `--fan-speed: ${fanSpeed}` : ''}"
                                       ></ha-icon>
@@ -999,7 +1013,7 @@ export class XiaoshiClimateCard extends LitElement {
             >
                 <div class="fan-button">
                     <ha-icon 
-                        class="icon ${isActive ? 'active-icon' : ''}" 
+                        class="fan-button-icon ${isActive ? 'active-fan-button-icon' : ''}" 
                         icon="mdi:fan" 
                         style="color: ${isActive ? 'var(--active-color)' : ''}"
                     ></ha-icon>
