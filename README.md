@@ -293,3 +293,17 @@ buttons:                                     ## 附加按钮：辅热、节能�
   - switch.kongtiao_alarm_keting             ## 没有可省略
   - light.kongtiao_light_keting              ## 没有可省略
 ~~~
+## 功能20：电脑卡片
+**引用示例**
+~~~
+type: custom:xiaoshi-computer-card
+entity: switch.diannao                       ## 电脑开关实体（来源开机卡）
+theme: on                                    ## 可选on、off、或者函数返回值如'[[[ return theme() ]]]'
+cpu: sensor.pc_cpu_usage                     ## 实体来源：windows电脑安装 IOT link，配置HA的mqtt服务器
+memory: sensor.pc_memory_usage               ## 实体来源：官网https://iotlink.gitlab.io/downloads.html
+storage:
+  - sensor.pc_storage_c_usage                ## 实体来源：同上
+  - sensor.pc_storage_d_usage                ## 实体来源：同上
+  - sensor.pc_storage_e_usage                ## 实体来源：同上
+  - sensor.pc_storage_f_usage                ## 实体来源：同上
+~~~
