@@ -266,7 +266,7 @@ export class XiaoshiClimateCard extends LitElement {
           .extra-area {
               grid-area: extra;
               display: grid;
-              grid-template-columns: repeat(6, 1fr);
+             // grid-template-columns: repeat(6, 1fr);
               gap: 5px;
           }
           
@@ -557,7 +557,7 @@ export class XiaoshiClimateCard extends LitElement {
 				'auto': '自动',
 				'off': '关闭',
 				'unknown': '未知',
-				'undefined': '离线'
+				'unavailable': '离线'
 		};
 		const translatedState = stateTranslations[state] || state;
 
@@ -591,7 +591,9 @@ export class XiaoshiClimateCard extends LitElement {
             fanSpeed = (minSpeed - (currentIndex * speedStep)).toFixed(1) + 's';
         }
     }
-		
+    const buttonCount = Math.min(this.buttons.length, 7); 
+    const gridColumns = buttonCount <= 6 ? 6 : 7;
+
     return html` 
       <div class="card"
                style="
@@ -663,8 +665,12 @@ export class XiaoshiClimateCard extends LitElement {
               </div>
           ` : ''}
           
+  
+          
+          
+          
           ${hasExtra ? html`
-              <div class="extra-area">
+              <div class="extra-area" style="grid-template-columns: repeat(${gridColumns}, 1fr);">
                   ${this._renderExtraButtons()}
               </div>
           ` : ''}
@@ -846,11 +852,10 @@ export class XiaoshiClimateCard extends LitElement {
   }
 
 
-  _renderExtraButtons() {
+    _renderExtraButtons() {
     if (!this.buttons || this.buttons.length === 0) return html``;
 
-    const buttonsToShow = this.buttons.slice(0, 6);
-
+    const buttonsToShow = this.buttons.slice(0, 7);
     const entity = this.hass.states[this.config.entity];
     if (!entity) {
         return html`<div>实体未找到: ${this.config.entity}</div>`;
@@ -875,45 +880,138 @@ export class XiaoshiClimateCard extends LitElement {
         const entity = this.hass.states[buttonEntityId];
         if (!entity) return html``;
         
-        const isActive = entity.state === 'on';
-        const friendlyName = entity.attributes.friendly_name || '';
-        const shortName = friendlyName.length > 3 ? friendlyName.slice(0, 3) : friendlyName;
+        const domain = buttonEntityId.split('.')[0];
+        const friendlyName = entity.attributes.friendly_name || ''; // 统一在这里定义
+        let isActive = false;
+        let icon = '';
+        let displayText = '';
+        let displayValue = '';
+        let displayName = '';
         
-        // 确定颜色：开启时用状态颜色，关闭时用前景色
+        // 根据实体类型处理
+        switch(domain) {
+            case 'switch':
+            case 'light':
+                isActive = entity.state === 'on';
+                icon = isActive ? 'mdi:toggle-switch' : 'mdi:toggle-switch-off';
+                displayText = friendlyName.length > 4 ? friendlyName.slice(0, 4) : friendlyName;
+                break;
+                
+            case 'sensor':
+                const sensorValue = entity.state || '';
+                const unit = entity.attributes.unit_of_measurement || '';
+                displayValue = `${sensorValue}${unit}`.slice(0, 5);
+                displayName = friendlyName.slice(0, 4);
+                
+                return html`
+                    <div class="extra-button" style="color: ${fgColor}; cursor: default;">
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                            <div style="font-size: 12px; font-weight: bold; line-height: 1.5; margin-top: 1px;">
+                                ${displayValue}
+                            </div>
+                            <div style="font-size: 10px; line-height: 1.2; margin-top: -3px;">
+                                ${displayName}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+            case 'button':
+                isActive = false;
+                icon = 'mdi:button-pointer';
+                displayText = friendlyName.length > 4 ? friendlyName.slice(0, 4) : friendlyName;
+                return html`
+                    <button class="extra-button" 
+                            @click=${() => this._handleExtraButtonClick(buttonEntityId, domain)}
+                            style="color: ${fgColor}">
+                        <div style="margin-top: 0px;">
+                            <ha-icon class="extra-button-icon" 
+                                    icon="${icon}"
+                                    style="--mdc-icon-size: 12px; color: ${fgColor}">
+                            </ha-icon>
+                        </div>
+                        <div class="extra-button-text" style="color: ${fgColor}; margin-top: 3px; line-height: 1">
+                            ${displayText}
+                        </div>
+                    </button>
+                `;
+            
+            case 'select':
+                isActive = true;
+                icon = 'mdi:format-list-bulleted';
+                const currentOption = entity.state || '';
+                displayText = currentOption.slice(0, 4);
+                
+                if (!displayText || displayText.length > 4) {
+                    const options = entity.attributes.options || [];
+                    const firstOption = options[0] || '';
+                    displayText = firstOption.slice(0, 4);
+                }
+                return html`
+                    <button class="extra-button active-extra" 
+                            @click=${() => this._handleExtraButtonClick(buttonEntityId, domain)}
+                            style="color: ${activeColor}">
+                        <div style="margin-top: 0px;">
+                            <ha-icon class="extra-button-icon" 
+                                    icon="${icon}"
+                                    style="--mdc-icon-size: 12px; color: ${activeColor}">
+                            </ha-icon>
+                        </div>
+                        <div class="extra-button-text" style="color: ${activeColor}; margin-top: 3px; line-height: 1">
+                            ${displayText}
+                        </div>
+                    </button>
+                `;
+                
+            default:
+                return html``;
+        }
+        
+        // 通用按钮渲染（switch/light）
         const buttonColor = isActive ? activeColor : fgColor;
         
         return html`
             <button 
                 class="extra-button ${isActive ? 'active-extra' : ''}" 
-                @click=${() => this._toggleExtraButton(buttonEntityId)}
+                @click=${() => this._handleExtraButtonClick(buttonEntityId, domain)}
                 style="color: ${buttonColor}"
                 title="${friendlyName}"
             >
                 <ha-icon 
                     class="extra-button-icon"
-                    icon="${isActive ? 'mdi:toggle-switch' : 'mdi:toggle-switch-off'}"
+                    icon="${icon}"
                     style="color: ${buttonColor}"
                 ></ha-icon>
                 <div class="extra-button-text"
                      style="color: ${buttonColor}"
-                >${shortName}</div>
+                >${displayText}</div>
             </button>
         `;
     });
-}
+    }
+    _handleExtraButtonClick(entityId, domain) {
+        const entity = this.hass.states[entityId];
+        if (!entity) return;
+        
+        switch(domain) {
+            case 'switch':
+            case 'light':
+                const service = entity.state === 'on' ? 'turn_off' : 'turn_on';
+                this._callService(domain, service, { entity_id: entityId });
+                break;
+                
+            case 'button':
+                this._callService('button', 'press', { entity_id: entityId });
+                break;
+                
+            case 'select':
+                this._callService('select', 'select_next', { entity_id: entityId });
+                break;
+        }
+        
+        this._handleClick();
+    }
 
-  _toggleExtraButton(entityId) {
-      const entity = this.hass.states[entityId];
-      if (!entity) return;
-      
-      const domain = entityId.split('.')[0];
-      const service = entity.state === 'on' ? 'turn_off' : 'turn_on';
-      
-      this._callService(domain, service, {
-          entity_id: entityId
-      });
-      this._handleClick();
-  }
 
   _adjustTemperature(direction) {
       const entity = this.hass.states[this.config.entity];
@@ -1062,7 +1160,6 @@ export class XiaoshiClimateCard extends LitElement {
   }
 
   _translateFanMode(mode) {
-      if (mode.includes('最大') || mode.includes('max')|| mode.includes('Max')) return 'M';
       if (mode.includes('自动') || mode.includes('auto')) return 'A';
       if (mode.includes('一') || mode.includes('1')) return '1';
       if (mode.includes('二') || mode.includes('2')) return '2';
@@ -1078,6 +1175,7 @@ export class XiaoshiClimateCard extends LitElement {
       if (mode.includes('medium') || mode.includes('中')) return '中';
       if (mode.includes('high') || mode.includes('高')) return '高';
       if (mode.includes('full') || mode.includes('全')) return '全';
+      if (mode.includes('最大') || mode.includes('max')|| mode.includes('Max')) return 'M';
       return mode;
   }
 
@@ -1096,6 +1194,7 @@ export class XiaoshiClimateCard extends LitElement {
 		};
 		return translations[mode] || mode;
   }
+  
   _turnOffClimate() {
     if (!this.config.entity) return;
     
