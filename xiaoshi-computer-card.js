@@ -412,7 +412,7 @@ export class XiaoshiComputerCard extends LitElement {
       const theme = this._evaluateTheme();
       const fgColor = theme === 'on' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)';
       const bgColor = theme === 'on' ? 'rgb(255, 255, 255)' : 'rgb(50, 50, 50)';
-      const statusColor = isOn ? '#2196f3' : '#aaaaaa';
+      const statusColor = isOn ? '#2196f3' : '';
       
       // 收集所有要显示的圆环实体
       const ringEntities = [];
