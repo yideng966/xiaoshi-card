@@ -1161,7 +1161,11 @@ export class XiaoshiStateGridCalendar extends LitElement {
       </div>
     `;
   }
-
+  
+   _handleClick() {
+     navigator.vibrate(50);
+  }
+  
   _evaluateTheme() {
     try {
       if (!this.config || !this.config.theme) return 'on';
@@ -1187,12 +1191,14 @@ export class XiaoshiStateGridCalendar extends LitElement {
     this.year--;
     this.updateDayData();
     this.requestUpdate();
+    this._handleClick();
   }
 
   nextYear() {
     this.year++;
     this.updateDayData();
     this.requestUpdate();
+    this._handleClick();
   }
 
   prevMonth() {
@@ -1204,6 +1210,7 @@ export class XiaoshiStateGridCalendar extends LitElement {
     }
     this.updateDayData();
     this.requestUpdate();
+    this._handleClick();
   }
 
   nextMonth() {
@@ -1215,6 +1222,7 @@ export class XiaoshiStateGridCalendar extends LitElement {
     }
     this.updateDayData();
     this.requestUpdate();
+    this._handleClick();
   }
 
   goToToday() {
@@ -1223,6 +1231,7 @@ export class XiaoshiStateGridCalendar extends LitElement {
     this.month = today.getMonth() + 1;
     this.updateDayData();
     this.requestUpdate();
+    this._handleClick();
   }
 }
 customElements.define('xiaoshi-state-grid-calendar', XiaoshiStateGridCalendar);
