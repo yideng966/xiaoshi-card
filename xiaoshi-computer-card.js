@@ -163,25 +163,21 @@ export class XiaoshiComputerCard extends LitElement {
               display: flex;
               align-items: center;
               justify-content: center;
-                overflow: hidden;
-                gap: 5px;
-                /* 禁止换行并添加水平滚动 */
+                overflow: visible;
             flex-wrap: nowrap;
-            overflow-x: auto;
-            overflow-y: hidden;
             scrollbar-width: none; /* 隐藏滚动条 */
             -ms-overflow-style: none;
-              
           }
+          
         /* 隐藏滚动条 */
         .rings-area::-webkit-scrollbar {
             display: none;
         }
           .ring-container {
               position: relative;
-              width: min(50px, 13vw);
-                height: min(50px, 13vw);
-                 transition: width 0.3s ease, height 0.3s ease;
+              width: min(48px, 13vw);
+               height: min(48px, 13vw);
+            transition: width 0.3s ease, height 0.3s ease;
           }
 
           .ring-circle {
@@ -348,9 +344,9 @@ export class XiaoshiComputerCard extends LitElement {
       const name = this._getEntityName(entityId);
       const color = this._getRingColor(value);
       const strokeDasharray = value !== undefined ? `${value} 100` : '0 100';
-      const size = 'min(50px, 13vw)'; // 定义基础大小
+      const size = 'min(48px, 13vw)'; // 定义基础大小
       const theme = this._evaluateTheme();
-      const fgColor = theme === 'on' ? 'rgb(150, 150, 150)' : 'rgb(240, 240, 240)';
+      const fgColor = theme === 'on' ? 'rgb(50, 50, 50)' : 'rgb(240, 240, 240)';
     return html`
         <div class="ring-container">
             <svg class="ring-circle" 
@@ -374,9 +370,9 @@ export class XiaoshiComputerCard extends LitElement {
         if (!entity) return html`<span>状态未知</span>`;
         
         const isOn = entity.state === 'on';
-        if (!isOn) return html`<span>关机</span>`;
+        if (!isOn) return html`<span>&nbsp;关机</span>`;
         
-        const parts = [html`<span>开机:&nbsp;</span>`];
+        const parts = [html`<span>&nbsp;开机:&nbsp;</span>`];
         
         if (this.config.cpu) {
             const cpuValue = this._getEntityValue(this.config.cpu);
