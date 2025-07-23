@@ -2186,40 +2186,44 @@ export class XiaoshiStateGridPhone extends LitElement {
 
     const bodyHeight =  this.config.height;
     return html`
-      <div class="card-container"\n style="width: ${this.config.width};">
-        <xiaoshi-state-grid-nodered \n
-          .hass=${this.hass}\n
-          .config=${this.config}\n
-          .width=${this.config.width}\n
-          .height=${bodyHeight}\n
-          .icon=${this.config.icon}\n
-          .colorNum=${config.color_num}\n
-          .colorCost=${config.color_cost}\n
-          .cardwidth=${config.cardwidth}\n
+      <div class="card-container" style="width: ${this.config.width};">
+        <xiaoshi-state-grid-nodered 
+          .hass=${this.hass}
+          .config=${this.config}
+					.entity=${this.config.entity}
+          .width=${this.config.width}
+          .height=${bodyHeight}
+          .icon=${this.config.icon}
+          .colorNum=${config.color_num}
+          .colorCost=${config.color_cost}
+          .cardwidth=${config.cardwidth}
           .cardheight=${config.cardheight}>
         </xiaoshi-state-grid-nodered>
-        <xiaoshi-state-grid-calendar \n
-          .hass=${this.hass}\n
-          .config=${this.config}\n
-          .width=${this.config.width}\n
-          .height=${bodyHeight}\n
-          .colorNum=${config.color_num}\n
+        <xiaoshi-state-grid-calendar 
+          .hass=${this.hass}
+          .config=${this.config}
+					.entity=${this.config.entity}
+          .width=${this.config.width}
+          .height=${bodyHeight}
+          .colorNum=${config.color_num}
           .colorCost=${config.color_cost}>
         </xiaoshi-state-grid-calendar>
-        <xiaoshi-state-grid-chart-day \n
-          .hass=${this.hass}\n
-          .config=${this.config}\n
-          .width=${this.config.width}\n
-          .height=${bodyHeight}\n
-          .colorNum=${config.color_num}\n
+        <xiaoshi-state-grid-chart-day 
+          .hass=${this.hass}
+          .config=${this.config}
+					.entity=${this.config.entity}
+          .width=${this.config.width}
+          .height=${bodyHeight}
+          .colorNum=${config.color_num}
           .colorCost=${config.color_cost}>
         </xiaoshi-state-grid-chart-day>
-        <xiaoshi-state-grid-chart-month \n
-          .hass=${this.hass}\n
-          .config=${this.config}\n
-          .width=${this.config.width}\n
-          .height=${bodyHeight}\n
-          .colorNum=${config.color_num}\n
+        <xiaoshi-state-grid-chart-month 
+          .hass=${this.hass}
+          .config=${this.config}
+					.entity=${this.config.entity}
+          .width=${this.config.width}
+          .height=${bodyHeight}
+          .colorNum=${config.color_num}
           .colorCost=${config.color_cost}>
         </xiaoshi-state-grid-chart-month>
       </div>
@@ -2281,43 +2285,49 @@ export class XiaoshiStateGridPad extends LitElement {
     if (!this.hass) {
       return html`<div>Loading...</div>`;
     }
+
     const config = {
       ...this.config
     };
+
     return html`
       <div class="grid-container">
         <div class="grid-item a">
-          <xiaoshi-state-grid-nodered\n
-            .hass=${this.hass}\n
-            .config=${config}\n
-            .icon=${this.config.icon}\n
-            .colorNum=${config.color_num}\n
-            .colorCost=${config.color_cost}\n
-            .cardwidth=${config.cardwidth}\n
-            .cardheight=${config.cardheight}>\n
+          <xiaoshi-state-grid-nodered
+            .hass=${this.hass}
+            .config=${config}
+						.entity=${this.config.entity}
+            .icon=${this.config.icon}
+            .colorNum=${config.color_num}
+            .colorCost=${config.color_cost}
+            .cardwidth=${config.cardwidth}
+            .cardheight=${config.cardheight}>
           </xiaoshi-state-grid-nodered>
         </div>
         <div class="grid-item b">
-          <xiaoshi-state-grid-calendar\n
-            .hass=${this.hass}\n
-            .config=${config}\n
-            .colorNum=${config.color_num}\n
+          <xiaoshi-state-grid-calendar
+            .hass=${this.hass}
+            .config=${config}
+						.entity=${this.config.entity}
+            .colorNum=${config.color_num}
             .colorCost=${config.color_cost}>
           </xiaoshi-state-grid-calendar>
         </div>
         <div class="grid-item c">
-          <xiaoshi-state-grid-chart-day\n
-            .hass=${this.hass}\n
-            .config=${config}\n
-            .colorNum=${config.color_num}\n
+          <xiaoshi-state-grid-chart-day
+            .hass=${this.hass}
+            .config=${config}
+						.entity=${this.config.entity}
+            .colorNum=${config.color_num}
             .colorCost=${config.color_cost}>
           </xiaoshi-state-grid-chart-day>
         </div>
         <div class="grid-item d">
-          <xiaoshi-state-grid-chart-month\n
-            .hass=${this.hass}\n
-            .config=${config}\n
-            .colorNum=${config.color_num}\n
+          <xiaoshi-state-grid-chart-month
+            .hass=${this.hass}
+            .config=${config}
+						.entity=${this.config.entity}
+            .colorNum=${config.color_num}
             .colorCost=${config.color_cost}>
           </xiaoshi-state-grid-chart-month>
         </div>
