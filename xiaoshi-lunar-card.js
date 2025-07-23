@@ -611,6 +611,7 @@ export class XiaoshiLunar extends LitElement {
     this.year = prevYear;
     this.month = prevMonth;
     this.selectDate(day);
+    this._handleClick();
   }
 
   handleNextMonthDayClick(day) {
@@ -619,12 +620,14 @@ export class XiaoshiLunar extends LitElement {
     this.year = nextYear;
     this.month = nextMonth;
     this.selectDate(day);
+    this._handleClick();
   }
 
   selectDate(day) {
     this.selectedDate = `${this.year}-${this.pad(this.month)}-${this.pad(day)}`;
     this.updateDateEntity();
     this.requestUpdate();
+    this._handleClick();
   }
 
   pad(num) {
@@ -644,7 +647,11 @@ export class XiaoshiLunar extends LitElement {
       });
     }
   }
-
+  
+   _handleClick() {
+     navigator.vibrate(50);
+  }
+  
   _evaluateTheme() {
     try {
       if (!this.config || !this.config.theme) return 'on';
@@ -670,12 +677,14 @@ export class XiaoshiLunar extends LitElement {
     this.year--;
     this.updateSelectedDate();
     this.requestUpdate();
+    this._handleClick();
   }
 
   nextYear() {
     this.year++;
     this.updateSelectedDate();
     this.requestUpdate();
+    this._handleClick();
   }
 
   prevMonth() {
@@ -687,6 +696,7 @@ export class XiaoshiLunar extends LitElement {
     }
     this.updateSelectedDate();
     this.requestUpdate();
+    this._handleClick();
   }
 
   nextMonth() {
@@ -698,6 +708,7 @@ export class XiaoshiLunar extends LitElement {
     }
     this.updateSelectedDate();
     this.requestUpdate();
+    this._handleClick();
   }
 
   goToToday() {
@@ -708,6 +719,7 @@ export class XiaoshiLunar extends LitElement {
     this.selectedDate = `${this.year}-${this.pad(this.month)}-${this.pad(this.day)}`;
     this.updateDateEntity();
     this.requestUpdate();
+    this._handleClick();
   }
 
   updateSelectedDate() {
