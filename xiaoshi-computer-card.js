@@ -349,14 +349,15 @@ export class XiaoshiComputerCard extends LitElement {
       const color = this._getRingColor(value);
       const strokeDasharray = value !== undefined ? `${value} 100` : '0 100';
       const size = 'min(50px, 13vw)'; // 定义基础大小
-      
+      const theme = this._evaluateTheme();
+      const fgColor = theme === 'on' ? 'rgb(150, 150, 150)' : 'rgb(240, 240, 240)';
     return html`
         <div class="ring-container">
             <svg class="ring-circle" 
                  width=${size} 
                  height=${size}
                  viewBox="0 0 40 40">
-                <circle cx="20" cy="20" r="15.915" fill="none" stroke="#eeeeee" stroke-width="3"></circle>
+                <circle cx="20" cy="20" r="15.915" fill="none" stroke="${fgColor}" stroke-width="3"></circle>
                 <circle cx="20" cy="20" r="15.915" fill="none" stroke="${color}" 
                         stroke-width="3" stroke-dasharray="${strokeDasharray}"></circle>
             </svg>
