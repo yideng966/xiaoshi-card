@@ -766,6 +766,10 @@ export class XiaoshiClimateCard extends LitElement {
     `;
 }
 
+   _handleClick() {
+     navigator.vibrate(50);
+  }
+  
   _formatSeconds(totalSeconds) {
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -908,6 +912,7 @@ export class XiaoshiClimateCard extends LitElement {
       this._callService(domain, service, {
           entity_id: entityId
       });
+      this._handleClick();
   }
 
   _adjustTemperature(direction) {
@@ -923,11 +928,11 @@ export class XiaoshiClimateCard extends LitElement {
       } else {
           newTemp -= step;
       }
-      
       this._callService('climate', 'set_temperature', {
           entity_id: this.config.entity,
           temperature: newTemp
       });
+      this._handleClick();
   }
 
   _getSwingIcon(mode) {
@@ -1097,6 +1102,7 @@ export class XiaoshiClimateCard extends LitElement {
     this._callService('climate', 'turn_off', {
         entity_id: this.config.entity
     });
+    this._handleClick();
   }
 
   _togglePower() {
@@ -1105,12 +1111,15 @@ export class XiaoshiClimateCard extends LitElement {
           this._callService('climate', 'turn_on', {
               entity_id: this.config.entity
           });
+          this._handleClick();
       } else {
           this._callService('climate', 'turn_off', {
               entity_id: this.config.entity
           });
         this._cancelTimer();
+        this._handleClick();
       }
+      
   }
 
   _setHvacMode(mode) {
@@ -1118,6 +1127,7 @@ export class XiaoshiClimateCard extends LitElement {
           entity_id: this.config.entity,
           hvac_mode: mode
       });
+      this._handleClick();
   }
 
   _setFanMode(mode) {
@@ -1125,6 +1135,7 @@ export class XiaoshiClimateCard extends LitElement {
           entity_id: this.config.entity,
           fan_mode: mode
       });
+      this._handleClick();
   }
 
   _setSwingMode(mode) {
@@ -1132,10 +1143,12 @@ export class XiaoshiClimateCard extends LitElement {
           entity_id: this.config.entity,
           swing_mode: mode
       });
+      this._handleClick();
   }
 
   _callService(domain, service, data) {
       this.hass.callService(domain, service, data);
+      this._handleClick();
   }
 }
 customElements.define('xiaoshi-climate-card', XiaoshiClimateCard);
