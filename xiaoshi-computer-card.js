@@ -224,6 +224,10 @@ export class XiaoshiComputerCard extends LitElement {
       this._waveHeightRatio = 0.3; 
   }
 
+   _handleClick() {
+     navigator.vibrate(50);
+  }
+  
   _evaluateTheme() {
       try {
           if (!this.config || !this.config.theme) return 'on';
@@ -475,6 +479,7 @@ export class XiaoshiComputerCard extends LitElement {
       this.hass.callService('homeassistant', service, {
               entity_id: this.config.entity
       });
+      this._handleClick();
   }
 }
 
