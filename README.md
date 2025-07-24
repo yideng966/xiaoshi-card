@@ -122,7 +122,7 @@ style:
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid-calendar
-entity: sensor.state_grid   # 青龙+NR实体
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
 theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
 height: 330px               # 总高度
 width: 380px                # 总宽度
@@ -135,7 +135,7 @@ color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
 **引用示例**
 ~~~
 type: custom:xiaoshi-state-grid-nodered
-entity: sensor.state_grid   # 青龙+NR实体
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
 button: button.qinglong     # 刷新按钮
 title: 电费信息              # 标题，默认电费信息
 titleFontSize: 20px         # 标题字体大小
@@ -147,7 +147,11 @@ cardwidth: 70px             # 每个按钮宽度
 cardheight: 35px            # 每个按钮高度
 color_num: '#FF6347'        # 电量颜色，默认值：'#FF6347'
 color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
+t_num: none                 # 有此项时，不显示尖相关数据
+p_num: none                 # 有此项时，不显示峰相关数据
 n_num: none                 # 有此项时，不显示平相关数据
+v_num: none                 # 有此项时，不显示谷相关数据
+icon: none                  # 有此项时，不显示图标
 balance_name: '电费余额'     # 电费余额的名字
 ~~~
 
@@ -177,7 +181,55 @@ n_num: none                 # 有此项时，不显示平相关数据
 balance_name: '电费余额'     # 电费余额的名字
 ~~~
 
-## 功能12：万年历手机端（需要配合NR）
+## 功能12：国网图表（日统计图表）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid-chart-day
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 330px               # 总高度
+width: 380px                # 总宽度
+color_num: '#FF6347'        # 电量颜色，默认值：'#FF6347'
+color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
+~~~
+
+## 功能13：国网图表（月统计图表）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid-chart-month
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 330px               # 总高度
+width: 380px                # 总宽度
+color_num: '#FF6347'        # 电量颜色，默认值：'#FF6347'
+color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
+~~~
+
+## 功能14：国网UI（手机端整合）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid-phone
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 330px               # 总高度
+width: 380px                # 总宽度
+color_num: '#FF6347'        # 电量颜色，默认值：'#FF6347'
+color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
+~~~
+
+## 功能15：国网UI（平板端整合）
+**引用示例**
+~~~
+type: custom:xiaoshi-state-grid-pad
+entity: sensor.state_grid   # 青龙NR实体 或 HASS集成NR实体
+theme: "off"                # 选项on是白色，选项off是黑色，也可以引用全局函数：'[[[ return theme()]]]'
+height: 330px               # 总高度
+width: 380px                # 总宽度
+color_num: '#FF6347'        # 电量颜色，默认值：'#FF6347'
+color_cost: '#804aff'       # 电费颜色，默认值：'#804aff'
+~~~
+
+## 功能16：万年历手机端（需要配合NR）
 **引用示例**
 ~~~
 type: custom:xiaoshi-lunar-phone
@@ -188,7 +240,7 @@ height: 90vh                # 总高度
 width: 100%                 # 总宽度
 ~~~
 
-## 功能13：万年历平板端（需要配合NR）
+## 功能17：万年历平板端（需要配合NR）
 **引用示例**
 ~~~
 type: custom:xiaoshi-lunar-pad
@@ -198,7 +250,7 @@ theme: "off"                # 选项on是白色，选项off是黑色，也可以
 ~~~
 
 
-## 功能14：万年历-其他零散card（需要配合NR）
+## 功能18：万年历-其他零散card（需要配合NR）
 **引用示例**
 ~~~
 type: custom:xiaoshi-lunar
@@ -222,4 +274,36 @@ type: xiaoshi-lunar-right3
 type: xiaoshi-lunar-right4
 type: xiaoshi-lunar-right5
 type: xiaoshi-lunar-right6
+~~~
+
+## 功能19：空调卡片
+**引用示例**
+~~~
+type: custom:xiaoshi-climate-card
+entity: climate.kongtiao_keting
+timer: timer.ke_ting_kong_diao_ding_shi_qi   ## 辅助元素：定时器实体
+theme: on                                    ## 可选on、off、或者函数返回值如'[[[ return theme() ]]]'
+auto_show: true                              ## 当有此选项时，空调关闭时，卡片隐藏
+width: 100%                                  ## 卡片宽度，可省略，默认100%
+buttons:                                     ## 附加按钮：辅热、节能、干燥、睡眠、提示音、指示灯等，没有可省略
+  - switch.kongtiao_dryer_keting             ## 没有可省略
+  - switch.kongtiao_eco_keting               ## 没有可省略
+  - switch.kongtiao_heater_keting            ## 没有可省略
+  - switch.kongtiao_sleep_keting             ## 没有可省略
+  - switch.kongtiao_alarm_keting             ## 没有可省略
+  - light.kongtiao_light_keting              ## 没有可省略
+~~~
+## 功能20：电脑卡片
+**引用示例**
+~~~
+type: custom:xiaoshi-computer-card
+entity: switch.diannao                       ## 电脑开关实体（来源开机卡）
+theme: on                                    ## 可选on、off、或者函数返回值如'[[[ return theme() ]]]'
+cpu: sensor.pc_cpu_usage                     ## 实体来源：windows电脑安装 IOT link，配置HA的mqtt服务器
+memory: sensor.pc_memory_usage               ## 实体来源：官网https://iotlink.gitlab.io/downloads.html
+storage:
+  - sensor.pc_storage_c_usage                ## 实体来源：同上
+  - sensor.pc_storage_d_usage                ## 实体来源：同上
+  - sensor.pc_storage_e_usage                ## 实体来源：同上
+  - sensor.pc_storage_f_usage                ## 实体来源：同上
 ~~~
